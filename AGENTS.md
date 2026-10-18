@@ -157,7 +157,7 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 | Spec | Tema | Peso rúbrica | Estado |
 |---|---|---|---|
 | 001 | Escenario JSON, modelo y validación | 5 % (+ base de todo) | ✅ implementada (falta revisión de Daniel) |
-| 002 | Modelo de estado, acciones y reglas | 15 % | 📝 especificada |
+| 002 | Modelo de estado, acciones y reglas | 15 % | ✅ implementada (falta revisión de Daniel) |
 | 003 | BFS, DFS, UCS + métricas | 15 % | 📝 especificada |
 | 004 | A\*, heurísticas y Beam Search | 20 % | 📝 especificada |
 | 005 | Minimax, alfa‑beta y utilidad | 20 % | 📝 especificada |

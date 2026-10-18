@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | borrador |
+| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Modelado del problema y representación de estados (15 %) |
 | Depende de | 001 |
@@ -47,13 +47,11 @@ class EstadoJuego:
 
 ### 3.2 Acciones
 ```python
-@dataclass(frozen=True)
-class Accion:
-    tipo: str             # "MOVER" | "INTERCEPTAR" | "PASAR"
-    unidad: str | None    # id de la unidad que actúa (None en PASAR)
-    direccion: str | None # "arriba" | "abajo" | "izquierda" | "derecha" (solo MOVER)
-    destino: Pos | None
-    objetivo: str | None  # id de la unidad interceptada (solo INTERCEPTAR)
+class Accion(NamedTuple):
+    tipo: str                 # "MOVER" | "INTERCEPTAR" | "PASAR"
+    unidad: str | None = None # id de la unidad que actúa (None en PASAR)
+    destino: Pos | None = None  # solo MOVER
+# INTERCEPTAR no necesita "objetivo": solo puede haber un portador enemigo.
 ```
 
 ### 3.3 Reglas (deterministas)
@@ -66,7 +64,7 @@ class Accion:
 | R5 | **INTERCEPTAR:** una unidad **adyacente** (4‑vecindad) al portador **enemigo** le quita el recurso: `portador = interceptor`. Nadie se mueve. Costo 0. Esta es la regla de *pérdida del portador*. |
 | R6 | **Entrega / victoria:** tras aplicar cualquier acción, si el portador está en la base de **su** bando, ese bando gana (estado terminal). |
 | R7 | **Bloqueo total:** si el bando en turno no tiene ninguna acción MOVER ni INTERCEPTAR legal, su única acción es **PASAR** (costo 0). |
-| R8 | **Empate:** si `turnos_jugados ≥ max_turnos` (por defecto 200; configurable en `juego.max_turnos`), el estado es terminal con empate. También es empate si ambos bandos pasan consecutivamente (nadie puede moverse nunca más). |
+| R8 | **Empate:** si `turnos_jugados ≥ max_turnos` (por defecto 200; configurable en `juego.max_turnos`), el estado es terminal con empate. (Si nadie puede moverse, ambos bandos pasan hasta llegar al límite: no hace falta otra regla ni otro campo en el estado.) |
 | R9 | **Sin ruta** (modo búsqueda): el algoritmo termina con `exito = false`, camino vacío y métricas completas; no es un error. |
 | R10 | **Orden de generación:** unidades del bando en el orden del JSON; para cada unidad, primero INTERCEPTAR (si aplica) y luego MOVER en `orden_movimientos` (por defecto `abajo, arriba, derecha, izquierda`, el mismo de los notebooks de clase). El orden global se puede alterar con `juego.orden_acciones ∈ {natural, inverso, heuristico}` (spec 005). |
 
@@ -74,22 +72,22 @@ class Accion:
 
 ### 3.4 Problemas de búsqueda (modo `busqueda`)
 ```python
-class ProblemaBusqueda(Protocol):
-    def estado_inicial(self) -> Hashable
-    def es_objetivo(self, s) -> bool
-    def sucesores(self, s) -> list[tuple[accion, Hashable, float]]  # (acción, estado, costo) en orden determinista
-    def posicion(self, s) -> Pos        # para dibujar y verificar
+# Interfaz que usan todos los algoritmos (tacticalgrid/busqueda/problema.py)
+problema.inicio            # estado inicial
+problema.es_objetivo(s)    # prueba de objetivo
+problema.sucesores(s)      # [(estado_siguiente, costo), ...] en orden determinista
 ```
-- `ProblemaNavegacion(escenario, inicio, objetivo, orden_movimientos, bloqueadas=frozenset())` — estado `Pos`.
-- `ProblemaMision(escenario, unidad, orden_movimientos)` — estado `(Pos, lleva: bool)`; objetivo `(base_propia, True)`; al entrar a la celda del recurso `lleva` pasa a `True`.
+- `ProblemaNavegacion(escenario, inicio, objetivo, orden=ORDEN_MOVIMIENTOS, bloqueadas=())` — estado `Pos`.
+- `ProblemaMision(escenario, id_unidad, orden=ORDEN_MOVIMIENTOS, bloqueadas=())` — estado `(Pos, lleva: bool)`; objetivo `(base_propia, True)`; al entrar a la celda del recurso `lleva` pasa a `True`.
 - **D-05:** en modo búsqueda las demás unidades se **ignoran** ("se ignorará temporalmente el comportamiento del adversario"). Con `prueba.unidades_bloquean: true` sus celdas se tratan como obstáculos.
 - Costo de un camino = Σ costo de **entrar** a cada celda después de la inicial.
 
-### 3.5 Funciones de reglas (`tacticalgrid/juego/reglas.py`)
+### 3.5 Funciones (`tacticalgrid/juego/estado.py` y `tacticalgrid/juego/reglas.py`)
 ```python
-estado_inicial(escenario) -> EstadoJuego
+estado_inicial(escenario) -> EstadoJuego                 # estado.py
 acciones_legales(escenario, estado, orden=...) -> list[Accion]
-aplicar(escenario, estado, accion) -> EstadoJuego        # lanza AccionIlegal si no es legal
+aplicar(escenario, estado, accion) -> EstadoJuego        # lanza ValueError si no es legal
+costo_accion(escenario, accion) -> float                 # costo(destino) al MOVER; 0 en otro caso
 es_terminal(escenario, estado) -> bool
 ganador(escenario, estado) -> str | None                 # "A", "B" o None (empate / no terminal)
 validar_estado(escenario, estado) -> list[str]           # invariantes (usado por spec 006)
@@ -104,21 +102,21 @@ validar_estado(escenario, estado) -> list[str]           # invariantes (usado po
 - **CA-002-5** INTERCEPTAR solo es legal si hay adyacencia con el portador enemigo y transfiere la posesión. → `test_reglas.py::test_interceptar`
 - **CA-002-6** Bando sin movimientos ⇒ única acción PASAR; límite de turnos ⇒ empate. → `test_reglas.py::test_bloqueo_y_empate`
 - **CA-002-7** `acciones_legales` es determinista y respeta el orden configurado. → `test_reglas.py::test_orden_determinista`
-- **CA-002-8** Para todo estado alcanzable en 3 jugadas desde los escenarios de `escenarios/casos/`, `validar_estado` no reporta errores (prueba de propiedad). → `test_reglas.py::test_invariantes_alcanzables`
+- **CA-002-8** Para todo estado alcanzado en 300 partidas aleatorias de 30 jugadas (semilla 0), `validar_estado` no reporta errores (prueba de propiedad). → `test_reglas.py::test_invariantes_alcanzables`
 - **CA-002-9** Las reglas son simétricas: intercambiar los bandos de un escenario produce acciones espejo. → `test_reglas.py::test_simetria_bandos`
 
 ## 5. Tareas
-- [ ] T1 `EstadoJuego`, `Accion` y `estado_inicial` — Daniel
-- [ ] T2 `acciones_legales` + `aplicar` (R1–R7, R10) — Daniel
-- [ ] T3 `es_terminal`, `ganador`, empate (R8) — Daniel
-- [ ] T4 `ProblemaNavegacion` y `ProblemaMision` — Juan (lo necesita la spec 003)
-- [ ] T5 `validar_estado` (invariantes) — Daniel
-- [ ] T6 Tests CA‑002‑1…9 — Daniel
+- [x] T1 `EstadoJuego`, `Accion` y `estado_inicial` — implementado con Claude; revisa Daniel
+- [x] T2 `acciones_legales` + `aplicar` (R1–R7, R10) — implementado con Claude; revisa Daniel
+- [x] T3 `es_terminal`, `ganador`, empate (R8) — implementado con Claude; revisa Daniel
+- [x] T4 `ProblemaNavegacion` y `ProblemaMision` — implementado con Claude; revisa Daniel
+- [x] T5 `validar_estado` (invariantes) — implementado con Claude; revisa Daniel
+- [x] T6 Tests CA‑002‑1…9 — implementado con Claude; revisa Daniel
 - [ ] T7 Sección "Modelado" del documento técnico — Daniel + Juan
 
 ## 6. Para sustentar
 - *Explique la representación de un estado.* → Los 5 campos y por qué cada uno es necesario (§3.1).
 - *¿Por qué `(fila, columna)` no basta?* → Varias unidades, posesión del recurso, turno y límite de turnos cambian las acciones y el valor.
 - *¿Qué pasa si el portador es interceptado?* → R5: el interceptor pasa a ser portador; nadie se mueve.
-- *¿Qué pasa si una unidad queda encerrada?* → Se mueven las otras; si ninguna puede, el bando PASA (R7); si ambos pasan, empate.
+- *¿Qué pasa si una unidad queda encerrada?* → Se mueven las otras; si ninguna puede, el bando PASA (R7); si nadie puede moverse, se llega al límite de turnos y es empate (R8).
 - *¿Por qué no se puede entrar a la base enemiga?* → Sin R3 el juego tiene una estrategia trivial que lo vuelve inganable.

@@ -36,10 +36,9 @@ config.py: ÚNICO lugar con valores por defecto (orden de movimientos, pesos, ma
 | `escenario/modelo.py` | `Unidad`, `Escenario` (consultas: `dentro`, `transitable`, `costo`, `costo_minimo`, `vecinos`) | 001 |
 | `escenario/validador.py` | `validar(datos) -> list[str]`: 9 reglas del enunciado + R10 | 001 |
 | `escenario/cargador.py` | `cargar_escenario(ruta|dict)`: valida → construye → devuelve (o lanza `EscenarioInvalido`) | 001 |
-| `juego/estado.py` | `EstadoJuego` (inmutable, hashable) | 002 |
-| `juego/acciones.py` | `Accion` (MOVER, INTERCEPTAR, PASAR) | 002 |
-| `juego/reglas.py` | `estado_inicial`, `acciones_legales`, `aplicar`, `es_terminal`, `ganador`, `validar_estado` | 002 |
-| `busqueda/problema.py` | `ProblemaBusqueda` (protocolo), `ProblemaNavegacion`, `ProblemaMision` | 002/003 |
+| `juego/estado.py` | `EstadoJuego` (inmutable, hashable), `Accion`, `estado_inicial` | 002 |
+| `juego/reglas.py` | `acciones_legales`, `aplicar`, `costo_accion`, `es_terminal`, `ganador`, `validar_estado` | 002 |
+| `busqueda/problema.py` | `ProblemaNavegacion`, `ProblemaMision` (interfaz: `inicio`, `es_objetivo`, `sucesores`) | 002/003 |
 | `busqueda/resultado.py`, `metricas.py` | `ResultadoBusqueda` y contador de métricas con definición única | 003 |
 | `busqueda/no_informada.py` | `bfs`, `dfs` | 003 |
 | `busqueda/costo_uniforme.py` | `costo_uniforme` | 003 |
