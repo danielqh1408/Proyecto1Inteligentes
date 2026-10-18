@@ -36,7 +36,7 @@ Docente: **Jairo I. Vélez B.** — Universidad de Caldas, Ingeniería de Sistem
 
 ## 3. Stack (decidido en `docs/DECISIONES.md`)
 
-- **Python 3.12** (igual que los notebooks del curso). Núcleo **solo con librería estándar**: `heapq`, `collections.deque`, `itertools.count`, `dataclasses`, `json`, `time`, `math`.
+- **Python 3.11+** (probado en 3.11 y 3.12, como los notebooks del curso). Núcleo **solo con librería estándar**: `heapq`, `collections.deque`, `itertools.count`, `dataclasses`, `json`, `time`, `math`.
 - **Interfaz gráfica:** `tkinter` (stdlib) — Canvas para la cuadrícula + `ttk` para controles y tablas de métricas.
 - **Pruebas:** `pytest`.
 - **Gráficas de experimentos (opcional):** `matplotlib` (ya usado en clase).
@@ -56,7 +56,7 @@ python -m tacticalgrid gui [escenario.json]                        # interfaz gr
 pytest -q                                                          # arnés de pruebas
 ```
 
-> macOS con Python de Homebrew: `tkinter` requiere `brew install python-tk@3.12`.
+> macOS con Python de Homebrew: `tkinter` requiere `brew install python-tk@3.12`. Alternativa sin instalar nada del sistema: `uv venv -p 3.11` (el Python de uv trae Tk).
 
 ## 5. Estructura del repositorio (objetivo)
 
@@ -162,8 +162,8 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 | 004 | A\*, heurísticas y Beam Search | 20 % | ✅ implementada (falta revisión) |
 | 005 | Minimax, alfa‑beta y utilidad | 20 % | ✅ implementada (falta revisión) |
 | 006 | Verificación de soluciones | 5 % | ✅ implementada (falta revisión) |
-| 007 | Interfaz y visualización | 5 % | 📝 especificada |
+| 007 | Interfaz y visualización | 5 % | ✅ implementada (falta revisión visual) |
 | 008 | Casos mínimos y experimentación | 10 % | ✅ implementada (falta interpretación escrita) |
-| 009 | Documentación y entregables | 10 % | 📝 especificada |
+| 009 | Documentación y entregables | 10 % | 🔨 en progreso (manual y documento técnico por redactar) |
 
 Leyenda: 📝 especificada · 🔨 en progreso · ✅ implementada y probada · 🎤 lista para sustentar.

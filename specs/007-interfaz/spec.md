@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | borrador |
+| Estado | **implementada** (falta revisión visual de los integrantes y capturas para el manual) |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Interfaz y visualización (5 %) — pero es **la herramienta de la sustentación** |
 | Depende de | 001 (crece con cada spec) |
@@ -26,6 +26,12 @@ La GUI no es el centro de la nota, pero en la sustentación el profesor cargará
 Stdlib, diálogo de archivos nativo, `Canvas` suficiente para una cuadrícula, `ttk.Treeview` para tablas. Alternativas: Pygame (sin widgets ni diálogo de archivos), Streamlit (incómodo para juego por turnos), web (otro stack). Ver `docs/DECISIONES.md`.
 
 ## 4. Diseño
+
+> **Implementado (un solo archivo):** `tacticalgrid/interfaz/app.py` (~330 líneas) con la clase `App`. Lienzo a la izquierda; pestañas *Búsqueda* y *Adversarial / Partida* a la derecha; tabla de métricas acumulada, exportar a JSON, cuadro de texto con resultados y botón **Verificar**. Clic en el mapa = objetivo de la búsqueda. Animación de la exploración con `after()`. Partida: cada bando puede ser HUMANO (lista de acciones legales), MINIMAX, ALFA_BETA o VORAZ. Comando: `python -m tacticalgrid gui [json]`.
+> Probado con la ventana oculta (todos los botones, sin errores de callbacks). **Falta revisión visual humana.**
+> Para ejecutar en macOS: el Python de Homebrew no trae Tk (`brew install python-tk@3.12`); el Python que instala `uv` sí lo trae (`uv venv -p 3.11`).
+>
+> Bosquejo original (se simplificó a un archivo):
 ```
 tacticalgrid/interfaz/
 ├── app.py            # ventana principal, EstadoAplicacion (escenario activo, resultados)
@@ -50,10 +56,10 @@ tacticalgrid/interfaz/
 - **CA-007-5** `tests/test_interfaz_import.py` verifica que `tacticalgrid.interfaz` no es importado por ningún módulo de capas inferiores (prueba de arquitectura).
 
 ## 6. Tareas
-- [ ] T1 Lienzo + paleta + leyenda — Daniel
-- [ ] T2 Panel escenario (cargar / errores / info de turno y portador) — Daniel
-- [ ] T3 Panel búsqueda + animación + tabla de métricas — Daniel (con Juan)
-- [ ] T4 Panel adversarial (valores raíz, desglose) — Daniel
-- [ ] T5 Panel partida — Daniel
-- [ ] T6 Botón verificar + exportar — Daniel
+- [x] T1 Lienzo + paleta + leyenda — implementado con Claude; revisa Juan
+- [x] T2 Panel escenario (cargar / errores / info de turno y portador) — implementado con Claude; revisa Juan
+- [x] T3 Panel búsqueda + animación + tabla de métricas — implementado con Claude; revisa Juan
+- [x] T4 Panel adversarial (valores raíz, desglose) — implementado con Claude; revisa Juan
+- [x] T5 Panel partida — implementado con Claude; revisa Juan
+- [x] T6 Botón verificar + exportar — implementado con Claude; revisa Juan
 - [ ] T7 Capturas para el manual de usuario — Juan

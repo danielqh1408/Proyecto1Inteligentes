@@ -21,14 +21,7 @@
 ## 2. Documentación de métodos (obligatoria)
 Plantilla en `AGENTS.md §7` con los 7 campos: **Purpose, Preconditions, Postconditions, Complexity, AI usage, AI intervention, Student validation**.
 
-Métodos que **deben** tenerla (lista auditada automáticamente):
-`escenario.validador.validar`, `escenario.cargador.cargar_escenario`, `escenario.modelo.Escenario.costo`, `escenario.modelo.Escenario.vecinos`,
-`juego.estado.estado_inicial`, `juego.reglas.acciones_legales`, `juego.reglas.aplicar`, `juego.reglas.validar_estado`,
-`busqueda.problema.ProblemaNavegacion.sucesores`, `busqueda.problema.ProblemaMision.sucesores`,
-`busqueda.algoritmos.bfs`, `busqueda.algoritmos.dfs`, `busqueda.algoritmos.costo_uniforme`, `busqueda.algoritmos.a_estrella`, `busqueda.algoritmos.beam_search`,
-`busqueda.heuristicas.manhattan`, `busqueda.heuristicas.obstaculos`, `busqueda.heuristicas.crear_heuristica`,
-`adversarial.utilidad.evaluar`, `adversarial.utilidad.utilidad_terminal`, `adversarial.distancias.precalcular`, `adversarial.minimax.minimax`, `adversarial.alfa_beta.alfa_beta`, `adversarial.orden.ordenar_acciones`,
-`verificacion.verificador.verificar_camino`, `verificacion.verificador.verificar_estado`, `verificacion.verificador.verificar_decision`.
+Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.py` (fuente única de verdad; 24 métodos: validador, cargador, costo/vecinos, estado inicial, reglas, sucesores, los 5 algoritmos, heurísticas, distancias, evaluación, decidir, orden de acciones y verificador).
 
 **Arnés:** `tests/test_documentacion.py` importa cada método de la lista y falla si su docstring no contiene los 7 rótulos o si `Student validation` sigue en `PENDIENTE` al momento de la entrega (`pytest -m entrega`).
 
@@ -49,7 +42,7 @@ Métodos que **deben** tenerla (lista auditada automáticamente):
 - **CA-009-4** `git shortlog -sn` muestra commits de ambos integrantes en código (no solo en documentación).
 
 ## 6. Tareas
-- [ ] T1 `tests/test_documentacion.py` (auditor de docstrings) — Juan
+- [x] T1 `tests/test_documentacion.py` (auditor de docstrings) — implementado con Claude
 - [ ] T2 Manual de usuario con capturas — Juan
 - [ ] T3 Documento técnico (secciones según responsable de cada spec) — Ambos
 - [ ] T4 Completar `Student validation` real en cada método — **cada autor**
