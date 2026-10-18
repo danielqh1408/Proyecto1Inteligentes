@@ -161,7 +161,7 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 | 003 | BFS, DFS, UCS + métricas | 15 % | ✅ implementada (falta revisión) |
 | 004 | A\*, heurísticas y Beam Search | 20 % | ✅ implementada (falta revisión) |
 | 005 | Minimax, alfa‑beta y utilidad | 20 % | ✅ implementada (falta revisión) |
-| 006 | Verificación de soluciones | 5 % | 📝 especificada |
+| 006 | Verificación de soluciones | 5 % | ✅ implementada (falta revisión) |
 | 007 | Interfaz y visualización | 5 % | 📝 especificada |
 | 008 | Casos mínimos y experimentación | 10 % | 📝 especificada |
 | 009 | Documentación y entregables | 10 % | 📝 especificada |

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | borrador |
+| Estado | **implementada** (falta revisión de Juan y validación de estudiante en docstrings) |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Validación de escenarios y soluciones (5 %) |
 | Depende de | 002, 003, 005 |
@@ -21,6 +21,11 @@
 - **RF-006-7** Opción de verificación accesible desde la GUI y la CLI (`--verificar`).
 
 ## 3. Diseño
+
+> **Implementado (versión simple):** `tacticalgrid/verificacion/verificador.py` con `verificar_camino`, `verificar_decision`, `verificar_minimax_vs_alfabeta` y `texto`. Cada una devuelve `[(chequeo, ok), ...]` (sin clases). No hay "modo auditoría" aparte: `reglas.aplicar` ya rechaza cualquier acción ilegal, así que Minimax no puede generar un hijo ilegal, y `verificar_decision` comprueba que los estados de la raíz son válidos (`validar_estado`). CLI: `buscar ... --verificar`, `decidir ... --verificar`; `ejecutar` verifica siempre.
+> Beam sin éxito no se compara con BFS: Beam no es completo y puede fallar aunque exista camino (caso 5).
+>
+> Bosquejo original (referencia):
 ```python
 @dataclass(frozen=True)
 class Chequeo: nombre: str; ok: bool; detalle: str
@@ -52,11 +57,11 @@ Un camino con `exito = False` se verifica como: camino vacío, costo 0, y (opcio
 - **CA-006-5** El modo auditoría no reporta violaciones en los casos 7–10. → `test_verificador.py::test_auditoria_arbol`
 
 ## 5. Tareas
-- [ ] T1 `Chequeo` / `ReporteVerificacion` — Daniel
-- [ ] T2 `verificar_camino` (+ misión) — Daniel
-- [ ] T3 `verificar_estado`, `verificar_decision`, `verificar_minimax_vs_alfabeta` — Daniel
-- [ ] T4 Modo auditoría en minimax/alfa‑beta — Daniel
-- [ ] T5 Tests CA‑006‑1…5 — Daniel
+- [x] T1 `Chequeo` / `ReporteVerificacion` — implementado con Claude; revisa Juan
+- [x] T2 `verificar_camino` (+ misión) — implementado con Claude; revisa Juan
+- [x] T3 `verificar_estado`, `verificar_decision`, `verificar_minimax_vs_alfabeta` — implementado con Claude; revisa Juan
+- [x] T4 ~~Modo auditoría~~ innecesario: `aplicar` valida legalidad en cada nodo — revisa Juan
+- [x] T5 Tests CA‑006‑1…5 — implementado con Claude; revisa Juan
 
 ## 6. Para sustentar
 - *¿Cómo sabe que el costo reportado es correcto?* → El verificador lo recalcula sumando `costo(celda)` del escenario, independiente del algoritmo.
