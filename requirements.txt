@@ -1,0 +1,4 @@
+# TacticalGrid — Sistemas Inteligentes I (Python 3.12)
+# El núcleo (tacticalgrid/) usa solo la librería estándar. La GUI usa tkinter (stdlib).
+pytest>=8.0
+matplotlib>=3.8   # opcional: gráficas de experimentos

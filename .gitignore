@@ -1,0 +1,17 @@
+# Entornos y caché
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+# Sistema
+.DS_Store
+Thumbs.db
+# Editores
+.vscode/
+.idea/
+# Claude Code: configuración personal (la del equipo sí se versiona)
+.claude/settings.local.json
+# Resultados temporales (los oficiales en resultados/ SÍ se versionan)
+resultados/tmp/
