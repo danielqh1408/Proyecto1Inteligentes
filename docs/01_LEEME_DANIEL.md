@@ -163,20 +163,21 @@ Propuesta: lo que **no cambia** (mapa, costos, bases, quién es cada unidad) va 
 
 *Por qué:* con eso se puede calcular todo: las jugadas legales, si alguien ganó, el valor para Minimax. Y cumple lo que pide el PDF: "dos estados con la unidad en la misma casilla pueden ser diferentes si una lleva el recurso".
 *Pregunta:* ¿hace falta guardar "turnos jugados" en el estado? (Yo digo que sí: si hay límite de turnos, el mismo tablero en el turno 10 y en el 200 no es igual.)
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **A2. ¿Qué acciones existen?**
 Propuesta: **MOVER** (arriba, abajo, izquierda, derecha), **INTERCEPTAR** (si estoy al lado del portador enemigo, le quito el recurso) y **PASAR** (solo si no puedo hacer nada más).
 *Alternativas:* agregar "ESPERAR" siempre disponible (más realista, pero el árbol de Minimax crece) o que el recurso caiga al suelo al interceptar (más estados y más casos raros).
-*Pregunta:* ¿interceptar debe quitarle el recurso al otro, o "tumbarlo" y que quede en el suelo?
+*Pregunta:* ¿interceptar debe quitarle el recurso al otro, o "tumbarlo" y que quede en el suelo? ----- (Daniel: Mi propuesta es: el que pierde el recurso vuelve a su posición inicial, y el recurso vuelve a su posición inicial)
 
 > **Actualización (18 oct, al implementar):** sin nada más, dos unidades vecinas se quitaban el recurso en cada turno para siempre (166 intercepciones en 200 turnos). Se agregó: **el que pierde el recurso vuelve a su posición inicial**. Con eso, en un mapa simétrico el agente que mira más lejos gana (ver `resultados/RESUMEN.md`, E6). Dime si prefieres otra solución.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✏️
+Cambio propuesto por Daniel: el que pierde el recurso vuelve a su posición inicial, y el recurso vuelve a su posición inicial.  
 
 **A3. Regla: nadie puede entrar a la base enemiga**
 *Por qué:* las bases son **una sola casilla**. Si no existe esta regla, la estrategia ganadora es parar una unidad encima de la base rival y el rival nunca puede ganar. El juego se rompe y Minimax lo descubriría.
-*Pregunta:* ¿están de acuerdo, o prefieres otra solución (por ejemplo, que la base sea una zona de varias casillas)?
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+*Pregunta:* ¿están de acuerdo, o prefieres otra solución (por ejemplo, que la base sea una zona de varias casillas)? (Daniel: yo digo que es mejor que no puedan entrar a la base enemiga, para evitar que el juego se rompa)
+Tu opinión: ✅
 
 **A4. Bloqueos y empates**
 Propuesta:
@@ -184,22 +185,22 @@ Propuesta:
 - Si los dos pasan seguidos, es empate.
 - Si se llega a un límite de turnos (200 por defecto, se puede cambiar desde el JSON), es empate.
 
-*Pregunta:* ¿200 está bien, o lo dejamos más bajo para que las partidas de demostración sean cortas?
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+*Pregunta:* ¿200 está bien, o lo dejamos más bajo para que las partidas de demostración sean cortas? (Daniel: si se desea se puede cambiar desde el JSON pero por ahora lo dejaremos en 200)
+Tu opinión: ✅
 
 **A5. En modo "búsqueda", ¿las otras unidades estorban?**
 El PDF dice que en la primera etapa se ignora al adversario. Propuesta: **por defecto no estorban**, pero hay una opción en el JSON para tratarlas como obstáculos.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **A6. ¿Unidades iguales o de tipos distintos?**
 Propuesta: **todas iguales** (`estandar`). El PDF lo permite y pide no complicar. Si sobra tiempo, se podría agregar un "explorador" al que el bosque le cueste menos.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 ### Bloque B: Búsqueda (35 % de la nota)
 
 **B1. ¿Cuándo se revisa si se llegó al objetivo?**
 Propuesta: **al sacar el estado de la frontera** en los cinco algoritmos, como en el notebook de UCS/A\*. Así las métricas se pueden comparar entre algoritmos, y es necesario para que UCS y A\* den el óptimo.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **B2. La segunda heurística (la "propia")**
 - **H1 (Manhattan):** filas + columnas de distancia, multiplicado por el costo del terreno más barato del mapa.
@@ -211,18 +212,18 @@ Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
   - No ayuda cuando no hay muros (queda igual a Manhattan) ni cuando lo que importa son los costos del terreno.
 
 *Alternativa:* una heurística que use el costo promedio del terreno. Ayuda más, pero **no es admisible**; la dejaríamos solo como experimento para mostrar que A\* puede equivocarse.
-*Pregunta:* ¿te convence H2 o se te ocurre otra?
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+*Pregunta:* ¿te convence H2 o se te ocurre otra? (Daniel: H2 es buena )
+Tu opinión: ✅
 
 **B3. Beam Search**
 Propuesta: igual que en el notebook. Va por niveles, se queda con los k mejores según la heurística, y lo que se descarta ya no se vuelve a visitar. Por eso con k = 1 puede fallar aunque exista camino, que es exactamente lo que el PDF pide analizar.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 ### Bloque C: Adversarial (20 % de la nota)
 
 **C1. ¿Quién es MAX?**
 Propuesta: **el bando que tiene el turno** cuando se pide la decisión. La función de evaluación es **la misma para los dos con el signo contrario** (lo bueno para A es igual de malo para B). Por eso **MIN no está en desventaja**, que es una pregunta segura en la sustentación.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **C2. La función de utilidad (la diseñamos nosotros)**
 Propuesta:
@@ -240,19 +241,19 @@ Propuesta:
 - Los pesos se pueden cambiar **desde el JSON**, así que si el profesor pregunta "¿qué pasa si cambias los pesos?", lo mostramos en vivo.
 - La interfaz mostrará el **desglose**: por qué una jugada vale más que otra.
 
-*Preguntas:* ¿falta algo? ¿Te parecen bien los pesos como punto de partida? (Los vamos a ajustar con experimentos.)
+*Preguntas:* ¿falta algo? ¿Te parecen bien los pesos como punto de partida? (Los vamos a ajustar con experimentos.) (Daniel: Veo los pesos un poco desequilibrados, el de posesión es muy alto )
 
 > **Actualización (18 oct, al implementar):** al jugar partidas, la versión de 5 componentes hacía que una unidad al lado del recurso **no lo recogiera** (perdía el término de "carrera al recurso" y ganaba uno negativo de "entrega"). Se simplificó a 3 componentes: **posesión**, **carrera** = lo que le falta a cada bando para ganar (con costos reales) y **movilidad**. Detalle en `specs/005-adversarial/spec.md §4`. Revísalo y dime si estás de acuerdo.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **C3. Desempates**
 Propuesta: si dos jugadas valen lo mismo, gana **la primera** en el orden de generación. Así Minimax y alfa‑beta siempre eligen **la misma** jugada (el PDF lo exige y lo vamos a probar automáticamente).
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 ### Bloque D: Tecnología y organización
 
 **D1. Lenguaje:** Python 3.12, como en los notebooks. El núcleo usaría solo la librería estándar; las pruebas, `pytest`.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **D2. Interfaz gráfica: `tkinter`**
 *Por qué:* ya viene con Python, tiene diálogo para abrir archivos (el JSON del profesor), botones, listas y tablas, y un lienzo para dibujar la cuadrícula. El PDF dice que lo visual **no** es el centro de la nota (vale 5 %).
@@ -266,13 +267,13 @@ Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
 python3 -c "import tkinter; tkinter.Tk().mainloop()"
 ```
 Si se abre una ventana vacía, funciona.
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **D3. Reparto de trabajo** (sección 4.1).
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 **D4. Flujo de Git con ramas y Pull Requests revisados por el otro.**
-Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
+Tu opinión: ✅
 
 ---
 
