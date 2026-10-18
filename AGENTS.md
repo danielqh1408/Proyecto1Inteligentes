@@ -74,7 +74,7 @@ PrimerProyecto/
 │   ├── verificacion/         # verificador de caminos, decisiones y estados
 │   ├── experimentos/         # runner reproducible de casos y experimentos
 │   ├── interfaz/             # capa 4: GUI tkinter (no contiene lógica de IA)
-│   └── cli.py · __main__.py
+│   └── __main__.py           # CLI (python -m tacticalgrid ...)
 ├── escenarios/               # JSON: ejemplo del enunciado, casos mínimos 1–10, inválidos, externos
 ├── resultados/               # evidencia reproducible de experimentos (CSV/JSON/MD)
 ├── tests/                    # arnés de pruebas pytest
@@ -131,6 +131,10 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 
 ## 8. Convenciones de código
 
+> ⭐ **Regla de simplicidad (pedida por el equipo, aplica a TODO el proyecto):** el código debe ser tan simple como el de los notebooks de clase. Funciones cortas y directas; **sin** clases, capas, helpers, parámetros u opciones que no se usen hoy; **sin** funciones redundantes que hagan casi lo mismo; sin validaciones o advertencias que el enunciado no pida. Si algo se puede explicar en el tablero en un minuto, está bien; si no, simplifícalo. Las firmas de las specs son orientativas: ante la duda, gana la versión más simple que cumpla los criterios de aceptación.
+
+- Docstrings de los 7 campos **cortos**: una línea por campo es suficiente (ver `tacticalgrid/escenario/modelo.py`).
+- Posiciones como tuplas `(fila, columna)`, igual que en los notebooks (no clases propias).
 - Identificadores **en español** y alineados con el JSON y con los notebooks del curso (`bfs`, `dfs`, `costo_uniforme`, `a_estrella`, `beam_search`, `minimax`, `alfa_beta`, `sucesores`, `frontera`, `visitados`, `mejor_g`).
 - Coordenadas siempre `(fila, columna)`; en JSON `{"fila": f, "columna": c}` o `[f, c]` en caminos.
 - Estados **inmutables y hashables** (`@dataclass(frozen=True)` o tuplas).
@@ -152,7 +156,7 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 
 | Spec | Tema | Peso rúbrica | Estado |
 |---|---|---|---|
-| 001 | Escenario JSON, modelo y validación | 5 % (+ base de todo) | 📝 especificada |
+| 001 | Escenario JSON, modelo y validación | 5 % (+ base de todo) | ✅ implementada (falta revisión de Daniel) |
 | 002 | Modelo de estado, acciones y reglas | 15 % | 📝 especificada |
 | 003 | BFS, DFS, UCS + métricas | 15 % | 📝 especificada |
 | 004 | A\*, heurísticas y Beam Search | 20 % | 📝 especificada |

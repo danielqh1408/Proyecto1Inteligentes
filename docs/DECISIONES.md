@@ -6,7 +6,7 @@
 | ID | Decisión | Estado |
 |---|---|---|
 | D‑01 | Bandos `a/b` se normalizan a `A/B` | propuesta |
-| D‑02 | Validaciones extra = advertencias (salvo unidades superpuestas) | propuesta |
+| D‑02 | Solo las 9 validaciones del PDF + unidades superpuestas (sin advertencias extra) | propuesta |
 | D‑03 | Si hay portador, el recurso está donde está el portador | propuesta |
 | D‑04 | Campos opcionales con valores por defecto en `config.py` | propuesta |
 | D‑05 | En modo búsqueda las otras unidades se ignoran (opción para bloquear) | propuesta |
@@ -25,8 +25,8 @@
 ### D‑01 · Normalización de bandos
 **Contexto:** la sección de validación dice "a o b"; el ejemplo usa `"A"`. **Decisión:** aceptar ambas y normalizar a mayúscula. **Consecuencia:** un JSON con minúsculas del profesor no se rechaza.
 
-### D‑02 · Errores vs advertencias
-**Contexto:** el enunciado lista 9 validaciones; hay otras situaciones raras (base sobre muro, recurso sobre base, mapa < 20×20). **Decisión:** solo las 9 del enunciado (+ dos unidades en la misma celda, que rompe el modelo de estado) son **errores**; el resto son **advertencias** visibles. **Alternativa:** ser más estrictos ⇒ riesgo de rechazar un JSON válido del profesor. **Consecuencia:** la GUI/CLI muestra advertencias sin bloquear.
+### D‑02 · Qué se valida
+**Contexto:** el enunciado lista 9 validaciones; hay otras situaciones raras (base sobre muro, recurso sobre base, mapa < 20×20). **Decisión:** se validan solo las 9 del enunciado, los tipos de dato y que dos unidades no compartan celda (rompería el modelo de estado). Lo demás no se revisa. **Alternativas:** advertencias extra (descartado por la regla de simplicidad: más código sin valor en la nota) o ser más estrictos (riesgo de rechazar un JSON válido del profesor).
 
 ### D‑03 · Recurso con portador
 **Decisión:** si `juego.portador_recurso` ≠ null, el recurso está en la posición de esa unidad; `recurso` se conserva como dato original. **Consecuencia:** el estado nunca tiene recurso "en dos lugares".

@@ -4,7 +4,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ Capa 4 · INTERFAZ          tacticalgrid/interfaz/  (tkinter)   ·  cli.py   │
+│ Capa 4 · INTERFAZ          tacticalgrid/interfaz/  (tkinter) · __main__.py│
 │   solo presenta y orquesta; NO contiene lógica de IA ni reglas            │
 └───────────────┬───────────────────────────┬──────────────────────────────┘
                 │                           │
@@ -33,8 +33,8 @@ config.py: ÚNICO lugar con valores por defecto (orden de movimientos, pesos, ma
 
 | Módulo | Responsabilidad | Spec |
 |---|---|---|
-| `escenario/modelo.py` | `Posicion`, `TipoTerreno`, `UnidadDef`, `ConfigPrueba`, `Escenario` (consultas: `dentro`, `transitable`, `costo`, `costo_minimo`, `vecinos`) | 001 |
-| `escenario/validador.py` | 9 reglas del enunciado + advertencias; reporta **todos** los errores | 001 |
+| `escenario/modelo.py` | `Unidad`, `Escenario` (consultas: `dentro`, `transitable`, `costo`, `costo_minimo`, `vecinos`) | 001 |
+| `escenario/validador.py` | `validar(datos) -> list[str]`: 9 reglas del enunciado + R10 | 001 |
 | `escenario/cargador.py` | `cargar_escenario(ruta|dict)`: valida → construye → devuelve (o lanza `EscenarioInvalido`) | 001 |
 | `juego/estado.py` | `EstadoJuego` (inmutable, hashable) | 002 |
 | `juego/acciones.py` | `Accion` (MOVER, INTERCEPTAR, PASAR) | 002 |
@@ -53,7 +53,7 @@ config.py: ÚNICO lugar con valores por defecto (orden de movimientos, pesos, ma
 | `verificacion/verificador.py` | `verificar_camino`, `verificar_estado`, `verificar_decision`, `verificar_minimax_vs_alfabeta` | 006 |
 | `experimentos/` | `runner`, `experimentos` (E1–E6), `reporte` | 008 |
 | `interfaz/` | `app`, `lienzo`, paneles, `paleta` | 007 |
-| `cli.py`, `__main__.py` | `validar`, `ejecutar`, `buscar`, `decidir`, `experimentos`, `gui` | 001/007/008 |
+| `__main__.py` | `validar`, `ejecutar`, `buscar`, `decidir`, `experimentos`, `gui` | 001/007/008 |
 | `config.py` | valores por defecto (nunca costos) | 000 P3 |
 
 ## 3. Flujo de datos típico

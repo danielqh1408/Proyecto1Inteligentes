@@ -29,13 +29,13 @@
 
 ## 3. Decisiones de diseño (detalle y alternativas en `docs/DECISIONES.md`)
 
-### 3.1 Estado de la partida — `EstadoJuego`
+### 3.1 Estado de la partida — `EstadoJuego`  (`Pos` = tupla `(fila, columna)`)
 ```python
 @dataclass(frozen=True)
 class EstadoJuego:
-    posiciones: tuple[Posicion, ...]   # alineado con escenario.unidades (mismo orden del JSON)
+    posiciones: tuple[Pos, ...]   # alineado con escenario.unidades (mismo orden del JSON)
     portador: str | None               # id de la unidad que lleva el recurso, o None
-    recurso: Posicion | None           # posición del recurso si está libre; None si alguien lo porta
+    recurso: Pos | None           # posición del recurso si está libre; None si alguien lo porta
     turno: str                         # "A" o "B": bando que debe actuar
     turnos_jugados: int                # para la regla de empate por límite de turnos
 ```
@@ -52,7 +52,7 @@ class Accion:
     tipo: str             # "MOVER" | "INTERCEPTAR" | "PASAR"
     unidad: str | None    # id de la unidad que actúa (None en PASAR)
     direccion: str | None # "arriba" | "abajo" | "izquierda" | "derecha" (solo MOVER)
-    destino: Posicion | None
+    destino: Pos | None
     objetivo: str | None  # id de la unidad interceptada (solo INTERCEPTAR)
 ```
 
@@ -78,10 +78,10 @@ class ProblemaBusqueda(Protocol):
     def estado_inicial(self) -> Hashable
     def es_objetivo(self, s) -> bool
     def sucesores(self, s) -> list[tuple[accion, Hashable, float]]  # (acción, estado, costo) en orden determinista
-    def posicion(self, s) -> Posicion        # para dibujar y verificar
+    def posicion(self, s) -> Pos        # para dibujar y verificar
 ```
-- `ProblemaNavegacion(escenario, inicio, objetivo, orden_movimientos, bloqueadas=frozenset())` — estado `Posicion`.
-- `ProblemaMision(escenario, unidad, orden_movimientos)` — estado `(Posicion, lleva: bool)`; objetivo `(base_propia, True)`; al entrar a la celda del recurso `lleva` pasa a `True`.
+- `ProblemaNavegacion(escenario, inicio, objetivo, orden_movimientos, bloqueadas=frozenset())` — estado `Pos`.
+- `ProblemaMision(escenario, unidad, orden_movimientos)` — estado `(Pos, lleva: bool)`; objetivo `(base_propia, True)`; al entrar a la celda del recurso `lleva` pasa a `True`.
 - **D-05:** en modo búsqueda las demás unidades se **ignoran** ("se ignorará temporalmente el comportamiento del adversario"). Con `prueba.unidades_bloquean: true` sus celdas se tratan como obstáculos.
 - Costo de un camino = Σ costo de **entrar** a cada celda después de la inicial.
 
@@ -98,7 +98,7 @@ validar_estado(escenario, estado) -> list[str]           # invariantes (usado po
 
 ## 4. Criterios de aceptación
 - **CA-002-1** El estado inicial del ejemplo del enunciado tiene turno A, sin portador, recurso en (2,2). → `tests/test_reglas.py::test_estado_inicial`
-- **CA-002-2** **Caso 6:** `(Posicion(2,2), False)` y `(Posicion(2,2), True)` son estados distintos (distinto hash, distinto conjunto de objetivo) y `EstadoJuego` con la misma unidad en la misma celda, con y sin recurso, tiene acciones o valor distintos. → `test_reglas.py::test_estado_compuesto`
+- **CA-002-2** **Caso 6:** `((2, 2), False)` y `((2, 2), True)` son estados distintos (distinto hash, distinto conjunto de objetivo) y `EstadoJuego` con la misma unidad en la misma celda, con y sin recurso, tiene acciones o valor distintos. → `test_reglas.py::test_estado_compuesto`
 - **CA-002-3** MOVER nunca lleva a obstáculo, fuera del mapa, celda ocupada ni base enemiga. → `test_reglas.py::test_mover_restricciones`
 - **CA-002-4** Entrar al recurso lo recoge; entrar a la base propia con él gana. → `test_reglas.py::test_recoger_y_entregar`
 - **CA-002-5** INTERCEPTAR solo es legal si hay adyacencia con el portador enemigo y transfiere la posesión. → `test_reglas.py::test_interceptar`

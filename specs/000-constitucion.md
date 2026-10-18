@@ -35,7 +35,7 @@ Métodos relevantes con: Purpose, Preconditions, Postconditions, Complexity, AI 
 "Una funcionalidad que opere correctamente, pero que el estudiante no pueda explicar, justificar o adaptar durante la sustentación, no demostrará dominio suficiente." Ningún código se integra sin que el otro integrante lo haya revisado y pueda explicarlo. La IA se declara siempre.
 
 ## P11. Simplicidad
-Núcleo con librería estándar. Sin combate complejo ni efectos visuales. Se prefiere la solución que se pueda explicar en el tablero.
+Núcleo con librería estándar. Sin combate complejo ni efectos visuales. Código tan simple como el de los notebooks de clase: funciones cortas, sin clases ni capas innecesarias, sin funciones redundantes y sin opciones o validaciones que el enunciado no pida. Se prefiere la solución que se pueda explicar en el tablero.
 
 ## P12. Spec primero
 Cambio de comportamiento ⇒ spec ⇒ test ⇒ código ⇒ documentación. Un PR/commit que cambie comportamiento sin tocar la spec se rechaza en revisión.
