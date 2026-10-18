@@ -107,6 +107,16 @@ def comando_ejecutar(args) -> int:
     return comando_partida(base)
 
 
+def comando_experimentos(args) -> int:
+    from pathlib import Path
+
+    from tacticalgrid.experimentos.reporte import generar
+
+    ok = generar(Path(args.salida))
+    print(f"Resultados en {args.salida}/ (RESUMEN.md y CSV). Casos mínimos: {'todos ✔' if ok else 'hay casos ✘'}")
+    return 0 if ok else 1
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="tacticalgrid", description="TacticalGrid — Sistemas Inteligentes I")
     comandos = parser.add_subparsers(dest="comando", required=True)
@@ -148,6 +158,10 @@ def main(argv=None) -> int:
     p = comandos.add_parser("ejecutar", help="ejecuta lo que pida prueba.modo del JSON")
     p.add_argument("ruta")
     p.set_defaults(funcion=comando_ejecutar)
+
+    p = comandos.add_parser("experimentos", help="ejecuta los 10 casos y los experimentos E1-E6 (resultados/)")
+    p.add_argument("--salida", default="resultados")
+    p.set_defaults(funcion=comando_experimentos)
 
     args = parser.parse_args(argv)
     try:

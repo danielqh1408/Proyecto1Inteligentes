@@ -1,0 +1,10 @@
+profundidad,algoritmo,accion,valor,nodos_generados,nodos_evaluados,nodos_podados,profundidad_alcanzada,tiempo_ms
+1,MINIMAX,"A1 → (9, 8)",-65.0,13,12,0,1,1.746
+1,ALFA_BETA,"A1 → (9, 8)",-65.0,13,12,0,1,0.275
+2,MINIMAX,"A2 → (11, 7)",-71.0,157,144,0,2,2.83
+2,ALFA_BETA,"A2 → (11, 7)",-71.0,47,34,110,2,0.769
+3,MINIMAX,"A2 → (11, 7)",-68.0,1882,1725,0,3,33.655
+3,ALFA_BETA,"A2 → (11, 7)",-68.0,213,166,352,3,3.532
+4,MINIMAX,"A2 → (12, 6)",-77.0,22360,20478,0,4,391.726
+4,ALFA_BETA,"A2 → (12, 6)",-77.0,640,427,1911,4,10.129
+5,ALFA_BETA,"A2 → (12, 6)",-74.0,2652,2012,5013,5,44.63

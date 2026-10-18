@@ -1,0 +1,7 @@
+agente_A,agente_B,resultado,jugadas,intercepciones
+VORAZ(1),VORAZ(1),Gana el bando B en 70 turnos,70,1
+ALFA_BETA(3),VORAZ(1),Gana el bando A en 71 turnos,71,1
+VORAZ(1),ALFA_BETA(3),Gana el bando B en 70 turnos,70,1
+ALFA_BETA(1),ALFA_BETA(3),Gana el bando B en 70 turnos,70,1
+ALFA_BETA(3),ALFA_BETA(1),Gana el bando A en 71 turnos,71,1
+ALFA_BETA(3),ALFA_BETA(3),Empate (límite de turnos),200,0

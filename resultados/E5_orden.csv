@@ -1,0 +1,10 @@
+profundidad,orden,accion,valor,nodos_generados,nodos_evaluados,nodos_podados,profundidad_alcanzada,tiempo_ms
+2,natural,"A2 → (11, 7)",-71.0,47,34,110,2,2.404
+2,inverso,"A2 → (11, 7)",-71.0,131,118,26,2,2.34
+2,heuristico,"A2 → (11, 7)",-71.0,47,34,110,2,3.685
+3,natural,"A2 → (11, 7)",-68.0,213,166,352,3,3.607
+3,inverso,"A2 → (11, 7)",-68.0,1144,1013,426,3,20.414
+3,heuristico,"A2 → (11, 7)",-68.0,213,166,352,3,13.807
+4,natural,"A2 → (12, 6)",-77.0,640,427,1911,4,10.198
+4,inverso,"A2 → (11, 7)",-77.0,11318,10234,1562,4,199.163
+4,heuristico,"A2 → (12, 6)",-77.0,639,426,1911,4,54.81

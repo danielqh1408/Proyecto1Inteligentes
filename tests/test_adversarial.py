@@ -11,7 +11,7 @@ from tacticalgrid.adversarial.utilidad import distancias, evaluar, utilidad_term
 from tacticalgrid.escenario.cargador import cargar_escenario
 from tacticalgrid.experimentos.casos import cargar
 from tacticalgrid.juego.estado import Accion, EstadoJuego, estado_inicial
-from tacticalgrid.juego.reglas import acciones_legales, aplicar, es_terminal
+from tacticalgrid.juego.reglas import acciones_legales, aplicar, es_terminal, ganador
 
 
 def estados_alcanzables(e, cantidad, jugadas, semilla=0):
@@ -94,3 +94,13 @@ def test_partida_termina(datos_ejemplo):
     e = cargar_escenario(datos_ejemplo)
     final, historial = jugar(e, {"A": "ALFA_BETA", "B": "VORAZ"}, {"A": 2})
     assert es_terminal(e, final) and len(historial) == final.turnos_jugados
+
+
+def test_mas_profundidad_gana_en_mapa_simetrico():  # E6: con la regla R5 corregida no hay ciclos de intercepción
+    e = cargar_escenario("escenarios/partida_simetrica.json")
+    for agentes, profundidades, gana in (({"A": "ALFA_BETA", "B": "VORAZ"}, {"A": 3}, "A"),
+                                         ({"A": "VORAZ", "B": "ALFA_BETA"}, {"B": 3}, "B")):
+        final, historial = jugar(e, agentes, profundidades)
+        assert final.turnos_jugados < 200 and sum("intercepta" in a for _, _, a, _ in historial) < 5
+
+        assert ganador(e, final) == gana
