@@ -239,6 +239,8 @@ Propuesta:
 - La interfaz mostrará el **desglose**: por qué una jugada vale más que otra.
 
 *Preguntas:* ¿falta algo? ¿Te parecen bien los pesos como punto de partida? (Los vamos a ajustar con experimentos.)
+
+> **Actualización (18 oct, al implementar):** al jugar partidas, la versión de 5 componentes hacía que una unidad al lado del recurso **no lo recogiera** (perdía el término de "carrera al recurso" y ganaba uno negativo de "entrega"). Se simplificó a 3 componentes: **posesión**, **carrera** = lo que le falta a cada bando para ganar (con costos reales) y **movilidad**. Detalle en `specs/005-adversarial/spec.md §4`. Revísalo y dime si estás de acuerdo.
 Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
 
 **C3. Desempates**

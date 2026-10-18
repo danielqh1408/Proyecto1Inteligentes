@@ -43,11 +43,9 @@ config.py: ÚNICO lugar con valores por defecto (orden de movimientos, pesos, ma
 | `busqueda/algoritmos.py` | `bfs`, `dfs` (comparten `_busqueda_ciega`), `a_estrella`, `costo_uniforme` (= A* con h=0), `beam_search` | 003/004 |
 | `busqueda/heuristicas.py` | `manhattan`, `obstaculos`, `manhattan_promedio`, `crear_heuristica` | 004 |
 | `busqueda/ejecutar.py` | `crear_problema` y `ejecutar_busqueda`: corre la prueba del JSON con cualquier algoritmo | 003/004 |
-| `adversarial/distancias.py` | Dijkstra inverso precalculado por escenario (`Dbase_X`, `Drec_X`) | 005 |
-| `adversarial/utilidad.py` | `utilidad_terminal`, `evaluar` (con desglose) | 005 |
-| `adversarial/orden.py` | `ordenar_acciones(natural|inverso|heuristico)` | 005 |
-| `adversarial/minimax.py`, `alfa_beta.py` | decisión con métricas y variación principal | 005 |
-| `adversarial/partida.py` | bucle por turnos, agentes HUMANO/MINIMAX/ALFA_BETA/VORAZ | 005 |
+| `adversarial/utilidad.py` | `distancias` (4 Dijkstra con caché), `restante`, `evaluar` (con desglose), `utilidad_terminal` | 005 |
+| `adversarial/minimax.py` | `decidir(poda=...)` (una sola recursión), `minimax`, `alfa_beta`, `voraz`, `ordenar_acciones`, `Decision` | 005 |
+| `adversarial/partida.py` | `jugar` (bucle por turnos), `decidir_con`, `resumen_final` | 005 |
 | `verificacion/verificador.py` | `verificar_camino`, `verificar_estado`, `verificar_decision`, `verificar_minimax_vs_alfabeta` | 006 |
 | `experimentos/` | `runner`, `experimentos` (E1–E6), `reporte` | 008 |
 | `interfaz/` | `app`, `lienzo`, paneles, `paleta` | 007 |

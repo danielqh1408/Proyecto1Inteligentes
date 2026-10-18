@@ -37,7 +37,7 @@ Y pruebas de adaptación: cambiar costos, mover obstáculos/bases/unidades/recur
 - **Beam con k=1 vs k=8:** k pequeño = poca memoria, pero puede descartar el único sucesor que llevaba al buen camino; con `visitados` global no se recupera.
 
 ### Adversarial (spec 005)
-- **¿Por qué esta acción vale más?** → Mostrar `valores_raiz` y el desglose (posesión, carrera, entrega, presión, movilidad) de la variación principal.
+- **¿Por qué esta acción vale más?** → `python -m tacticalgrid decidir <json>`: valor de cada acción de la raíz y desglose (posesión, carrera, movilidad) del estado elegido.
 - **¿Por qué MIN no está en desventaja?** → Mismas reglas; la evaluación es de suma cero, `E_A = −E_B`; minimizar E_A es maximizar E_B.
 - **¿Por qué αβ da la misma decisión?** → Solo poda ramas que no pueden cambiar el valor de la raíz; desempate por la primera acción estrictamente mejor.
 - **Efecto del orden de acciones:** cambia cuántas ramas se podan, no el resultado. Mejor caso ≈ O(b^(m/2)).
@@ -52,7 +52,7 @@ Y pruebas de adaptación: cambiar costos, mover obstáculos/bases/unidades/recur
 | P4 | Invertir orden de movimientos | BFS: misma longitud; DFS: camino distinto |
 | P5 | Profundidad 2 → 4 | Más nodos (~b²), más tiempo; la acción puede cambiar |
 | P6 | Orden `heuristico` en vez de `natural` | Más podas, misma acción y valor |
-| P7 | `w_presion = 0` en el caso 7 | La IA deja de perseguir al portador; puede elegir la acción "voraz" |
+| P7 | `juego.pesos_utilidad = {"carrera": 0}` en el caso 7 | Solo cuenta posesión y movilidad: la IA deja de acercarse al recurso o al portador mientras no pueda tomarlo dentro del horizonte |
 | P8 | Mover el recurso junto a la base de B | B gana rápido; Minimax de A prioriza bloquear/interceptar |
 
 ## 4. Modificaciones pequeñas que hay que saber hacer en vivo

@@ -13,7 +13,7 @@
 | D‑06 | Heurísticas: `manhattan`·c_min y `obstaculos` (BFS inverso)·c_min | propuesta |
 | D‑07 | Beam por niveles, criterio h, visitados global (como en clase) | propuesta |
 | D‑08 | MAX = bando en turno en la raíz; evaluación de suma cero simétrica | propuesta |
-| D‑09 | Utilidad de 5 componentes con pesos configurables | propuesta |
+| D‑09 | Utilidad: posesión + carrera (lo que falta para ganar) + movilidad, con pesos configurables | propuesta (cambiada al implementar) |
 | D‑10 | GUI con tkinter | **propuesta — validar con Daniel** |
 | D‑11 | Unidades idénticas (`estandar`) en el MVP | propuesta |
 | D‑12 | Python 3.12, núcleo solo stdlib, pytest | propuesta |
@@ -47,7 +47,7 @@
 **Decisión:** MAX = bando en turno en la raíz. Evaluación simétrica `E_A = −E_B`. **Consecuencia:** el mismo código decide por A o por B; argumento directo de que MIN no está en desventaja.
 
 ### D‑09 · Función de utilidad
-**Decisión:** terminal ±(10 000 − profundidad), 0 empate; no terminal = Σ wᵢfᵢ con posesión, carrera al recurso, progreso de entrega, presión sobre el portador y movilidad (spec 005 §4). **Por qué:** cubre los factores que sugiere el enunciado (posesión, distancias, proximidad del adversario, unidades disponibles, control de posiciones) con distancias **reales** (Dijkstra) coherentes con UCS. **Consecuencia:** pesos ajustables en vivo desde el JSON.
+**Decisión:** terminal ±(10 000 − profundidad), 0 empate; no terminal = 50·posesión + 3·carrera + 0.1·movilidad, donde carrera = restante(MIN) − restante(MAX) y `restante` es el costo real (Dijkstra) que le falta a cada bando para ganar (spec 005 §4). **Por qué:** cubre los factores que sugiere el enunciado (posesión, distancias, proximidad del adversario, unidades disponibles) y es **monótona**: recoger el recurso nunca empeora el valor. **Historia:** la propuesta inicial de 5 componentes se descartó al implementar porque una unidad junto al recurso prefería no recogerlo. **Consecuencia:** pesos ajustables en vivo desde `juego.pesos_utilidad`.
 
 ### D‑10 · Interfaz: tkinter
 **Contexto:** se necesita cargar archivos, controles (combos, spinbox), tablas y una cuadrícula; la estética no se evalúa. **Decisión:** `tkinter` + `ttk`. **Alternativas:** Pygame (hay que construir botones, tablas y diálogo de archivos a mano), Streamlit (modelo de recarga incómodo para turnos), web React (otro stack y otra capa de API). **Riesgo:** en macOS con Python de Homebrew falta Tk ⇒ `brew install python-tk@3.12`. **Pendiente:** confirmar que funciona en el equipo de Daniel y en el PC de la sustentación.
