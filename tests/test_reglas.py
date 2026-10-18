@@ -81,7 +81,10 @@ def test_interceptar(datos_ejemplo):  # CA-002-5
     acciones = acciones_legales(e, cerca)
     assert acciones[acciones.index(Accion("INTERCEPTAR", "A2")) + 1].tipo == "MOVER"  # interceptar va primero
     despues = aplicar(e, cerca, Accion("INTERCEPTAR", "A2"))
-    assert despues.portador == "A2" and despues.posiciones == cerca.posiciones
+    assert despues.portador == "A2"
+    assert despues.posiciones == ((0, 1), (2, 1), (3, 2), (2, 3))  # B1 vuelve a su posición inicial (3,2)
+    ocupada = EstadoJuego(((0, 1), (2, 1), (2, 2), (3, 2)), "B1", None, "A")  # B2 está en el inicio de B1
+    assert aplicar(e, ocupada, Accion("INTERCEPTAR", "A2")).posiciones == ocupada.posiciones
     # No se intercepta a un compañero
     propio = EstadoJuego(((0, 1), (2, 1), (2, 2), (2, 3)), "B1", None, "B")
     assert all(a.tipo != "INTERCEPTAR" for a in acciones_legales(e, propio))

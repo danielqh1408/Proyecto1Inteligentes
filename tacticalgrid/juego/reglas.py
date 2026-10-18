@@ -60,8 +60,9 @@ def aplicar(escenario: Escenario, estado: EstadoJuego, accion: Accion) -> Estado
     Purpose: función de transición del juego.
     Preconditions: ``accion`` está en ``acciones_legales(escenario, estado)``; si no, lanza ValueError.
     Postconditions: MOVER cambia la posición de la unidad y recoge el recurso si entra a su celda (R4);
-        INTERCEPTAR pasa el recurso al interceptor (R5); siempre cambia el turno y suma 1 a
-        turnos_jugados (R1).
+        INTERCEPTAR pasa el recurso al interceptor y devuelve al antiguo portador a su posición inicial
+        si está libre (R5, evita que dos unidades se lo quiten para siempre); siempre cambia el turno
+        y suma 1 a turnos_jugados (R1).
     Complexity: O(U), dominado por comprobar la legalidad.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
@@ -77,6 +78,9 @@ def aplicar(escenario: Escenario, estado: EstadoJuego, accion: Accion) -> Estado
         if accion.destino == recurso:
             portador, recurso = accion.unidad, None
     elif accion.tipo == "INTERCEPTAR":
+        j = next(j for j, u in enumerate(escenario.unidades) if u.id == estado.portador)
+        if escenario.unidades[j].pos not in posiciones:
+            posiciones[j] = escenario.unidades[j].pos  # el antiguo portador vuelve a su posición inicial
         portador = accion.unidad
     return EstadoJuego(tuple(posiciones), portador, recurso, rival(estado.turno), estado.turnos_jugados + 1)
 
