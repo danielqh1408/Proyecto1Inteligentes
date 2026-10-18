@@ -67,7 +67,7 @@ tacticalgrid/experimentos/
 - **CA-008-4** Cada caso declara estado inicial (en el propio JSON) y una descripción en el campo extra `descripcion`.
 
 ## 6. Tareas
-- [x] T1 Diseñar en papel los mapas de los casos 1–6 (y verificarlos a mano antes de codificar) — implementado con Claude; revisan ambos
+- [x] T1 Diseñar los mapas de los casos 1–6 — generados con Claude (ver `mapa_ascii` en cada JSON); **verificar a mano al revisar** — ambos
 - [x] T2 Diseñar los estados de los casos 7–10 — implementado con Claude; revisan ambos
 - [x] T3 `runner.py` + comparación con `esperado` — implementado con Claude; revisan ambos
 - [x] T4 E1–E6 + `RESUMEN.md` — implementado con Claude; revisan ambos

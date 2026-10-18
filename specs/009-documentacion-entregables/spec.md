@@ -43,8 +43,8 @@ Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.
 
 ## 6. Tareas
 - [x] T1 `tests/test_documentacion.py` (auditor de docstrings) — implementado con Claude
-- [ ] T2 Manual de usuario con capturas — Juan
-- [ ] T3 Documento técnico (secciones según responsable de cada spec) — Ambos
+- [~] T2 Manual de usuario: borrador listo (Claude); faltan capturas — Juan
+- [ ] T3 Documento técnico: esqueleto con fuentes y preguntas listo; redactar con nuestras palabras — Ambos
 - [ ] T4 Completar `Student validation` real en cada método — **cada autor**
 - [ ] T5 Simulacros de sustentación cruzados — Ambos
 - [ ] T6 Tag `v1.0-sustentacion` — Ambos

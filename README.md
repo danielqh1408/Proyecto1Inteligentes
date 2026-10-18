@@ -27,12 +27,12 @@ El juego es solo el **entorno de experimentación**. Lo que se evalúa es el **s
 
 ## 🚀 Instalación y ejecución
 
-> ⚠️ El código está en construcción siguiendo las specs de `specs/`. Los comandos de abajo son el contrato objetivo.
+> Estado (18 oct 2026): specs 001–008 implementadas, 200 pruebas automáticas en verde. Falta la revisión de ambos integrantes, el documento técnico y las capturas del manual. Ver `AGENTS.md §10`.
 
 ```bash
 git clone git@github.com:danielqh1408/Proyecto1Inteligentes.git
 cd Proyecto1Inteligentes
-python3.12 -m venv .venv
+python3 -m venv .venv            # Python 3.11+
 source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
@@ -42,12 +42,16 @@ pip install -r requirements.txt
 | Interfaz gráfica | `python -m tacticalgrid gui` (o `gui ruta/escenario.json`) |
 | Validar un escenario JSON | `python -m tacticalgrid validar ruta/escenario.json` |
 | Ejecutar la prueba que indica `prueba.modo` | `python -m tacticalgrid ejecutar ruta/escenario.json` |
-| Búsqueda puntual | `python -m tacticalgrid buscar ruta.json --algoritmo A_ESTRELLA --heuristica obstaculos` |
-| Decisión adversarial | `python -m tacticalgrid decidir ruta.json --algoritmo ALFA_BETA --profundidad 4` |
+| Búsqueda puntual | `python -m tacticalgrid buscar ruta.json --algoritmo A_ESTRELLA --heuristica obstaculos --verificar` |
+| Comparar todos los algoritmos | `python -m tacticalgrid comparar ruta.json` |
+| Decisión adversarial | `python -m tacticalgrid decidir ruta.json --algoritmo ALFA_BETA --profundidad 4 --verificar` |
+| Partida completa | `python -m tacticalgrid partida ruta.json --a alfa_beta --b voraz --profundidad 3` |
 | Regenerar todos los experimentos | `python -m tacticalgrid experimentos` |
 | Pruebas automáticas | `pytest -q` |
 
-macOS con Python de Homebrew: instalar Tk con `brew install python-tk@3.12`.
+macOS con Python de Homebrew: instalar Tk con `brew install python-tk@3.12`, o usar el Python de uv (`uv venv -p 3.11 .venv`), que ya trae Tk.
+
+Manual completo: [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md). Resultados de los experimentos: [resultados/RESUMEN.md](resultados/RESUMEN.md).
 
 ## 🗂️ Estructura
 
@@ -73,7 +77,9 @@ macOS con Python de Homebrew: instalar Tk con `brew install python-tk@3.12`.
 | [docs/GUIA_SUSTENTACION.md](docs/GUIA_SUSTENTACION.md) | Banco de preguntas y cómo prepararnos |
 | [docs/USO_IA.md](docs/USO_IA.md) | Registro honesto del uso de IA generativa |
 | [specs/](specs/README.md) | Especificaciones 000–009 |
-| `docs/MANUAL_USUARIO.md` · `docs/DOCUMENTO_TECNICO.md` | Entregables finales (se completan al implementar) |
+| [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md) | Manual de usuario (borrador; faltan capturas) |
+| [docs/DOCUMENTO_TECNICO.md](docs/DOCUMENTO_TECNICO.md) | Documento técnico (esqueleto; lo redactamos nosotros) |
+| [resultados/RESUMEN.md](resultados/RESUMEN.md) | Casos mínimos (esperado vs obtenido) y experimentos E1–E6 |
 
 ## 🤖 Uso de IA generativa
 

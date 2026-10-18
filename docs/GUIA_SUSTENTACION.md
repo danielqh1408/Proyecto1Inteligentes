@@ -63,19 +63,42 @@ Y pruebas de adaptación: cambiar costos, mover obstáculos/bases/unidades/recur
 - Imprimir el árbol de Minimax hasta profundidad 2 (versión `*_debug` como en clase).
 - Agregar una regla de validación nueva.
 
-## 5. Mapa "dónde está cada cosa" (completar al implementar)
-| Pregunta | Archivo:función |
+## 5. Mapa "dónde está cada cosa" (código real, 18 oct)
+| Pregunta del profesor | Archivo:línea |
 |---|---|
-| Representación del estado | `tacticalgrid/juego/estado.py:EstadoJuego` |
-| Generación de sucesores (juego) | `tacticalgrid/juego/reglas.py:acciones_legales` |
-| Generación de sucesores (búsqueda) | `tacticalgrid/busqueda/problema.py:ProblemaNavegacion.sucesores` |
-| Costo de una acción | `tacticalgrid/escenario/modelo.py:Escenario.costo` |
-| Heurísticas | `tacticalgrid/busqueda/heuristicas.py` |
-| Utilidad | `tacticalgrid/adversarial/utilidad.py:evaluar` |
-| Poda | `tacticalgrid/adversarial/alfa_beta.py` |
-| Profundidad configurable | `config.py` → JSON `juego.profundidad_maxima_minimax` → CLI/GUI |
-| Validación | `tacticalgrid/escenario/validador.py` |
-| Verificación | `tacticalgrid/verificacion/verificador.py` |
+| Representación del estado | [`juego/estado.py:16`](../tacticalgrid/juego/estado.py) `EstadoJuego` (5 campos) |
+| Estado inicial | `juego/estado.py:37` `estado_inicial` |
+| Acciones legales / sucesores del juego | `juego/reglas.py:25` `acciones_legales` |
+| Transición (aplicar una acción) | `juego/reglas.py:57` `aplicar` |
+| Condición de victoria / terminal | `juego/reglas.py:93` `ganador`, `:103` `es_terminal` |
+| Sucesores y costo en la búsqueda | `busqueda/problema.py:26` (navegación), `:55` (misión, estado compuesto) |
+| Costo de una celda | `escenario/modelo.py:44` `Escenario.costo` |
+| Orden de movimientos | `config.py:4` `ORDEN_MOVIMIENTOS` (o `prueba.orden_movimientos`, `--orden`, GUI) |
+| BFS y DFS (una sola función) | `busqueda/algoritmos.py:27` `_busqueda_ciega` |
+| A\* y UCS (UCS = A\* con h=0) | `busqueda/algoritmos.py:78` y `:120` |
+| Beam Search | `busqueda/algoritmos.py:135` |
+| Heurísticas | `busqueda/heuristicas.py:15` manhattan, `:30` obstaculos, `:66` crear_heuristica (misión) |
+| Función de evaluación | `adversarial/utilidad.py:85` `evaluar`, `:65` `restante` |
+| Pesos de la utilidad | `config.py:14` (o `juego.pesos_utilidad` en el JSON) |
+| Minimax y alfa‑beta | `adversarial/minimax.py:70` `decidir`; la poda es la línea `:115` |
+| Orden de acciones | `adversarial/minimax.py:47` `ordenar_acciones` |
+| Profundidad configurable | `juego.profundidad_maxima_minimax` en el JSON → `--profundidad` → GUI (por defecto `config.py:7`) |
+| Validación del JSON | `escenario/validador.py:27` `validar` |
+| Carga atómica | `escenario/cargador.py:17` `cargar_escenario` |
+| Verificación | `verificacion/verificador.py:12` (caminos), `:47` (decisiones) |
+
+> Si cambian el código, actualicen esta tabla (los números de línea se mueven).
+
+## 5.1 Comandos para la sustentación
+```bash
+python -m tacticalgrid validar ruta/del/profesor.json
+python -m tacticalgrid ejecutar ruta/del/profesor.json          # hace lo que pida prueba.modo y verifica
+python -m tacticalgrid comparar ruta.json                         # tabla con todos los algoritmos
+python -m tacticalgrid buscar ruta.json --algoritmo A_ESTRELLA --heuristica obstaculos --verificar
+python -m tacticalgrid decidir ruta.json --algoritmo MINIMAX --profundidad 3 --orden inverso --verificar
+python -m tacticalgrid partida ruta.json --a alfa_beta --b voraz --profundidad 3
+python -m tacticalgrid gui ruta.json
+```
 
 ## 6. Simulacro
 Con Claude Code: `/sustentacion 005` (o cualquier spec). El examinador hace 5 preguntas, pide una predicción, propone una modificación pequeña y da retroalimentación. Hacerlo **sobre las specs del compañero**.
