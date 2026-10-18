@@ -23,9 +23,9 @@ Plantilla en `AGENTS.md §7` con los 7 campos: **Purpose, Preconditions, Postcon
 
 Métodos que **deben** tenerla (lista auditada automáticamente):
 `escenario.validador.validar`, `escenario.cargador.cargar_escenario`, `escenario.modelo.Escenario.costo`, `escenario.modelo.Escenario.vecinos`,
-`juego.reglas.acciones_legales`, `juego.reglas.aplicar`, `juego.reglas.es_terminal`, `juego.reglas.validar_estado`,
+`juego.estado.estado_inicial`, `juego.reglas.acciones_legales`, `juego.reglas.aplicar`, `juego.reglas.validar_estado`,
 `busqueda.problema.ProblemaNavegacion.sucesores`, `busqueda.problema.ProblemaMision.sucesores`,
-`busqueda.no_informada.bfs`, `busqueda.no_informada.dfs`, `busqueda.costo_uniforme.costo_uniforme`, `busqueda.a_estrella.a_estrella`, `busqueda.beam.beam_search`,
+`busqueda.algoritmos.bfs`, `busqueda.algoritmos.dfs`, `busqueda.algoritmos.costo_uniforme`, `busqueda.algoritmos.a_estrella`, `busqueda.algoritmos.beam_search`,
 `busqueda.heuristicas.manhattan`, `busqueda.heuristicas.obstaculos`, `busqueda.heuristicas.crear_heuristica`,
 `adversarial.utilidad.evaluar`, `adversarial.utilidad.utilidad_terminal`, `adversarial.distancias.precalcular`, `adversarial.minimax.minimax`, `adversarial.alfa_beta.alfa_beta`, `adversarial.orden.ordenar_acciones`,
 `verificacion.verificador.verificar_camino`, `verificacion.verificador.verificar_estado`, `verificacion.verificador.verificar_decision`.

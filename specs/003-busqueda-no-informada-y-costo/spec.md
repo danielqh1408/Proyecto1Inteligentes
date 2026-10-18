@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | borrador |
+| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | BFS, DFS y Costo Uniforme (15 %) |
 | Depende de | 001, 002 (§3.4 problemas de búsqueda) |
@@ -38,6 +38,16 @@ Primera pregunta del proyecto: *¿existe una ruta?* (BFS/DFS) y luego *¿cuál e
 **Prueba de objetivo:** en los cinco algoritmos se hace **al extraer** de la frontera (no al generar). Es lo que hacen los notebooks de clase para UCS/A\* y es necesario para la optimalidad de UCS/A\*; usarlo también en BFS/DFS hace las métricas comparables. *Consecuencia a explicar:* BFS genera algunos nodos más que si probara al generar.
 
 ## 4. Diseño
+
+> **Implementado (versión simple):** `tacticalgrid/busqueda/algoritmos.py` contiene `bfs`, `dfs`, `costo_uniforme`, `a_estrella` y `beam_search`.
+> - BFS y DFS comparten `_busqueda_ciega` (solo cambia `popleft()` vs `pop()`).
+> - UCS es `a_estrella` con h = 0 (como el notebook: "A* con h(n)=0 se comporta como Costo Uniforme").
+> - `resultado.py` define `Resultado` (métricas + `como_dict()` con el formato del enunciado) y `reconstruir`.
+> - `ejecutar.py` arma el problema desde `prueba` y corre el algoritmo pedido (lo usan CLI, GUI y experimentos).
+> - `sucesores(s)` devuelve `[(s2, costo)]`; `padres[s2] = (s, costo)` hace de conjunto de visitados.
+> - CLI: `python -m tacticalgrid buscar <json> [--algoritmo --heuristica --k --mision --orden --objetivo]` y `comparar <json>`.
+>
+> El bosquejo original queda abajo como referencia.
 
 ```
 tacticalgrid/busqueda/
@@ -95,11 +105,11 @@ V = celdas transitables (× 2 en `ProblemaMision`), E ≤ 4V. En términos de á
 - **CA-003-9** Los tres algoritmos funcionan sobre `ProblemaMision` (la unidad recoge y entrega). → `test_..._mision`
 
 ## 7. Tareas
-- [ ] T1 `ResultadoBusqueda` + `ContadorMetricas` — Juan
-- [ ] T2 `bfs`, `dfs` con docstrings completos — Juan
-- [ ] T3 `costo_uniforme` con eliminación perezosa — Juan
-- [ ] T4 Escenarios `caso01` y `caso02` (≥ 20×20) con su `esperado` — Juan
-- [ ] T5 Tests CA‑003‑1…9 — Juan
+- [x] T1 `Resultado` + métricas (`busqueda/resultado.py`) — implementado con Claude; revisa el otro integrante
+- [x] T2 `bfs`, `dfs` con docstrings completos — implementado con Claude; revisa el otro integrante
+- [x] T3 `costo_uniforme` con eliminación perezosa — implementado con Claude; revisa el otro integrante
+- [x] T4 Escenarios `caso01` y `caso02` (≥ 20×20) con su `esperado` — implementado con Claude; revisa el otro integrante
+- [x] T5 Tests CA‑003‑1…9 — implementado con Claude; revisa el otro integrante
 - [ ] T6 Revisión y simulacro — Daniel
 
 ## 8. Para sustentar

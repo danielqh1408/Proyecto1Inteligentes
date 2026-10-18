@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | borrador |
+| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | A\*, heurísticas y Beam Search (20 %) |
 | Depende de | 003 (métricas, resultado, problemas) |
@@ -58,6 +58,8 @@ Como en clase: búsqueda **por niveles**. En cada nivel se expanden todos los es
 - `maximo_frontera` en Beam = máximo de candidatos simultáneos **antes** del corte (memoria realmente usada en el nivel).
 
 ## 5. Diseño
+
+> **Implementado:** `a_estrella` y `beam_search` en `busqueda/algoritmos.py`; `manhattan`, `obstaculos`, `manhattan_promedio` y `crear_heuristica` en `busqueda/heuristicas.py`. Evidencia: caso 3 (H2 expande 177 vs 282 de H1, mismo costo 32), caso 5 (Beam k=1 falla, k≥2 encuentra), caso 2 (H3 da costo 83 vs óptimo 33 → no admisible).
 ```
 tacticalgrid/busqueda/
 ├── heuristicas.py   # crear_heuristica(nombre, escenario, problema) -> Callable[[estado], float]
@@ -79,11 +81,11 @@ A\* = UCS con prioridad (f, g, tie). Con `heuristica="cero"`, A\* debe dar **exa
 - **CA-004-9** H3 (`manhattan_promedio`) produce al menos un caso con costo > óptimo (evidencia de no admisibilidad). → `test_heuristicas.py::test_h3_no_admisible`
 
 ## 7. Tareas
-- [ ] T1 `heuristicas.py` (cero, manhattan, obstaculos, manhattan_promedio) + versiones para misión — Juan
-- [ ] T2 `a_estrella` — Juan
-- [ ] T3 `beam_search` con extras — Juan
-- [ ] T4 Escenarios `caso03`, `caso04`, `caso05` — Juan
-- [ ] T5 Tests CA‑004‑1…9 — Juan
+- [x] T1 `heuristicas.py` (cero, manhattan, obstaculos, manhattan_promedio) + versiones para misión — implementado con Claude; revisa el otro integrante
+- [x] T2 `a_estrella` — implementado con Claude; revisa el otro integrante
+- [x] T3 `beam_search` con extras — implementado con Claude; revisa el otro integrante
+- [x] T4 Escenarios `caso03`, `caso04`, `caso05` — implementado con Claude; revisa el otro integrante
+- [x] T5 Tests CA‑004‑1…9 — implementado con Claude; revisa el otro integrante
 - [ ] T6 Sección "Heurísticas" del documento técnico (las 5 preguntas del enunciado por heurística) — Juan
 - [ ] T7 Revisión y simulacro — Daniel
 

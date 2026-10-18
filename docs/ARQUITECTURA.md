@@ -39,11 +39,10 @@ config.py: ÚNICO lugar con valores por defecto (orden de movimientos, pesos, ma
 | `juego/estado.py` | `EstadoJuego` (inmutable, hashable), `Accion`, `estado_inicial` | 002 |
 | `juego/reglas.py` | `acciones_legales`, `aplicar`, `costo_accion`, `es_terminal`, `ganador`, `validar_estado` | 002 |
 | `busqueda/problema.py` | `ProblemaNavegacion`, `ProblemaMision` (interfaz: `inicio`, `es_objetivo`, `sucesores`) | 002/003 |
-| `busqueda/resultado.py`, `metricas.py` | `ResultadoBusqueda` y contador de métricas con definición única | 003 |
-| `busqueda/no_informada.py` | `bfs`, `dfs` | 003 |
-| `busqueda/costo_uniforme.py` | `costo_uniforme` | 003 |
-| `busqueda/heuristicas.py` | `cero`, `manhattan`, `obstaculos`, `manhattan_promedio`, `crear_heuristica` | 004 |
-| `busqueda/a_estrella.py`, `beam.py` | `a_estrella`, `beam_search` | 004 |
+| `busqueda/resultado.py` | `Resultado` (métricas + formato del enunciado), `reconstruir`, `posicion` | 003 |
+| `busqueda/algoritmos.py` | `bfs`, `dfs` (comparten `_busqueda_ciega`), `a_estrella`, `costo_uniforme` (= A* con h=0), `beam_search` | 003/004 |
+| `busqueda/heuristicas.py` | `manhattan`, `obstaculos`, `manhattan_promedio`, `crear_heuristica` | 004 |
+| `busqueda/ejecutar.py` | `crear_problema` y `ejecutar_busqueda`: corre la prueba del JSON con cualquier algoritmo | 003/004 |
 | `adversarial/distancias.py` | Dijkstra inverso precalculado por escenario (`Dbase_X`, `Drec_X`) | 005 |
 | `adversarial/utilidad.py` | `utilidad_terminal`, `evaluar` (con desglose) | 005 |
 | `adversarial/orden.py` | `ordenar_acciones(natural|inverso|heuristico)` | 005 |
