@@ -117,6 +117,16 @@ def comando_experimentos(args) -> int:
     return 0 if ok else 1
 
 
+def comando_gui(args) -> int:
+    try:
+        from tacticalgrid.interfaz.app import iniciar
+    except ImportError:
+        print("tkinter no está disponible. En macOS con Homebrew: brew install python-tk@3.12")
+        return 1
+    iniciar(args.ruta)
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="tacticalgrid", description="TacticalGrid — Sistemas Inteligentes I")
     comandos = parser.add_subparsers(dest="comando", required=True)
@@ -162,6 +172,10 @@ def main(argv=None) -> int:
     p = comandos.add_parser("experimentos", help="ejecuta los 10 casos y los experimentos E1-E6 (resultados/)")
     p.add_argument("--salida", default="resultados")
     p.set_defaults(funcion=comando_experimentos)
+
+    p = comandos.add_parser("gui", help="abre la interfaz gráfica")
+    p.add_argument("ruta", nargs="?")
+    p.set_defaults(funcion=comando_gui)
 
     args = parser.parse_args(argv)
     try:
