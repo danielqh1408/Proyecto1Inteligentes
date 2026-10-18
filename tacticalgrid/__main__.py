@@ -5,9 +5,10 @@ import json
 import sys
 
 from tacticalgrid.adversarial.partida import AGENTES, decidir_con, jugar, resumen_final
-from tacticalgrid.busqueda.ejecutar import ALGORITMOS, ejecutar_busqueda
+from tacticalgrid.busqueda.ejecutar import ALGORITMOS, crear_problema, ejecutar_busqueda
 from tacticalgrid.escenario.cargador import EscenarioInvalido, cargar_escenario
 from tacticalgrid.juego.estado import estado_inicial
+from tacticalgrid.verificacion import verificador
 
 COLUMNAS = ("algoritmo", "heuristica", "k", "exito", "longitud", "costo",
             "estados_generados", "estados_expandidos", "maximo_frontera", "tiempo_ms")
@@ -46,8 +47,11 @@ def opciones_problema(args) -> dict:
 
 def comando_buscar(args) -> int:
     e = cargar_escenario(args.ruta)
-    r = ejecutar_busqueda(e, args.algoritmo, args.heuristica, args.k, **opciones_problema(args))
+    problema = crear_problema(e, **opciones_problema(args))
+    r = ejecutar_busqueda(e, args.algoritmo, args.heuristica, args.k, problema=problema)
     print(json.dumps(r.como_dict(), ensure_ascii=False))
+    if args.verificar:
+        print("Verificación:\n" + verificador.texto(verificador.verificar_camino(e, problema, r)))
     return 0
 
 
@@ -64,13 +68,18 @@ def comando_comparar(args) -> int:
 def comando_decidir(args) -> int:
     e = cargar_escenario(args.ruta)
     agente = args.algoritmo or (e.prueba or {}).get("algoritmo", "ALFA_BETA")
-    d = decidir_con(agente.upper(), e, estado_inicial(e), args.profundidad, args.orden)
+    estado = estado_inicial(e)
+    d = decidir_con(agente.upper(), e, estado, args.profundidad, args.orden)
     datos = d.como_dict()
     raiz = datos.pop("valores_raiz")
     print(json.dumps(datos, ensure_ascii=False))
     print("Valor Minimax de cada acción de la raíz (en alfa-beta, las no elegidas pueden ser cotas):")
     for accion, valor in raiz:
         print(f"  {accion:24} {valor}")
+    if args.verificar:
+        chequeos = verificador.verificar_decision(e, estado, d)
+        chequeos += verificador.verificar_minimax_vs_alfabeta(e, estado, args.profundidad, args.orden)
+        print("Verificación:\n" + verificador.texto(chequeos))
     return 0
 
 
@@ -88,7 +97,8 @@ def comando_ejecutar(args) -> int:
     e = cargar_escenario(args.ruta)
     modo = (e.prueba or {}).get("modo", "partida")
     base = argparse.Namespace(ruta=args.ruta, algoritmo=None, heuristica=None, k=None, unidad=None, objetivo=None,
-                              orden=None, mision=False, profundidad=None, a="ALFA_BETA", b="ALFA_BETA", max_jugadas=None)
+                              orden=None, mision=False, profundidad=None, a="ALFA_BETA", b="ALFA_BETA", max_jugadas=None,
+                              verificar=True)
     print(f"prueba.modo = {modo}")
     if modo == "busqueda":
         return comando_buscar(base)
@@ -116,6 +126,7 @@ def main(argv=None) -> int:
         p.add_argument("--objetivo", help="celda objetivo 'fila,columna' (por defecto prueba.objetivo)")
         p.add_argument("--orden", help="orden de movimientos, p. ej. 'arriba,abajo,izquierda,derecha'")
         p.add_argument("--mision", action="store_true", help="recoger el recurso y llevarlo a la base (estado compuesto)")
+        p.add_argument("--verificar", action="store_true", help="verifica el camino obtenido (spec 006)")
         p.set_defaults(funcion=funcion)
 
     p = comandos.add_parser("decidir", help="mejor acción para el bando en turno (Minimax / alfa-beta / voraz)")
@@ -123,6 +134,7 @@ def main(argv=None) -> int:
     p.add_argument("--algoritmo", type=str.upper, choices=AGENTES, help="por defecto prueba.algoritmo o ALFA_BETA")
     p.add_argument("--profundidad", type=int, help="por defecto juego.profundidad_maxima_minimax")
     p.add_argument("--orden", choices=("natural", "inverso", "heuristico"), help="orden de generación de acciones")
+    p.add_argument("--verificar", action="store_true", help="verifica legalidad y compara Minimax con alfa-beta (spec 006)")
     p.set_defaults(funcion=comando_decidir)
 
     p = comandos.add_parser("partida", help="juega una partida completa entre dos agentes")
