@@ -61,7 +61,7 @@ class Accion(NamedTuple):
 | R2 | **MOVER:** la unidad pasa a una celda 4‑vecina que esté dentro del mapa, sea transitable y **no esté ocupada** por otra unidad (de cualquier bando). Costo = `costo(destino)`. |
 | R3 | **Base enemiga:** ninguna unidad puede **entrar** a la base del bando contrario (evita la estrategia degenerada de "estacionarse" en la base rival y bloquear el juego para siempre). |
 | R4 | **Recoger:** si una unidad entra a la celda del recurso libre, lo recoge automáticamente (`portador = id`, `recurso = None`). |
-| R5 | **INTERCEPTAR:** una unidad **adyacente** (4‑vecindad) al portador **enemigo** le quita el recurso: `portador = interceptor`. Nadie se mueve. Costo 0. Esta es la regla de *pérdida del portador*. |
+| R5 | **INTERCEPTAR:** una unidad **adyacente** (4‑vecindad) al portador **enemigo** le quita el recurso: `portador = interceptor`, y el antiguo portador **vuelve a su posición inicial** del JSON (si está ocupada, se queda donde está). Costo 0. Esta es la regla de *pérdida del portador*. *(Cambio del 18 oct: sin el regreso, dos unidades vecinas se quitaban el recurso para siempre — 166 intercepciones en 200 turnos — y toda partida terminaba en empate.)* |
 | R6 | **Entrega / victoria:** tras aplicar cualquier acción, si el portador está en la base de **su** bando, ese bando gana (estado terminal). |
 | R7 | **Bloqueo total:** si el bando en turno no tiene ninguna acción MOVER ni INTERCEPTAR legal, su única acción es **PASAR** (costo 0). |
 | R8 | **Empate:** si `turnos_jugados ≥ max_turnos` (por defecto 200; configurable en `juego.max_turnos`), el estado es terminal con empate. (Si nadie puede moverse, ambos bandos pasan hasta llegar al límite: no hace falta otra regla ni otro campo en el estado.) |
@@ -117,6 +117,6 @@ validar_estado(escenario, estado) -> list[str]           # invariantes (usado po
 ## 6. Para sustentar
 - *Explique la representación de un estado.* → Los 5 campos y por qué cada uno es necesario (§3.1).
 - *¿Por qué `(fila, columna)` no basta?* → Varias unidades, posesión del recurso, turno y límite de turnos cambian las acciones y el valor.
-- *¿Qué pasa si el portador es interceptado?* → R5: el interceptor pasa a ser portador; nadie se mueve.
+- *¿Qué pasa si el portador es interceptado?* → R5: el interceptor pasa a ser portador y el antiguo portador vuelve a su posición inicial. Sin ese regreso había un ciclo infinito de intercepciones.
 - *¿Qué pasa si una unidad queda encerrada?* → Se mueven las otras; si ninguna puede, el bando PASA (R7); si nadie puede moverse, se llega al límite de turnos y es empate (R8).
 - *¿Por qué no se puede entrar a la base enemiga?* → Sin R3 el juego tiene una estrategia trivial que lo vuelve inganable.

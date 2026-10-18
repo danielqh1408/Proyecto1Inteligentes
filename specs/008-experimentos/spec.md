@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | borrador |
+| Estado | **implementada** (falta revisión y la interpretación escrita en el documento técnico) |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | Experimentación, métricas e interpretación (10 %) + evidencia de los demás criterios |
 | Depende de | 003, 004, 005, 006 |
@@ -43,6 +43,12 @@ Además:
 | E6 | Torneo corto: αβ(d) vs VORAZ y αβ(d1) vs αβ(d2), alternando quién empieza | profundidades | `resultados/torneo.csv` (victorias/empates/turnos) |
 
 ## 4. Diseño
+
+> **Implementado:** `tacticalgrid/experimentos/casos.py` (una función por caso: carga, ejecuta y compara con lo esperado; la usan los tests y el reporte) y `experimentos/reporte.py` (E1–E6 + `resultados/RESUMEN.md`). Comando: `python -m tacticalgrid experimentos` (≈ 5 s). Los escenarios incluyen `descripcion`, `esperado` y `mapa_ascii` (dibujo del mapa) como campos extra.
+> Cambios frente al bosquejo: sin gráficas (matplotlib opcional, no instalado); tiempo de una sola corrida (no mediana de 5); E6 usa `escenarios/partida_simetrica.json` (21×21 simétrico por rotación) para que el resultado dependa del agente y no del mapa.
+> **Hallazgos para el documento técnico:** caso 2 (BFS 17 pasos/costo 83 vs UCS 33/33); caso 3 (A\* H2 177 vs H1 282 expandidos); caso 5 (Beam k=1 falla); E3 (con pantano ≥ 3 UCS cambia al rodeo); E4/E5 (alfa‑beta prof. 4: 427 evaluados vs 20 478 de Minimax; con orden inverso 10 234); E6 (más profundidad gana; igual profundidad empata).
+>
+> Bosquejo original:
 ```
 tacticalgrid/experimentos/
 ├── runner.py       # ejecutar_caso(ruta) -> dict con obtenidos + comparación contra `esperado`
@@ -61,8 +67,8 @@ tacticalgrid/experimentos/
 - **CA-008-4** Cada caso declara estado inicial (en el propio JSON) y una descripción en el campo extra `descripcion`.
 
 ## 6. Tareas
-- [ ] T1 Diseñar en papel los mapas de los casos 1–6 (y verificarlos a mano antes de codificar) — Juan
-- [ ] T2 Diseñar los estados de los casos 7–10 — Daniel
-- [ ] T3 `runner.py` + comparación con `esperado` — Juan
-- [ ] T4 E1–E6 + `RESUMEN.md` — Juan
+- [x] T1 Diseñar en papel los mapas de los casos 1–6 (y verificarlos a mano antes de codificar) — implementado con Claude; revisan ambos
+- [x] T2 Diseñar los estados de los casos 7–10 — implementado con Claude; revisan ambos
+- [x] T3 `runner.py` + comparación con `esperado` — implementado con Claude; revisan ambos
+- [x] T4 E1–E6 + `RESUMEN.md` — implementado con Claude; revisan ambos
 - [ ] T5 Interpretación escrita de cada experimento en el documento técnico — Ambos

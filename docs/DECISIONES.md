@@ -18,7 +18,7 @@
 | D‑11 | Unidades idénticas (`estandar`) en el MVP | propuesta |
 | D‑12 | Python 3.12, núcleo solo stdlib, pytest | propuesta |
 | D‑13 | Prueba de objetivo al extraer de la frontera en todos los algoritmos | propuesta |
-| D‑14 | Interceptar transfiere el recurso; no se entra a la base enemiga | propuesta |
+| D‑14 | Interceptar transfiere el recurso y devuelve al antiguo portador a su inicio; no se entra a la base enemiga | propuesta (cambiada al implementar) |
 
 ---
 
@@ -62,4 +62,4 @@ Python 3.12 (igual que el curso), núcleo con stdlib, `pytest` para pruebas, `ma
 Ver spec 003 §3. Necesaria para la optimalidad de UCS/A\* y hace comparables las métricas de los 5 algoritmos.
 
 ### D‑14 · Intercepción y base enemiga
-**Decisión:** INTERCEPTAR (adyacencia) transfiere el recurso al interceptor; nadie puede entrar a la base enemiga. **Alternativas:** el recurso cae al suelo (añade estado y casos), eliminar unidades (combate, prohibido por complejidad). **Consecuencia:** el recurso libre siempre está en su posición inicial ⇒ las distancias al recurso se precalculan una sola vez.
+**Decisión:** INTERCEPTAR (adyacencia) transfiere el recurso al interceptor y el antiguo portador vuelve a su posición inicial del JSON (si está ocupada, se queda); nadie puede entrar a la base enemiga. **Historia:** la primera versión no movía al antiguo portador; al jugar partidas en un mapa simétrico, dos unidades vecinas se quitaban el recurso en cada turno (166 intercepciones en 200 turnos) y todo terminaba en empate. **Alternativas:** el recurso cae al suelo (añade estado y casos), un turno de inmunidad para el nuevo portador (añade un campo al estado), eliminar unidades (combate, prohibido por complejidad). **Consecuencia:** el recurso libre siempre está en su posición inicial ⇒ las distancias al recurso se precalculan una sola vez.

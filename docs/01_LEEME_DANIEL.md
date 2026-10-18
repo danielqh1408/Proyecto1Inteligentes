@@ -169,6 +169,8 @@ Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
 Propuesta: **MOVER** (arriba, abajo, izquierda, derecha), **INTERCEPTAR** (si estoy al lado del portador enemigo, le quito el recurso) y **PASAR** (solo si no puedo hacer nada más).
 *Alternativas:* agregar "ESPERAR" siempre disponible (más realista, pero el árbol de Minimax crece) o que el recurso caiga al suelo al interceptar (más estados y más casos raros).
 *Pregunta:* ¿interceptar debe quitarle el recurso al otro, o "tumbarlo" y que quede en el suelo?
+
+> **Actualización (18 oct, al implementar):** sin nada más, dos unidades vecinas se quitaban el recurso en cada turno para siempre (166 intercepciones en 200 turnos). Se agregó: **el que pierde el recurso vuelve a su posición inicial**. Con eso, en un mapa simétrico el agente que mira más lejos gana (ver `resultados/RESUMEN.md`, E6). Dime si prefieres otra solución.
 Tu opinión: ☐ ✅ ☐ ✏️ ☐ ❓
 
 **A3. Regla: nadie puede entrar a la base enemiga**

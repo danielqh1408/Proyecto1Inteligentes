@@ -57,9 +57,9 @@ Un camino con `exito = False` se verifica como: camino vacío, costo 0, y (opcio
 - **CA-006-5** El modo auditoría no reporta violaciones en los casos 7–10. → `test_verificador.py::test_auditoria_arbol`
 
 ## 5. Tareas
-- [x] T1 `Chequeo` / `ReporteVerificacion` — implementado con Claude; revisa Juan
+- [x] T1 Formato de salida: lista `[(chequeo, ok)]` (sin clases) — implementado con Claude; revisa Juan
 - [x] T2 `verificar_camino` (+ misión) — implementado con Claude; revisa Juan
-- [x] T3 `verificar_estado`, `verificar_decision`, `verificar_minimax_vs_alfabeta` — implementado con Claude; revisa Juan
+- [x] T3 `validar_estado` (en reglas), `verificar_decision`, `verificar_minimax_vs_alfabeta` — implementado con Claude; revisa Juan
 - [x] T4 ~~Modo auditoría~~ innecesario: `aplicar` valida legalidad en cada nodo — revisa Juan
 - [x] T5 Tests CA‑006‑1…5 — implementado con Claude; revisa Juan
 

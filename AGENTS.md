@@ -163,7 +163,7 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 | 005 | Minimax, alfa‑beta y utilidad | 20 % | ✅ implementada (falta revisión) |
 | 006 | Verificación de soluciones | 5 % | ✅ implementada (falta revisión) |
 | 007 | Interfaz y visualización | 5 % | 📝 especificada |
-| 008 | Casos mínimos y experimentación | 10 % | 📝 especificada |
+| 008 | Casos mínimos y experimentación | 10 % | ✅ implementada (falta interpretación escrita) |
 | 009 | Documentación y entregables | 10 % | 📝 especificada |
 
 Leyenda: 📝 especificada · 🔨 en progreso · ✅ implementada y probada · 🎤 lista para sustentar.
