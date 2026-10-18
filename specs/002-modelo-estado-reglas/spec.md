@@ -1,0 +1,124 @@
+# 002 — Modelo de estado, acciones y reglas del juego
+
+| Campo | Valor |
+|---|---|
+| Estado | borrador |
+| Responsable | Daniel · Revisor: Juan |
+| Rúbrica | Modelado del problema y representación de estados (15 %) |
+| Depende de | 001 |
+| Fuente en el enunciado | "Bandos, unidades y turnos", "Objetivo de la partida", "Modelado del problema y del estado" (p. 3); caso mínimo 6 |
+
+## 1. Contexto y porqué
+"El modelado es parte central del proyecto." Antes de los algoritmos hay que fijar **qué información define completamente una situación** y **qué acciones** pasan de un estado a otro. Hay **dos familias de problemas** que comparten escenario pero no estado:
+
+| Problema | Usado por | Estado |
+|---|---|---|
+| Navegación simple | BFS, DFS, UCS, A\*, Beam (`prueba.modo = busqueda`) | `(fila, columna)` |
+| Misión del recurso (recoger y entregar) | Los mismos algoritmos; demuestra el **caso 6** | `(fila, columna, lleva_recurso)` |
+| Partida adversarial | Minimax, alfa‑beta, modo `partida` | `EstadoJuego` (abajo) |
+
+**Separación clave:** lo que **no cambia** durante la partida (terreno, costos, bases, identidad/bando/tipo de las unidades) vive en `Escenario`. Lo que **sí cambia** vive en el estado. Así el estado es pequeño, hashable y suficiente.
+
+## 2. Requisitos
+- **RF-002-1** Identificar inequívocamente: estado inicial, acciones válidas, estados sucesores, condición objetivo/terminal y costo de las acciones.
+- **RF-002-2** Ambos bandos operan bajo **las mismas reglas** (MAX/MIN son roles, no capacidades distintas).
+- **RF-002-3** Por turno, un bando elige **una** unidad y ejecuta **una** acción válida. Sin simultaneidad ni tiempo real.
+- **RF-002-4** Reglas **deterministas** para: bloqueos, imposibilidad de continuar, ausencia de ruta, pérdida del portador.
+- **RF-002-5** ≥ 3 unidades por bando en los escenarios propios (el validador no lo exige para no rechazar escenarios externos de prueba como el 4×4 del enunciado, que tiene 2).
+- **RF-002-6** Las acciones generadas son legales y los estados sucesores válidos (lo comprueba spec 006).
+
+## 3. Decisiones de diseño (detalle y alternativas en `docs/DECISIONES.md`)
+
+### 3.1 Estado de la partida — `EstadoJuego`
+```python
+@dataclass(frozen=True)
+class EstadoJuego:
+    posiciones: tuple[Posicion, ...]   # alineado con escenario.unidades (mismo orden del JSON)
+    portador: str | None               # id de la unidad que lleva el recurso, o None
+    recurso: Posicion | None           # posición del recurso si está libre; None si alguien lo porta
+    turno: str                         # "A" o "B": bando que debe actuar
+    turnos_jugados: int                # para la regla de empate por límite de turnos
+```
+**Por qué es suficiente:** con el escenario (estático) + estos 5 campos se pueden calcular las acciones legales, el sucesor de cada acción, si el estado es terminal y quién ganó. **Por qué cada campo es necesario:**
+- `posiciones`: sin ellas no se sabe a dónde puede moverse cada unidad ni quién bloquea a quién.
+- `portador` / `recurso`: *misma posición física, estado distinto* (caso 6) — una unidad en (5,5) con el recurso puede ganar al entrar a su base; sin él, no.
+- `turno`: el mismo tablero con turno de A o de B tiene acciones legales (y valor Minimax) distintos.
+- `turnos_jugados`: el mismo tablero en el turno 10 o en el turno `max_turnos` difiere en si es terminal (empate).
+
+### 3.2 Acciones
+```python
+@dataclass(frozen=True)
+class Accion:
+    tipo: str             # "MOVER" | "INTERCEPTAR" | "PASAR"
+    unidad: str | None    # id de la unidad que actúa (None en PASAR)
+    direccion: str | None # "arriba" | "abajo" | "izquierda" | "derecha" (solo MOVER)
+    destino: Posicion | None
+    objetivo: str | None  # id de la unidad interceptada (solo INTERCEPTAR)
+```
+
+### 3.3 Reglas (deterministas)
+| # | Regla |
+|---|---|
+| R1 | **Turno:** actúa el bando `estado.turno`; elige una unidad propia y una acción. Después, `turno` alterna y `turnos_jugados += 1`. |
+| R2 | **MOVER:** la unidad pasa a una celda 4‑vecina que esté dentro del mapa, sea transitable y **no esté ocupada** por otra unidad (de cualquier bando). Costo = `costo(destino)`. |
+| R3 | **Base enemiga:** ninguna unidad puede **entrar** a la base del bando contrario (evita la estrategia degenerada de "estacionarse" en la base rival y bloquear el juego para siempre). |
+| R4 | **Recoger:** si una unidad entra a la celda del recurso libre, lo recoge automáticamente (`portador = id`, `recurso = None`). |
+| R5 | **INTERCEPTAR:** una unidad **adyacente** (4‑vecindad) al portador **enemigo** le quita el recurso: `portador = interceptor`. Nadie se mueve. Costo 0. Esta es la regla de *pérdida del portador*. |
+| R6 | **Entrega / victoria:** tras aplicar cualquier acción, si el portador está en la base de **su** bando, ese bando gana (estado terminal). |
+| R7 | **Bloqueo total:** si el bando en turno no tiene ninguna acción MOVER ni INTERCEPTAR legal, su única acción es **PASAR** (costo 0). |
+| R8 | **Empate:** si `turnos_jugados ≥ max_turnos` (por defecto 200; configurable en `juego.max_turnos`), el estado es terminal con empate. También es empate si ambos bandos pasan consecutivamente (nadie puede moverse nunca más). |
+| R9 | **Sin ruta** (modo búsqueda): el algoritmo termina con `exito = false`, camino vacío y métricas completas; no es un error. |
+| R10 | **Orden de generación:** unidades del bando en el orden del JSON; para cada unidad, primero INTERCEPTAR (si aplica) y luego MOVER en `orden_movimientos` (por defecto `abajo, arriba, derecha, izquierda`, el mismo de los notebooks de clase). El orden global se puede alterar con `juego.orden_acciones ∈ {natural, inverso, heuristico}` (spec 005). |
+
+*Alternativas consideradas:* soltar el recurso al ser interceptado (queda en la celda del portador); acción ESPERAR siempre disponible (aumenta la ramificación en +1 por turno); unidades con tipos distintos (explorador más rápido). Se descartan para el MVP por complejidad; se documentan como posibles extensiones.
+
+### 3.4 Problemas de búsqueda (modo `busqueda`)
+```python
+class ProblemaBusqueda(Protocol):
+    def estado_inicial(self) -> Hashable
+    def es_objetivo(self, s) -> bool
+    def sucesores(self, s) -> list[tuple[accion, Hashable, float]]  # (acción, estado, costo) en orden determinista
+    def posicion(self, s) -> Posicion        # para dibujar y verificar
+```
+- `ProblemaNavegacion(escenario, inicio, objetivo, orden_movimientos, bloqueadas=frozenset())` — estado `Posicion`.
+- `ProblemaMision(escenario, unidad, orden_movimientos)` — estado `(Posicion, lleva: bool)`; objetivo `(base_propia, True)`; al entrar a la celda del recurso `lleva` pasa a `True`.
+- **D-05:** en modo búsqueda las demás unidades se **ignoran** ("se ignorará temporalmente el comportamiento del adversario"). Con `prueba.unidades_bloquean: true` sus celdas se tratan como obstáculos.
+- Costo de un camino = Σ costo de **entrar** a cada celda después de la inicial.
+
+### 3.5 Funciones de reglas (`tacticalgrid/juego/reglas.py`)
+```python
+estado_inicial(escenario) -> EstadoJuego
+acciones_legales(escenario, estado, orden=...) -> list[Accion]
+aplicar(escenario, estado, accion) -> EstadoJuego        # lanza AccionIlegal si no es legal
+es_terminal(escenario, estado) -> bool
+ganador(escenario, estado) -> str | None                 # "A", "B" o None (empate / no terminal)
+validar_estado(escenario, estado) -> list[str]           # invariantes (usado por spec 006)
+```
+**Invariantes de un `EstadoJuego` válido:** todas las unidades dentro del mapa y en celdas transitables; no hay dos unidades en la misma celda; `(portador is None) == (recurso is not None)`; si hay portador, existe; `turno ∈ {A, B}`; `turnos_jugados ≥ 0`.
+
+## 4. Criterios de aceptación
+- **CA-002-1** El estado inicial del ejemplo del enunciado tiene turno A, sin portador, recurso en (2,2). → `tests/test_reglas.py::test_estado_inicial`
+- **CA-002-2** **Caso 6:** `(Posicion(2,2), False)` y `(Posicion(2,2), True)` son estados distintos (distinto hash, distinto conjunto de objetivo) y `EstadoJuego` con la misma unidad en la misma celda, con y sin recurso, tiene acciones o valor distintos. → `test_reglas.py::test_estado_compuesto`
+- **CA-002-3** MOVER nunca lleva a obstáculo, fuera del mapa, celda ocupada ni base enemiga. → `test_reglas.py::test_mover_restricciones`
+- **CA-002-4** Entrar al recurso lo recoge; entrar a la base propia con él gana. → `test_reglas.py::test_recoger_y_entregar`
+- **CA-002-5** INTERCEPTAR solo es legal si hay adyacencia con el portador enemigo y transfiere la posesión. → `test_reglas.py::test_interceptar`
+- **CA-002-6** Bando sin movimientos ⇒ única acción PASAR; límite de turnos ⇒ empate. → `test_reglas.py::test_bloqueo_y_empate`
+- **CA-002-7** `acciones_legales` es determinista y respeta el orden configurado. → `test_reglas.py::test_orden_determinista`
+- **CA-002-8** Para todo estado alcanzable en 3 jugadas desde los escenarios de `escenarios/casos/`, `validar_estado` no reporta errores (prueba de propiedad). → `test_reglas.py::test_invariantes_alcanzables`
+- **CA-002-9** Las reglas son simétricas: intercambiar los bandos de un escenario produce acciones espejo. → `test_reglas.py::test_simetria_bandos`
+
+## 5. Tareas
+- [ ] T1 `EstadoJuego`, `Accion` y `estado_inicial` — Daniel
+- [ ] T2 `acciones_legales` + `aplicar` (R1–R7, R10) — Daniel
+- [ ] T3 `es_terminal`, `ganador`, empate (R8) — Daniel
+- [ ] T4 `ProblemaNavegacion` y `ProblemaMision` — Juan (lo necesita la spec 003)
+- [ ] T5 `validar_estado` (invariantes) — Daniel
+- [ ] T6 Tests CA‑002‑1…9 — Daniel
+- [ ] T7 Sección "Modelado" del documento técnico — Daniel + Juan
+
+## 6. Para sustentar
+- *Explique la representación de un estado.* → Los 5 campos y por qué cada uno es necesario (§3.1).
+- *¿Por qué `(fila, columna)` no basta?* → Varias unidades, posesión del recurso, turno y límite de turnos cambian las acciones y el valor.
+- *¿Qué pasa si el portador es interceptado?* → R5: el interceptor pasa a ser portador; nadie se mueve.
+- *¿Qué pasa si una unidad queda encerrada?* → Se mueven las otras; si ninguna puede, el bando PASA (R7); si ambos pasan, empate.
+- *¿Por qué no se puede entrar a la base enemiga?* → Sin R3 el juego tiene una estrategia trivial que lo vuelve inganable.
