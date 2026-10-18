@@ -4,8 +4,10 @@ import argparse
 import json
 import sys
 
+from tacticalgrid.adversarial.partida import AGENTES, decidir_con, jugar, resumen_final
 from tacticalgrid.busqueda.ejecutar import ALGORITMOS, ejecutar_busqueda
 from tacticalgrid.escenario.cargador import EscenarioInvalido, cargar_escenario
+from tacticalgrid.juego.estado import estado_inicial
 
 COLUMNAS = ("algoritmo", "heuristica", "k", "exito", "longitud", "costo",
             "estados_generados", "estados_expandidos", "maximo_frontera", "tiempo_ms")
@@ -59,6 +61,42 @@ def comando_comparar(args) -> int:
     return 0
 
 
+def comando_decidir(args) -> int:
+    e = cargar_escenario(args.ruta)
+    agente = args.algoritmo or (e.prueba or {}).get("algoritmo", "ALFA_BETA")
+    d = decidir_con(agente.upper(), e, estado_inicial(e), args.profundidad, args.orden)
+    datos = d.como_dict()
+    raiz = datos.pop("valores_raiz")
+    print(json.dumps(datos, ensure_ascii=False))
+    print("Valor Minimax de cada acción de la raíz (en alfa-beta, las no elegidas pueden ser cotas):")
+    for accion, valor in raiz:
+        print(f"  {accion:24} {valor}")
+    return 0
+
+
+def comando_partida(args) -> int:
+    e = cargar_escenario(args.ruta)
+    final, historial = jugar(e, {"A": args.a, "B": args.b}, {"A": args.profundidad, "B": args.profundidad}, args.max_jugadas)
+    for turno, bando, accion, valor in historial:
+        print(f"{turno:4} {bando}  {accion:24} valor={valor}")
+    print(resumen_final(e, final))
+    return 0
+
+
+def comando_ejecutar(args) -> int:
+    """Hace lo que pida prueba.modo del JSON (busqueda, adversarial o partida)."""
+    e = cargar_escenario(args.ruta)
+    modo = (e.prueba or {}).get("modo", "partida")
+    base = argparse.Namespace(ruta=args.ruta, algoritmo=None, heuristica=None, k=None, unidad=None, objetivo=None,
+                              orden=None, mision=False, profundidad=None, a="ALFA_BETA", b="ALFA_BETA", max_jugadas=None)
+    print(f"prueba.modo = {modo}")
+    if modo == "busqueda":
+        return comando_buscar(base)
+    if modo == "adversarial":
+        return comando_decidir(base)
+    return comando_partida(base)
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="tacticalgrid", description="TacticalGrid — Sistemas Inteligentes I")
     comandos = parser.add_subparsers(dest="comando", required=True)
@@ -79,6 +117,25 @@ def main(argv=None) -> int:
         p.add_argument("--orden", help="orden de movimientos, p. ej. 'arriba,abajo,izquierda,derecha'")
         p.add_argument("--mision", action="store_true", help="recoger el recurso y llevarlo a la base (estado compuesto)")
         p.set_defaults(funcion=funcion)
+
+    p = comandos.add_parser("decidir", help="mejor acción para el bando en turno (Minimax / alfa-beta / voraz)")
+    p.add_argument("ruta")
+    p.add_argument("--algoritmo", type=str.upper, choices=AGENTES, help="por defecto prueba.algoritmo o ALFA_BETA")
+    p.add_argument("--profundidad", type=int, help="por defecto juego.profundidad_maxima_minimax")
+    p.add_argument("--orden", choices=("natural", "inverso", "heuristico"), help="orden de generación de acciones")
+    p.set_defaults(funcion=comando_decidir)
+
+    p = comandos.add_parser("partida", help="juega una partida completa entre dos agentes")
+    p.add_argument("ruta")
+    p.add_argument("--a", type=str.upper, choices=AGENTES, default="ALFA_BETA", help="agente del bando A")
+    p.add_argument("--b", type=str.upper, choices=AGENTES, default="ALFA_BETA", help="agente del bando B")
+    p.add_argument("--profundidad", type=int, help="profundidad de Minimax/alfa-beta para ambos")
+    p.add_argument("--max-jugadas", type=int, dest="max_jugadas")
+    p.set_defaults(funcion=comando_partida)
+
+    p = comandos.add_parser("ejecutar", help="ejecuta lo que pida prueba.modo del JSON")
+    p.add_argument("ruta")
+    p.set_defaults(funcion=comando_ejecutar)
 
     args = parser.parse_args(argv)
     try:

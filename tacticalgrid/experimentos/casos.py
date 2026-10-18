@@ -9,8 +9,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from tacticalgrid.adversarial.minimax import alfa_beta, minimax, voraz
 from tacticalgrid.busqueda.ejecutar import ejecutar_busqueda
 from tacticalgrid.escenario.cargador import cargar_escenario
+from tacticalgrid.juego.estado import estado_inicial
 
 CARPETA = Path(__file__).resolve().parents[2] / "escenarios" / "casos"
 
@@ -76,3 +78,47 @@ CASOS = {
     "caso05": caso05,
     "caso06": caso06,
 }
+
+
+# ---------------------------------------------------------------- casos adversariales (spec 005)
+
+def _decision(d):
+    fila = d.como_dict()
+    fila.pop("valores_raiz")
+    fila.pop("desglose", None)
+    return fila
+
+
+def caso07():
+    e = cargar("caso07_decision_adversarial")
+    s = estado_inicial(e)
+    mm, vz = alfa_beta(e, s), voraz(e, s)  # profundidad del JSON (4)
+    return mm.accion != vz.accion, [_decision(mm), _decision(vz)]
+
+
+def caso08():
+    e = cargar("caso08_minimax_vs_alfabeta")
+    s = estado_inicial(e)
+    mm, ab = minimax(e, s), alfa_beta(e, s)
+    ok = mm.accion == ab.accion and mm.valor == ab.valor and ab.nodos_evaluados < mm.nodos_evaluados
+    return ok, [_decision(mm), _decision(ab)]
+
+
+def caso09():
+    e = cargar("caso09_orden_acciones")
+    s = estado_inicial(e)
+    decisiones = [alfa_beta(e, s, orden=o) for o in ("natural", "inverso", "heuristico")]
+    ok = len({d.valor for d in decisiones}) == 1 and len({d.nodos_podados for d in decisiones}) > 1
+    return ok, [_decision(d) for d in decisiones]
+
+
+def caso10():
+    e = cargar("caso10_profundidad")
+    s = estado_inicial(e)
+    decisiones = [alfa_beta(e, s, p) for p in (1, 2, 3, 4, 5)]
+    evaluados = [d.nodos_evaluados for d in decisiones]
+    ok = evaluados == sorted(evaluados) and len(set(evaluados)) == len(evaluados)
+    return ok, [_decision(d) for d in decisiones]
+
+
+CASOS.update({"caso07": caso07, "caso08": caso08, "caso09": caso09, "caso10": caso10})
