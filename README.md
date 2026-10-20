@@ -75,6 +75,7 @@ Manual completo: [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md). Resultados de
 | [docs/DECISIONES.md](docs/DECISIONES.md) | Decisiones abiertas del enunciado y cómo las resolvimos (con justificación) |
 | [docs/ROLES_Y_ARNESES.md](docs/ROLES_Y_ARNESES.md) | Reparto de trabajo, roles de agentes y arneses de verificación |
 | [docs/GUIA_SUSTENTACION.md](docs/GUIA_SUSTENTACION.md) | Banco de preguntas y cómo prepararnos |
+| ⭐ [docs/ESTUDIO_PRESENTACION.md](docs/ESTUDIO_PRESENTACION.md) | Plan de estudio, guion de la presentación grupal (20 min), demo y preguntas con respuesta |
 | [docs/USO_IA.md](docs/USO_IA.md) | Registro honesto del uso de IA generativa |
 | [specs/](specs/README.md) | Especificaciones 000–009 |
 | [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md) | Manual de usuario con capturas |
