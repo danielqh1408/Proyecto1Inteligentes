@@ -3,6 +3,7 @@
 > **Mañana 21 oct, 7:20 a.m. — presentación GRUPAL de 20 minutos.** La sustentación individual es otro día (el profesor publicará horarios).
 > Antes: **inscribir el grupo en la hoja que envió el profesor** (uno de los dos).
 > Este documento es para estudiar esta noche: plan → guía de entendimiento → guion de 20 min → banco de preguntas con respuestas → tarjetas para memorizar.
+> **Diapositivas (17, con notas de orador por slide):** https://claude.ai/artifact/WuXnk9u8gGFpaBRwxnZn7C — Juan debe compartirlas con Daniel desde el menú *Share*. Se pueden descargar como PowerPoint o PDF por si no hay internet en el salón.
 
 ---
 
@@ -310,5 +311,5 @@ cd PrimerProyecto
 - [ ] **Inscribir el grupo** en la hoja del profesor.
 - [ ] **Estudiar con este documento** y ensayar el guion con Daniel (una vez completa, con cronómetro).
 - [ ] **Revisar el código** que se va a mostrar: `reglas.py`, `algoritmos.py`, `heuristicas.py`, `utilidad.py` y `minimax.py`.
-- [ ] *(Opcional)* Diapositivas para apoyar la presentación.
+- [x] Diapositivas: https://claude.ai/artifact/WuXnk9u8gGFpaBRwxnZn7C (compartir con Daniel y descargar el PDF de respaldo).
 - [ ] Más adelante: preparar la sustentación **individual** con el banco de preguntas y `/sustentacion NNN`.

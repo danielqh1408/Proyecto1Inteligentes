@@ -203,7 +203,7 @@ class App:
             lz.create_oval(x - t / 6, y - t / 6, x + t / 6, y + t / 6, fill="#ffffff", outline="")
         for bando, (f, c) in e.bases.items():
             lz.create_rectangle(c * t + 2, f * t + 2, (c + 1) * t - 2, (f + 1) * t - 2, outline=COLOR_BANDO[bando], width=4)
-            lz.create_text(c * t + t / 2, f * t + t / 2, text=f"Base {bando}" if t > 40 else bando, fill=COLOR_BANDO[bando],
+            lz.create_text(c * t + t / 2, f * t + t / 2, text=f"Base {bando}" if t > 70 else bando, fill=COLOR_BANDO[bando],
                            font=("Helvetica", max(int(t / 3), 7), "bold"))
         if len(camino) > 1:
             lz.create_line(*[v for celda in camino for v in self.centro(celda)], fill="#ff8c00", width=max(t / 6, 2), arrow="last")
