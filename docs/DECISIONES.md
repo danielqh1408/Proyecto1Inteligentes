@@ -5,20 +5,20 @@
 
 | ID | Decisión | Estado |
 |---|---|---|
-| D‑01 | Bandos `a/b` se normalizan a `A/B` | propuesta |
-| D‑02 | Solo las 9 validaciones del PDF + unidades superpuestas (sin advertencias extra) | propuesta |
-| D‑03 | Si hay portador, el recurso está donde está el portador | propuesta |
-| D‑04 | Campos opcionales con valores por defecto en `config.py` | propuesta |
-| D‑05 | En modo búsqueda las otras unidades se ignoran (opción para bloquear) | propuesta |
-| D‑06 | Heurísticas: `manhattan`·c_min y `obstaculos` (BFS inverso)·c_min | propuesta |
-| D‑07 | Beam por niveles, criterio h, visitados global (como en clase) | propuesta |
-| D‑08 | MAX = bando en turno en la raíz; evaluación de suma cero simétrica | propuesta |
-| D‑09 | Utilidad: posesión + carrera (lo que falta para ganar) + movilidad, con pesos configurables | propuesta (cambiada al implementar) |
-| D‑10 | GUI con tkinter | **propuesta — validar con Daniel** |
-| D‑11 | Unidades idénticas (`estandar`) en el MVP | propuesta |
-| D‑12 | Python 3.12, núcleo solo stdlib, pytest | propuesta |
-| D‑13 | Prueba de objetivo al extraer de la frontera en todos los algoritmos | propuesta |
-| D‑14 | Interceptar transfiere el recurso y devuelve al antiguo portador a su inicio; no se entra a la base enemiga | propuesta (cambiada al implementar) |
+| D‑01 | Bandos `a/b` se normalizan a `A/B` | **aceptada** (18 oct) |
+| D‑02 | Solo las 9 validaciones del PDF + unidades superpuestas (sin advertencias extra) | **aceptada** (18 oct) |
+| D‑03 | Si hay portador, el recurso está donde está el portador | **aceptada** (18 oct) |
+| D‑04 | Campos opcionales con valores por defecto en `config.py` | **aceptada** (18 oct) |
+| D‑05 | En modo búsqueda las otras unidades se ignoran (opción para bloquear) | **aceptada** (18 oct) |
+| D‑06 | Heurísticas: `manhattan`·c_min y `obstaculos` (BFS inverso)·c_min | **aceptada** (18 oct) |
+| D‑07 | Beam por niveles, criterio h, visitados global (como en clase) | **aceptada** (18 oct) |
+| D‑08 | MAX = bando en turno en la raíz; evaluación de suma cero simétrica | **aceptada** (18 oct) |
+| D‑09 | Utilidad: 20·posesión + 3·carrera + 0.1·movilidad, con pesos configurables | **aceptada** (Daniel, 20 oct; posesión bajó de 50 a 20) |
+| D‑10 | GUI con tkinter | **aceptada** (18 oct) |
+| D‑11 | Unidades idénticas (`estandar`) en el MVP | **aceptada** (18 oct) |
+| D‑12 | Python 3.12, núcleo solo stdlib, pytest | **aceptada** (18 oct) |
+| D‑13 | Prueba de objetivo al extraer de la frontera en todos los algoritmos | **aceptada** (18 oct) |
+| D‑14 | Interceptar devuelve el recurso y al antiguo portador a sus posiciones iniciales; no se entra a la base enemiga | **aceptada** (propuesta de Daniel, 20 oct) |
 
 ---
 
@@ -47,7 +47,7 @@
 **Decisión:** MAX = bando en turno en la raíz. Evaluación simétrica `E_A = −E_B`. **Consecuencia:** el mismo código decide por A o por B; argumento directo de que MIN no está en desventaja.
 
 ### D‑09 · Función de utilidad
-**Decisión:** terminal ±(10 000 − profundidad), 0 empate; no terminal = 50·posesión + 3·carrera + 0.1·movilidad, donde carrera = restante(MIN) − restante(MAX) y `restante` es el costo real (Dijkstra) que le falta a cada bando para ganar (spec 005 §4). **Por qué:** cubre los factores que sugiere el enunciado (posesión, distancias, proximidad del adversario, unidades disponibles) y es **monótona**: recoger el recurso nunca empeora el valor. **Historia:** la propuesta inicial de 5 componentes se descartó al implementar porque una unidad junto al recurso prefería no recogerlo. **Consecuencia:** pesos ajustables en vivo desde `juego.pesos_utilidad`.
+**Decisión:** terminal ±(10 000 − profundidad), 0 empate; no terminal = 20·posesión + 3·carrera + 0.1·movilidad, donde carrera = restante(MIN) − restante(MAX) y `restante` es el costo real (Dijkstra) que le falta a cada bando para ganar (spec 005 §4). **Por qué:** cubre los factores que sugiere el enunciado (posesión, distancias, proximidad del adversario, unidades disponibles) y es **monótona**: recoger el recurso nunca empeora el valor. **Historia:** la propuesta inicial de 5 componentes se descartó al implementar porque una unidad junto al recurso prefería no recogerlo. **Ajuste (20 oct):** Daniel consideró alto el peso de posesión (50). Se probó 10, 20 y 50: los 10 casos y el torneo E6 dan el mismo resultado, porque `carrera` ya premia tener el recurso; se dejó en 20. **Consecuencia:** pesos ajustables en vivo desde `juego.pesos_utilidad`.
 
 ### D‑10 · Interfaz: tkinter
 **Contexto:** se necesita cargar archivos, controles (combos, spinbox), tablas y una cuadrícula; la estética no se evalúa. **Decisión:** `tkinter` + `ttk`. **Alternativas:** Pygame (hay que construir botones, tablas y diálogo de archivos a mano), Streamlit (modelo de recarga incómodo para turnos), web React (otro stack y otra capa de API). **Riesgo:** en macOS con Python de Homebrew falta Tk ⇒ `brew install python-tk@3.12`. **Pendiente:** confirmar que funciona en el equipo de Daniel y en el PC de la sustentación.
@@ -62,4 +62,4 @@ Python 3.12 (igual que el curso), núcleo con stdlib, `pytest` para pruebas, `ma
 Ver spec 003 §3. Necesaria para la optimalidad de UCS/A\* y hace comparables las métricas de los 5 algoritmos.
 
 ### D‑14 · Intercepción y base enemiga
-**Decisión:** INTERCEPTAR (adyacencia) transfiere el recurso al interceptor y el antiguo portador vuelve a su posición inicial del JSON (si está ocupada, se queda); nadie puede entrar a la base enemiga. **Historia:** la primera versión no movía al antiguo portador; al jugar partidas en un mapa simétrico, dos unidades vecinas se quitaban el recurso en cada turno (166 intercepciones en 200 turnos) y todo terminaba en empate. **Alternativas:** el recurso cae al suelo (añade estado y casos), un turno de inmunidad para el nuevo portador (añade un campo al estado), eliminar unidades (combate, prohibido por complejidad). **Consecuencia:** el recurso libre siempre está en su posición inicial ⇒ las distancias al recurso se precalculan una sola vez.
+**Decisión (aceptada, propuesta de Daniel):** INTERCEPTAR (adyacente al portador enemigo) le hace perder el recurso: el recurso vuelve libre a su posición inicial del JSON y el antiguo portador vuelve a su posición inicial (si está ocupada, se queda). Nadie puede entrar a la base enemiga. **Historia:** (1) la primera versión pasaba el recurso al interceptor: dos unidades vecinas se lo quitaban en cada turno (166 intercepciones en 200 turnos) y todo era empate; (2) se agregó que el portador vuelve a su inicio; (3) Daniel propuso que el recurso también vuelva a su sitio, así interceptar es una jugada defensiva que reinicia la carrera. Con (3) los 10 casos se cumplen, no hay ciclos y en el mapa simétrico el agente con más profundidad gana. **Alternativas:** el recurso cae al suelo donde estaba (añade posiciones posibles del recurso), un turno de inmunidad (añade un campo al estado). **Consecuencia:** el recurso libre SIEMPRE está en su posición inicial ⇒ las distancias al recurso se precalculan una sola vez.

@@ -42,7 +42,7 @@ Primero se define **`restante(X)`** = costo que le falta al bando X para ganar s
 
 | # | Componente fᵢ | Definición (positivo = bueno para MAX) | Peso por defecto |
 |---|---|---|---|
-| f1 | Posesión | +1 si MAX porta, −1 si MIN porta, 0 si está libre | `posesion = 50` |
+| f1 | Posesión | +1 si MAX porta, −1 si MIN porta, 0 si está libre | `posesion = 20` (era 50; ver D‑09) |
 | f2 | Carrera | `restante(MIN) − restante(MAX)`: quién está más cerca de ganar | `carrera = 3` |
 | f3 | Movilidad (unidades disponibles / bloqueo) | `#acciones_legales(MAX) − #acciones_legales(MIN)` | `movilidad = 0.1` |
 

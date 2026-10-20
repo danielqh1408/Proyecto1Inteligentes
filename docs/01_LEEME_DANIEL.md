@@ -172,7 +172,9 @@ Propuesta: **MOVER** (arriba, abajo, izquierda, derecha), **INTERCEPTAR** (si es
 
 > **Actualización (18 oct, al implementar):** sin nada más, dos unidades vecinas se quitaban el recurso en cada turno para siempre (166 intercepciones en 200 turnos). Se agregó: **el que pierde el recurso vuelve a su posición inicial**. Con eso, en un mapa simétrico el agente que mira más lejos gana (ver `resultados/RESUMEN.md`, E6). Dime si prefieres otra solución.
 Tu opinión: ✏️
-Cambio propuesto por Daniel: el que pierde el recurso vuelve a su posición inicial, y el recurso vuelve a su posición inicial.  
+Cambio propuesto por Daniel: el que pierde el recurso vuelve a su posición inicial, y el recurso vuelve a su posición inicial.
+
+> ✅ **Implementado el 20 oct** (D‑14 aceptada). Se comprobó que los 10 casos siguen cumpliéndose y que no hay ciclos de intercepción.
 
 **A3. Regla: nadie puede entrar a la base enemiga**
 *Por qué:* las bases son **una sola casilla**. Si no existe esta regla, la estrategia ganadora es parar una unidad encima de la base rival y el rival nunca puede ganar. El juego se rompe y Minimax lo descubriría.
@@ -242,6 +244,8 @@ Propuesta:
 - La interfaz mostrará el **desglose**: por qué una jugada vale más que otra.
 
 *Preguntas:* ¿falta algo? ¿Te parecen bien los pesos como punto de partida? (Los vamos a ajustar con experimentos.) (Daniel: Veo los pesos un poco desequilibrados, el de posesión es muy alto )
+
+> ✅ **20 oct:** se probó posesión = 10, 20 y 50; el resultado de los casos y del torneo no cambia (la carrera ya premia tener el recurso). Se bajó a **20**.
 
 > **Actualización (18 oct, al implementar):** al jugar partidas, la versión de 5 componentes hacía que una unidad al lado del recurso **no lo recogiera** (perdía el término de "carrera al recurso" y ganaba uno negativo de "entrega"). Se simplificó a 3 componentes: **posesión**, **carrera** = lo que le falta a cada bando para ganar (con costos reales) y **movilidad**. Detalle en `specs/005-adversarial/spec.md §4`. Revísalo y dime si estás de acuerdo.
 Tu opinión: ✅

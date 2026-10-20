@@ -42,7 +42,7 @@ Además de los campos obligatorios del contrato (`version`, `mapa`, `tipos_terre
 | `juego.profundidad_maxima_minimax` | Profundidad límite de búsqueda para Minimax y Poda Alfa-Beta | `3` |
 | `juego.max_turnos` | Límite máximo de turnos de la partida antes de declarar empate | `200` |
 | `juego.orden_acciones` | Orden de evaluación de jugadas: `natural`, `inverso` o `heuristico` | `natural` |
-| `juego.pesos_utilidad` | Pesos de evaluación, p. ej. `{"posesion": 50, "carrera": 3, "movilidad": 0.1}` | Valores base en `config.py` |
+| `juego.pesos_utilidad` | Pesos de evaluación, p. ej. `{"posesion": 20, "carrera": 3, "movilidad": 0.1}` | Valores base en `config.py` |
 | `prueba.algoritmo` | `BFS`, `DFS`, `UCS`, `A_ESTRELLA`, `BEAM` (o `MINIMAX`, `ALFA_BETA`, `VORAZ`) | `BFS` / `ALFA_BETA` |
 | `prueba.heuristica` | `manhattan`, `obstaculos`, `manhattan_promedio`, `cero` | `manhattan` |
 | `prueba.k` | Ancho del haz ($k$) para Beam Search | `2` |

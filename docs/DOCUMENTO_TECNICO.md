@@ -13,7 +13,7 @@
 
 ## 3. Reglas del juego
 - Fuente: spec 002 §3.3 (R1–R10), `docs/DECISIONES.md` D‑14.
-- Responder: turnos, movimiento, recoger, interceptar (y por qué el antiguo portador vuelve a su inicio), base enemiga, bloqueo, empate. Mismas reglas para ambos bandos.
+- Responder: turnos, movimiento, recoger, interceptar (por qué el recurso y el antiguo portador vuelven a su posición inicial: propuesta de Daniel, D‑14), base enemiga, bloqueo, empate. Mismas reglas para ambos bandos.
 
 ## 4. Costos
 - Fuente: `Escenario.costo`, E3 (`resultados/E3_sensibilidad.csv`).
