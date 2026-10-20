@@ -7,10 +7,13 @@ from tacticalgrid.juego.estado import estado_inicial
 from tacticalgrid.juego.reglas import aplicar, es_terminal, ganador
 
 AGENTES = ("MINIMAX", "ALFA_BETA", "VORAZ")
+ALIAS = {"ALFABETA": "ALFA_BETA", "ALPHA_BETA": "ALFA_BETA", "ALPHABETA": "ALFA_BETA", "PODA_ALFA_BETA": "ALFA_BETA"}
 
 
 def decidir_con(agente: str, escenario, estado, profundidad=None, orden=None):
     """Decisión del ``agente`` ("MINIMAX", "ALFA_BETA" o "VORAZ") en ``estado``."""
+    agente = str(agente).upper().replace("-", "_").replace(" ", "_")
+    agente = ALIAS.get(agente, agente)
     if agente == "MINIMAX":
         return minimax(escenario, estado, profundidad, orden)
     if agente == "ALFA_BETA":

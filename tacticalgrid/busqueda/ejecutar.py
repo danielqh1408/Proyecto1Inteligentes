@@ -12,12 +12,17 @@ from tacticalgrid.busqueda.problema import ProblemaMision, ProblemaNavegacion
 from tacticalgrid.config import ORDEN_MOVIMIENTOS
 
 ALGORITMOS = ("BFS", "DFS", "UCS", "A_ESTRELLA", "BEAM")
+# Otros nombres con los que el profesor podría escribir el algoritmo en el JSON.
+ALIAS = {"A*": "A_ESTRELLA", "ASTAR": "A_ESTRELLA", "A_STAR": "A_ESTRELLA", "AESTRELLA": "A_ESTRELLA",
+         "COSTO_UNIFORME": "UCS", "BEAM_SEARCH": "BEAM", "BEAMSEARCH": "BEAM"}
 
 
 def crear_problema(escenario, unidad=None, objetivo=None, mision=None, orden=None, unidades_bloquean=None):
     """Problema de navegación (o de misión) según la prueba del JSON y los argumentos dados."""
     prueba = escenario.prueba or {}
     unidad = unidad or prueba.get("unidad_inicio")
+    if unidad not in [u.id for u in escenario.unidades]:
+        raise ValueError(f"La prueba de búsqueda necesita una unidad existente (unidad_inicio = {unidad!r})")
     orden = orden or prueba.get("orden_movimientos", ORDEN_MOVIMIENTOS)
     mision = prueba.get("mision", False) if mision is None else mision
     if unidades_bloquean is None:
@@ -26,6 +31,8 @@ def crear_problema(escenario, unidad=None, objetivo=None, mision=None, orden=Non
     if mision:
         return ProblemaMision(escenario, unidad, orden, bloqueadas)
     if objetivo is None:
+        if "objetivo" not in prueba:
+            raise ValueError("La prueba de búsqueda necesita un objetivo (prueba.objetivo o --objetivo f,c)")
         objetivo = (prueba["objetivo"]["fila"], prueba["objetivo"]["columna"])
     inicio = next(u.pos for u in escenario.unidades if u.id == unidad)
     return ProblemaNavegacion(escenario, inicio, tuple(objetivo), orden, bloqueadas)
@@ -34,7 +41,8 @@ def crear_problema(escenario, unidad=None, objetivo=None, mision=None, orden=Non
 def ejecutar_busqueda(escenario, algoritmo=None, heuristica=None, k=None, problema=None, **opciones_problema):
     """Corre ``algoritmo`` sobre la prueba del escenario y devuelve el ``Resultado``."""
     prueba = escenario.prueba or {}
-    algoritmo = (algoritmo or prueba.get("algoritmo", "BFS")).upper()
+    algoritmo = str(algoritmo or prueba.get("algoritmo", "BFS")).upper().replace("-", "_").replace(" ", "_")
+    algoritmo = ALIAS.get(algoritmo, algoritmo)
     heuristica = heuristica or prueba.get("heuristica", "manhattan")
     k = k or prueba.get("k", 2)
     problema = problema or crear_problema(escenario, **opciones_problema)

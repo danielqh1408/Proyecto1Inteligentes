@@ -11,7 +11,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from tacticalgrid.adversarial.partida import AGENTES, decidir_con, resumen_final
-from tacticalgrid.busqueda.ejecutar import ALGORITMOS, crear_problema, ejecutar_busqueda
+from tacticalgrid.busqueda.ejecutar import ALGORITMOS, ALIAS, crear_problema, ejecutar_busqueda
 from tacticalgrid.busqueda.resultado import posicion
 from tacticalgrid.config import DEFECTOS_JUEGO, ORDEN_MOVIMIENTOS
 from tacticalgrid.escenario.cargador import EscenarioInvalido, cargar_escenario
@@ -158,12 +158,13 @@ class App:
         self.combo_unidad["values"] = ids
         prueba = escenario.prueba or {}
         self.v_unidad.set(prueba.get("unidad_inicio", ids[0] if ids else ""))
-        self.v_algoritmo.set(prueba.get("algoritmo", "BFS") if prueba.get("algoritmo", "BFS") in ALGORITMOS else "BFS")
+        nombre = str(prueba.get("algoritmo", "BFS")).upper()
+        self.v_algoritmo.set(ALIAS.get(nombre, nombre) if ALIAS.get(nombre, nombre) in ALGORITMOS else "BFS")
         self.v_mision.set(bool(prueba.get("mision", False)))
         objetivo = prueba.get("objetivo")
         self.objetivo = (objetivo["fila"], objetivo["columna"]) if objetivo else None
         self.lbl_objetivo["text"] = f"Objetivo: {self.objetivo or '(clic en el mapa)'}"
-        self.v_prof.set(escenario.juego.get("profundidad_maxima_minimax", DEFECTOS_JUEGO["profundidad_maxima_minimax"]))
+        self.v_prof.set(prueba.get("profundidad") or escenario.juego.get("profundidad_maxima_minimax", DEFECTOS_JUEGO["profundidad_maxima_minimax"]))
         self.v_orden_acc.set(escenario.juego.get("orden_acciones", "natural"))
         self.leyenda["text"] = "Leyenda: " + "   ".join(
             f"{n} ({'muro' if c is None else c})" for n, c in escenario.costos.items())

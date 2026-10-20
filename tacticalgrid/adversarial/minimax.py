@@ -72,7 +72,8 @@ def decidir(escenario, estado, profundidad=None, poda=True, orden=None, pesos=No
 
     Purpose: decisión adversarial: "¿cuál es mi mejor acción teniendo en cuenta las respuestas del rival?".
     Preconditions: ``estado`` no es terminal; profundidad >= 1. Lo que no se pase se toma del JSON
-        (juego.profundidad_maxima_minimax, juego.orden_acciones, juego.pesos_utilidad) o de config.
+        (prueba.profundidad o juego.profundidad_maxima_minimax, juego.orden_acciones,
+        juego.pesos_utilidad) o de config.
     Postconditions: ``accion`` es legal; ``valor`` es el valor Minimax de la raíz; se elige la PRIMERA
         acción con valor estrictamente mayor, así Minimax y alfa-beta coinciden. Con ``poda`` se dejan de
         explorar las acciones restantes de un nodo cuando alfa >= beta (no pueden cambiar la decisión).
@@ -85,7 +86,9 @@ def decidir(escenario, estado, profundidad=None, poda=True, orden=None, pesos=No
     """
     t0 = perf_counter()
     juego = escenario.juego
-    profundidad = profundidad or juego.get("profundidad_maxima_minimax", DEFECTOS_JUEGO["profundidad_maxima_minimax"])
+    prueba = escenario.prueba or {}
+    profundidad = (profundidad or prueba.get("profundidad")
+                   or juego.get("profundidad_maxima_minimax", DEFECTOS_JUEGO["profundidad_maxima_minimax"]))
     orden = orden or juego.get("orden_acciones", DEFECTOS_JUEGO["orden_acciones"])
     pesos = {**PESOS_UTILIDAD, **juego.get("pesos_utilidad", {}), **(pesos or {})}
     bando_max = estado.turno

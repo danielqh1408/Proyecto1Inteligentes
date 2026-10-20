@@ -69,7 +69,7 @@ def comando_decidir(args) -> int:
     e = cargar_escenario(args.ruta)
     agente = args.algoritmo or (e.prueba or {}).get("algoritmo", "ALFA_BETA")
     estado = estado_inicial(e)
-    d = decidir_con(agente.upper(), e, estado, args.profundidad, args.orden)
+    d = decidir_con(agente, e, estado, args.profundidad, args.orden)
     datos = d.como_dict()
     raiz = datos.pop("valores_raiz")
     print(json.dumps(datos, ensure_ascii=False))
@@ -180,7 +180,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     try:
         return args.funcion(args)
-    except EscenarioInvalido as error:
+    except (EscenarioInvalido, ValueError) as error:
         print(error)
         return 1
 

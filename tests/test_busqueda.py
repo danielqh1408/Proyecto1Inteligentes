@@ -130,3 +130,15 @@ def test_beam_descartados():
     r1, r8 = (ejecutar_busqueda(e, "BEAM", "manhattan", k) for k in (1, 8))
     assert r1.extra["descartados"] > 0 and not r1.exito and r8.exito  # k=1 recorta y se queda sin salida
     assert beam_search(ProblemaNavegacion(e, (10, 1), (10, 1)), lambda s: 0, 1).exito
+
+
+@pytest.mark.parametrize("nombre", ["A*", "astar", "a_estrella", "A-ESTRELLA"])
+def test_alias_de_algoritmos(datos_ejemplo, nombre):  # robustez ante el JSON del profesor
+    datos_ejemplo["prueba"]["algoritmo"] = nombre
+    assert ejecutar_busqueda(cargar_escenario(datos_ejemplo)).algoritmo == "A_ESTRELLA"
+
+
+def test_prueba_incompleta_da_error_claro(datos_ejemplo):
+    del datos_ejemplo["prueba"]["unidad_inicio"]
+    with pytest.raises(ValueError, match="unidad"):
+        ejecutar_busqueda(cargar_escenario(datos_ejemplo))
