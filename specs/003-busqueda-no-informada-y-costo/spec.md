@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | BFS, DFS y Costo Uniforme (15 %) |
 | Depende de | 001, 002 (§3.4 problemas de búsqueda) |
@@ -110,7 +110,7 @@ V = celdas transitables (× 2 en `ProblemaMision`), E ≤ 4V. En términos de á
 - [x] T3 `costo_uniforme` con eliminación perezosa — implementado con Claude; revisa el otro integrante
 - [x] T4 Escenarios `caso01` y `caso02` (≥ 20×20) con su `esperado` — implementado con Claude; revisa el otro integrante
 - [x] T5 Tests CA‑003‑1…9 — implementado con Claude; revisa el otro integrante
-- [ ] T6 Revisión y simulacro — Daniel
+- [x] T6 Revisión y simulacro — Daniel (20 oct, ver docs/USO_IA.md)
 
 ## 8. Para sustentar
 - *¿Por qué BFS encuentra el camino más corto en movimientos pero no el más barato?* → Explora por niveles (número de aristas), ignora costos.

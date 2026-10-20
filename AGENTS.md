@@ -156,14 +156,14 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 
 | Spec | Tema | Peso rúbrica | Estado |
 |---|---|---|---|
-| 001 | Escenario JSON, modelo y validación | 5 % (+ base de todo) | ✅ implementada (falta revisión de Daniel) |
-| 002 | Modelo de estado, acciones y reglas | 15 % | ✅ implementada (falta revisión de Daniel) |
-| 003 | BFS, DFS, UCS + métricas | 15 % | ✅ implementada (falta revisión) |
-| 004 | A\*, heurísticas y Beam Search | 20 % | ✅ implementada (falta revisión) |
-| 005 | Minimax, alfa‑beta y utilidad | 20 % | ✅ implementada (falta revisión) |
-| 006 | Verificación de soluciones | 5 % | ✅ implementada (falta revisión) |
-| 007 | Interfaz y visualización | 5 % | ✅ implementada (falta revisión visual) |
-| 008 | Casos mínimos y experimentación | 10 % | ✅ implementada (falta interpretación escrita) |
-| 009 | Documentación y entregables | 10 % | 🔨 en progreso (manual y documento técnico por redactar) |
+| 001 | Escenario JSON, modelo y validación | 5 % (+ base de todo) | ✅ implementada · revisada por Daniel |
+| 002 | Modelo de estado, acciones y reglas | 15 % | ✅ implementada · revisada por Daniel |
+| 003 | BFS, DFS, UCS + métricas | 15 % | ✅ implementada · revisada por Daniel |
+| 004 | A\*, heurísticas y Beam Search | 20 % | ✅ implementada · revisada por Daniel |
+| 005 | Minimax, alfa‑beta y utilidad | 20 % | ✅ implementada · revisada por Daniel |
+| 006 | Verificación de soluciones | 5 % | ✅ implementada · revisada por Daniel |
+| 007 | Interfaz y visualización | 5 % | ✅ implementada · revisada por Daniel |
+| 008 | Casos mínimos y experimentación | 10 % | ✅ implementada · revisada por Daniel |
+| 009 | Documentación y entregables | 10 % | ✅ manual, documento técnico y docstrings completos |
 
 Leyenda: 📝 especificada · 🔨 en progreso · ✅ implementada y probada · 🎤 lista para sustentar.

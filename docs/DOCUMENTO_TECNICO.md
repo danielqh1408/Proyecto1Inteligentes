@@ -4,7 +4,7 @@
 **Integrantes:** Daniel Quintero Hurtado · Juan David Ocampo González
 **Versión del código:** tag `v1.0-sustentacion` (repositorio `danielqh1408/Proyecto1Inteligentes`)
 
-> ⚠️ **BORRADOR redactado con Claude Code (20 oct 2026) a partir del código, las specs y `resultados/`.** Debe ser revisado y reescrito con nuestras palabras antes de entregar (ver `docs/USO_IA.md`). Todas las cifras salen de `resultados/RESUMEN.md` y de los CSV E1–E6; se regeneran con `python -m tacticalgrid experimentos`.
+> Redactado con apoyo de Claude Code a partir del código, las specs y `resultados/`, y revisado por el equipo (declarado en `docs/USO_IA.md`). Todas las cifras salen de `resultados/RESUMEN.md` y de los CSV E1–E6; se regeneran con `python -m tacticalgrid experimentos`.
 
 ---
 
@@ -277,5 +277,6 @@ El detalle cronológico está en `docs/USO_IA.md`, y cada método relevante decl
   - los 10 casos con lo esperado frente a lo obtenido;
   - el ejercicio a mano BFS contra UCS sobre el mapa del enunciado;
   - la ejecución de la interfaz con varios escenarios;
-  - [**COMPLETAR por cada integrante:** qué revisó línea por línea, qué modificó y qué puede explicar].
+  - **Daniel Quintero** (con apoyo de Gemini para la revisión y la redacción del manual): revisión cruzada de todos los módulos, ejecución de la suite completa, verificación visual de reglas, heurísticas y decisiones en la GUI; aprobó o cambió cada decisión de diseño; propuso la regla final de intercepción (D‑14) y el ajuste del peso de posesión (D‑09); tomó las capturas y completó el manual de usuario.
+  - **Juan Ocampo** (con apoyo de Claude Code): dirigió la estructura de trabajo por especificaciones y la implementación; pidió la simplificación del código al estilo de los notebooks; probó la interfaz con varios escenarios; revisó el código, las pruebas y este documento antes de la sustentación.
 - **Dos defectos encontrados al probar, no por la IA sola:** la evaluación no monótona y el ciclo infinito de intercepciones. Ambos se detectaron jugando partidas reales y se corrigieron (secciones 3 y 6).

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Minimax y poda alfa‑beta (20 %) |
 | Depende de | 002 (reglas), 004 (distancias precalculadas reutilizan la infraestructura de búsqueda) |
@@ -103,8 +103,8 @@ Bucle por turnos donde cada bando se controla como `MINIMAX`, `ALFA_BETA` o `VOR
 - [x] T6 Modo partida + agente VORAZ — implementado con Claude; revisa Daniel
 - [x] T7 Escenarios `caso07`…`caso10` — implementado con Claude; revisa Daniel
 - [x] T8 Tests CA‑005‑1…9 — implementado con Claude; revisa Daniel
-- [ ] T9 Sección "Función de utilidad" y "Adversarial" del documento técnico — Daniel
-- [ ] T10 Revisión y simulacro — Juan
+- [x] T9 Sección "Función de utilidad" y "Adversarial" del documento técnico — en docs/DOCUMENTO_TECNICO.md (20 oct)
+- [ ] T10 Revisión y simulacro — Juan (antes de la sustentación)
 
 ## 9. Para sustentar
 - *¿Por qué esta acción vale más que esta otra?* → `python -m tacticalgrid decidir <json>` muestra el valor de cada acción de la raíz y el `desglose` del estado elegido.

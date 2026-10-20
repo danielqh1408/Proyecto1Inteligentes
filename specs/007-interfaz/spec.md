@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión visual de los integrantes y capturas para el manual) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Interfaz y visualización (5 %) — pero es **la herramienta de la sustentación** |
 | Depende de | 001 (crece con cada spec) |
@@ -62,4 +62,4 @@ tacticalgrid/interfaz/
 - [x] T4 Panel adversarial (valores raíz, desglose) — implementado con Claude; revisa Juan
 - [x] T5 Panel partida — implementado con Claude; revisa Juan
 - [x] T6 Botón verificar + exportar — implementado con Claude; revisa Juan
-- [ ] T7 Capturas para el manual de usuario — Juan
+- [x] T7 Capturas para el manual de usuario — Daniel (20 oct)

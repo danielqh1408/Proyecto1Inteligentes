@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Modelado del problema y representación de estados (15 %) |
 | Depende de | 001 |
@@ -112,7 +112,7 @@ validar_estado(escenario, estado) -> list[str]           # invariantes (usado po
 - [x] T4 `ProblemaNavegacion` y `ProblemaMision` — implementado con Claude; revisa Daniel
 - [x] T5 `validar_estado` (invariantes) — implementado con Claude; revisa Daniel
 - [x] T6 Tests CA‑002‑1…9 — implementado con Claude; revisa Daniel
-- [ ] T7 Sección "Modelado" del documento técnico — Daniel + Juan
+- [x] T7 Sección "Modelado" del documento técnico — en docs/DOCUMENTO_TECNICO.md (20 oct)
 
 ## 6. Para sustentar
 - *Explique la representación de un estado.* → Los 5 campos y por qué cada uno es necesario (§3.1).

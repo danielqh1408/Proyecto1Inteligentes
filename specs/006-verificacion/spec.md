@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión de Juan y validación de estudiante en docstrings) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Validación de escenarios y soluciones (5 %) |
 | Depende de | 002, 003, 005 |

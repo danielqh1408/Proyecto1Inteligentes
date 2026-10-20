@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión y la interpretación escrita en el documento técnico) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | Experimentación, métricas e interpretación (10 %) + evidencia de los demás criterios |
 | Depende de | 003, 004, 005, 006 |
@@ -71,4 +71,4 @@ tacticalgrid/experimentos/
 - [x] T2 Diseñar los estados de los casos 7–10 — implementado con Claude; revisan ambos
 - [x] T3 `runner.py` + comparación con `esperado` — implementado con Claude; revisan ambos
 - [x] T4 E1–E6 + `RESUMEN.md` — implementado con Claude; revisan ambos
-- [ ] T5 Interpretación escrita de cada experimento en el documento técnico — Ambos
+- [x] T5 Interpretación escrita de cada experimento — docs/DOCUMENTO_TECNICO.md §8 (20 oct)

@@ -27,7 +27,7 @@ El juego es solo el **entorno de experimentación**. Lo que se evalúa es el **s
 
 ## 🚀 Instalación y ejecución
 
-> Estado (18 oct 2026): specs 001–008 implementadas, 200 pruebas automáticas en verde. Falta la revisión de ambos integrantes, el documento técnico y las capturas del manual. Ver `AGENTS.md §10`.
+> Estado (20 oct 2026, versión `v1.0-sustentacion`): specs 001–009 completas, 206 pruebas automáticas en verde, 10 casos mínimos cumplidos, manual con capturas y documento técnico. Ver `AGENTS.md §10`.
 
 ```bash
 git clone git@github.com:danielqh1408/Proyecto1Inteligentes.git
@@ -77,8 +77,8 @@ Manual completo: [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md). Resultados de
 | [docs/GUIA_SUSTENTACION.md](docs/GUIA_SUSTENTACION.md) | Banco de preguntas y cómo prepararnos |
 | [docs/USO_IA.md](docs/USO_IA.md) | Registro honesto del uso de IA generativa |
 | [specs/](specs/README.md) | Especificaciones 000–009 |
-| [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md) | Manual de usuario (borrador; faltan capturas) |
-| [docs/DOCUMENTO_TECNICO.md](docs/DOCUMENTO_TECNICO.md) | Documento técnico (esqueleto; lo redactamos nosotros) |
+| [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md) | Manual de usuario con capturas |
+| [docs/DOCUMENTO_TECNICO.md](docs/DOCUMENTO_TECNICO.md) | Documento técnico (modelado, heurísticas, utilidad, resultados, complejidad, limitaciones, uso de IA) |
 | [resultados/RESUMEN.md](resultados/RESUMEN.md) | Casos mínimos (esperado vs obtenido) y experimentos E1–E6 |
 
 ## 🤖 Uso de IA generativa

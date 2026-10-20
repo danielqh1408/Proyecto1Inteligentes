@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | Validación de escenarios y soluciones (5 %) — y es la base de todo lo demás |
 | Depende de | — |
@@ -94,8 +94,8 @@ Mensajes de error: `"[código] campo: explicación"`, p. ej. `[R4] bases.B: (4, 
 - [x] T3 Cargador atómico + `EscenarioInvalido` + CLI `validar` — Juan (con Claude)
 - [x] T4 JSON del enunciado + 14 JSON inválidos — Juan (con Claude)
 - [x] T5 Tests CA‑001‑1…8 (30 pruebas) — Juan (con Claude)
-- [ ] T6 Juan completa `Student validation` en los docstrings tras revisar el código
-- [ ] T7 Revisión cruzada y simulacro de preguntas — Daniel
+- [x] T6 `Student validation` completado en los docstrings (20 oct)
+- [x] T7 Revisión cruzada y simulacro de preguntas — Daniel (20 oct, ver docs/USO_IA.md)
 
 ## 8. Para sustentar
 - *¿Qué pasa si el JSON tiene un error a mitad de la carga?* → Se valida todo antes de construir. Si hay errores, `cargar_escenario` lanza la excepción **antes** de devolver, así que la variable con el escenario anterior nunca se reasigna.

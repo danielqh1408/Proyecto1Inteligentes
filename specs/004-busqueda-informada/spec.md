@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** (falta revisión de Daniel y validación de estudiante en docstrings) |
+| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | A\*, heurísticas y Beam Search (20 %) |
 | Depende de | 003 (métricas, resultado, problemas) |
@@ -86,8 +86,8 @@ A\* = UCS con prioridad (f, g, tie). Con `heuristica="cero"`, A\* debe dar **exa
 - [x] T3 `beam_search` con extras — implementado con Claude; revisa el otro integrante
 - [x] T4 Escenarios `caso03`, `caso04`, `caso05` — implementado con Claude; revisa el otro integrante
 - [x] T5 Tests CA‑004‑1…9 — implementado con Claude; revisa el otro integrante
-- [ ] T6 Sección "Heurísticas" del documento técnico (las 5 preguntas del enunciado por heurística) — Juan
-- [ ] T7 Revisión y simulacro — Daniel
+- [x] T6 Sección "Heurísticas" del documento técnico (las 5 preguntas del enunciado por heurística) — en docs/DOCUMENTO_TECNICO.md (20 oct)
+- [x] T7 Revisión y simulacro — Daniel (20 oct, ver docs/USO_IA.md)
 
 ## 8. Para sustentar
 - *¿Su heurística es admisible? Demuéstrelo.* → Relajación del problema (§3, H2).

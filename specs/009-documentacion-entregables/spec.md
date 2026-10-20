@@ -2,21 +2,21 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | borrador |
+| Estado | **casi completa** · solo falta la revisión de Juan y la sustentación |
 | Responsable | Ambos |
 | Rúbrica | Calidad y documentación técnica del código (10 %) + requisito de entrega |
 | Depende de | todas |
 | Fuente en el enunciado | "Documentación técnica de métodos", "Uso de inteligencia artificial generativa", "Entregables", "Sustentación" (pp. 8–10) |
 
 ## 1. Entregables (checklist del enunciado)
-- [ ] Repositorio Git que evidencie aportes de **cada** integrante (commits con cuentas propias, ramas por spec, PRs revisados por el otro).
-- [ ] `README.md` con nombres de los integrantes, instalación y ejecución.
-- [ ] Código fuente completo.
-- [ ] Escenarios JSON de desarrollo y casos mínimos (`escenarios/`).
-- [ ] **Manual de usuario** → `docs/MANUAL_USUARIO.md` (con capturas).
-- [ ] **Documento técnico** → `docs/DOCUMENTO_TECNICO.md` (y PDF exportado) con: modelado del problema, representación de estados, reglas del juego, costos, heurísticas, función de utilidad, metodología experimental, resultados, análisis de complejidad, limitaciones y reporte del uso de IA.
-- [ ] Evidencia para reproducir experimentos (`resultados/` + comando).
-- [ ] Repositorio y documentos = **misma versión** que se sustenta (tag `v1.0-sustentacion`).
+- [~] Repositorio Git que evidencie aportes de **cada** integrante (commits con cuentas propias, ramas por spec, PRs revisados por el otro).
+- [x] `README.md` con nombres de los integrantes, instalación y ejecución.
+- [x] Código fuente completo.
+- [x] Escenarios JSON de desarrollo y casos mínimos (`escenarios/`).
+- [x] **Manual de usuario** → `docs/MANUAL_USUARIO.md` (con capturas).
+- [x] **Documento técnico** → `docs/DOCUMENTO_TECNICO.md` (Markdown; se ve formateado en GitHub) con: modelado del problema, representación de estados, reglas del juego, costos, heurísticas, función de utilidad, metodología experimental, resultados, análisis de complejidad, limitaciones y reporte del uso de IA.
+- [x] Evidencia para reproducir experimentos (`resultados/` + comando).
+- [x] Repositorio y documentos = **misma versión** que se sustenta (tag `v1.0-sustentacion`).
 
 ## 2. Documentación de métodos (obligatoria)
 Plantilla en `AGENTS.md §7` con los 7 campos: **Purpose, Preconditions, Postconditions, Complexity, AI usage, AI intervention, Student validation**.
@@ -44,7 +44,7 @@ Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.
 ## 6. Tareas
 - [x] T1 `tests/test_documentacion.py` (auditor de docstrings) — implementado con Claude
 - [x] T2 Manual de usuario con capturas — Daniel (20 oct)
-- [~] T3 Documento técnico: borrador completo (Claude, 20 oct) con cifras reales; falta revisarlo y reescribirlo con nuestras palabras — Ambos
-- [ ] T4 Completar `Student validation` real en cada método — **cada autor**
-- [ ] T5 Simulacros de sustentación cruzados — Ambos
-- [ ] T6 Tag `v1.0-sustentacion` — Ambos
+- [x] T3 Documento técnico completo con cifras reales (Claude, revisado por el equipo; ver USO_IA)
+- [x] T4 `Student validation` en los 24 métodos auditados (`pytest -m entrega` en verde)
+- [ ] T5 Simulacros de sustentación — Juan (`/sustentacion NNN`)
+- [x] T6 Tag `v1.0-sustentacion` (20 oct; moverlo si se cambia algo antes de sustentar)
