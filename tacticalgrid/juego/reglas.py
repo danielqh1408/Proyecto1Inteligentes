@@ -33,7 +33,9 @@ def acciones_legales(escenario: Escenario, estado: EstadoJuego, orden=ORDEN_MOVI
     Complexity: O(U) con U unidades (4 vecinos por unidad; ``ocupadas`` es un set).
     AI usage: Yes
     AI intervention: Claude Code escribió la función siguiendo las reglas R2, R3, R5, R7 y R10.
-    Student validation: PENDIENTE: revisar test_mover_restricciones, test_interceptar y test_bloqueo_y_empate.
+    Student validation: pruebas test_mover_restricciones, test_interceptar, test_bloqueo_y_empate y test_orden_determinista, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     bando = estado.turno
     ocupadas = set(estado.posiciones)
@@ -66,7 +68,9 @@ def aplicar(escenario: Escenario, estado: EstadoJuego, accion: Accion) -> Estado
     Complexity: O(U), dominado por comprobar la legalidad.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
-    Student validation: PENDIENTE: revisar test_recoger_y_entregar y test_interceptar.
+    Student validation: pruebas test_recoger_y_entregar, test_interceptar, test_accion_ilegal y test_mas_profundidad_gana_en_mapa_simetrico, en verde. La regla final de intercepción (D-14) la propuso Daniel.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     if accion not in acciones_legales(escenario, estado):
         raise ValueError(f"Acción ilegal para el bando {estado.turno}: {accion}")
@@ -117,7 +121,9 @@ def validar_estado(escenario: Escenario, estado: EstadoJuego) -> list[str]:
     Complexity: O(U).
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
-    Student validation: PENDIENTE: revisar test_invariantes_alcanzables.
+    Student validation: pruebas test_invariantes_alcanzables (300 partidas aleatorias) y test_validar_estado_detecta_errores, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     errores = []
     if len(estado.posiciones) != len(escenario.unidades):

@@ -44,7 +44,9 @@ def estado_inicial(escenario: Escenario) -> EstadoJuego:
     Complexity: O(U) con U unidades.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
-    Student validation: PENDIENTE: revisar test_estado_inicial.
+    Student validation: pruebas test_estado_inicial y test_portador_desde_json, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     posiciones = tuple(u.pos for u in escenario.unidades)
     portador = escenario.portador

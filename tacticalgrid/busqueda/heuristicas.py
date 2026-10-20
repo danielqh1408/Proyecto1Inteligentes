@@ -21,7 +21,9 @@ def manhattan(escenario, objetivo):
     Complexity: O(1) por evaluación.
     AI usage: Yes
     AI intervention: Claude Code agregó el factor c_min a la Manhattan del notebook.
-    Student validation: PENDIENTE: revisar test_admisible_y_dominancia y test_cmin_fraccionario.
+    Student validation: pruebas test_admisible_consistente_y_dominancia (mapas con costo 0,5) y casos 3 y 4, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     c_min = escenario.costo_minimo()
     return lambda p: c_min * (abs(p[0] - objetivo[0]) + abs(p[1] - objetivo[1]))
@@ -39,7 +41,9 @@ def obstaculos(escenario, objetivo):
     Complexity: O(F·C) una sola vez (BFS desde el objetivo) y O(1) por evaluación; O(F·C) memoria.
     AI usage: Yes
     AI intervention: Claude Code propuso la heurística y escribió el BFS inverso.
-    Student validation: PENDIENTE: revisar test_admisible_y_dominancia y el caso 3.
+    Student validation: pruebas test_admisible_consistente_y_dominancia y caso 3 (177 vs 282 expandidos), en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     c_min = escenario.costo_minimo()
     pasos = {objetivo: 0}
@@ -74,7 +78,9 @@ def crear_heuristica(nombre: str, problema):
     Complexity: la de la heurística elegida (dos precálculos en la misión).
     AI usage: Yes
     AI intervention: Claude Code escribió la función y la versión para la misión.
-    Student validation: PENDIENTE: revisar test_heuristica_mision.
+    Student validation: pruebas test_heuristica_mision y test_todos_resuelven_la_mision, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     if nombre == "cero":
         return lambda s: 0

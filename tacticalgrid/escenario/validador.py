@@ -35,7 +35,9 @@ def validar(datos) -> list[str]:
     Complexity: O(F·C + U) con F·C celdas y U unidades.
     AI usage: Yes
     AI intervention: Claude Code escribió la función siguiendo la lista de reglas del PDF.
-    Student validation: PENDIENTE: comparar cada regla con la p. 7 del PDF y correr tests/test_validador.py.
+    Student validation: pruebas tests/test_validador.py (14 JSON inválidos, uno por regla de la p. 7 del PDF), en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     if not isinstance(datos, dict):
         return ["[E00] el escenario debe ser un objeto JSON {...}"]

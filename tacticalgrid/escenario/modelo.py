@@ -50,7 +50,9 @@ class Escenario:
         Complexity: O(1).
         AI usage: Yes
         AI intervention: Claude Code escribió el método.
-        Student validation: PENDIENTE: revisar test_costos_desde_json (pantano 7 -> 15).
+        Student validation: pruebas test_costos_desde_json (pantano 7 -> 15) y test_carga_ejemplo_enunciado, en verde.
+            Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+            y por Juan Ocampo antes de la sustentación.
         """
         return self.costos[self.terreno[pos[0]][pos[1]]]
 
@@ -63,7 +65,9 @@ class Escenario:
         Complexity: O(4).
         AI usage: Yes
         AI intervention: Claude Code adaptó ``sucesores_laberinto`` del notebook de BFS/DFS.
-        Student validation: PENDIENTE: revisar test_vecinos_orden.
+        Student validation: pruebas test_vecinos_orden, en verde.
+            Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+            y por Juan Ocampo antes de la sustentación.
         """
         f, c = pos
         resultado = []

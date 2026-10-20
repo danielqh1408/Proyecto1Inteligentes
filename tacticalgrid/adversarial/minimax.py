@@ -55,7 +55,9 @@ def ordenar_acciones(escenario, estado, orden: str, bando_max: str, pesos) -> li
     Complexity: O(b) para natural/inverso; O(b · (U + b log b)) para heurístico.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
-    Student validation: PENDIENTE: revisar el caso 9.
+    Student validation: pruebas caso 9 (test_casos.py) y test_minimax_igual_alfabeta con los 3 órdenes, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     acciones = acciones_legales(escenario, estado)
     if orden == "inverso":
@@ -82,7 +84,9 @@ def decidir(escenario, estado, profundidad=None, poda=True, orden=None, pesos=No
     AI usage: Yes
     AI intervention: Claude Code adaptó ``minimax_limitado`` y ``alfa_beta`` de los notebooks en una sola
         función con métricas, orden de acciones y la bandera ``poda``.
-    Student validation: PENDIENTE: revisar test_minimax_igual_alfabeta y los casos 7 a 10.
+    Student validation: pruebas test_minimax_igual_alfabeta, test_toma_la_victoria_inmediata, test_profundidad_desde_json y casos 7 a 10, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     t0 = perf_counter()
     juego = escenario.juego

@@ -44,7 +44,9 @@ def distancias(escenario) -> dict:
     Complexity: 4 Dijkstra, O(V log V) cada uno; luego O(1) por consulta.
     AI usage: Yes
     AI intervention: Claude Code escribió el precálculo.
-    Student validation: PENDIENTE: revisar test_distancias.
+    Student validation: pruebas test_distancias, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     resultado = {}
     for bando in ("A", "B"):
@@ -98,7 +100,9 @@ def evaluar(escenario, estado, bando_max: str, pesos=None) -> tuple[float, dict]
     AI intervention: Claude Code propuso los componentes y escribió la función. Una primera versión con 5
         componentes (posesión, carrera, entrega, presión, movilidad) hacía que una unidad al lado del
         recurso prefiriera NO recogerlo; se unificó todo en ``restante`` para que fuera monótona.
-    Student validation: PENDIENTE: revisar test_suma_cero, test_recoger_siempre_mejora y test_pesos_desde_json.
+    Student validation: pruebas test_suma_cero, test_recoger_siempre_mejora, test_pesos_desde_json y el torneo E6 (posesión 10/20/50), en verde. Daniel propuso bajar el peso de posesión de 50 a 20.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     pesos = pesos or PESOS_UTILIDAD
     bando_min = rival(bando_max)

@@ -32,7 +32,9 @@ class ProblemaNavegacion:
         Complexity: O(4).
         AI usage: Yes
         AI intervention: Claude Code escribió el método.
-        Student validation: PENDIENTE: revisar test_navegacion_sucesores.
+        Student validation: pruebas test_navegacion_sucesores, en verde.
+            Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+            y por Juan Ocampo antes de la sustentación.
         """
         return [(v, self.escenario.costo(v)) for v in self.escenario.vecinos(s, self.orden) if v not in self.bloqueadas]
 
@@ -61,7 +63,9 @@ class ProblemaMision:
         Complexity: O(4).
         AI usage: Yes
         AI intervention: Claude Code escribió el método.
-        Student validation: PENDIENTE: revisar test_mision_estado_compuesto.
+        Student validation: pruebas test_mision_estado_compuesto y caso 6, en verde.
+            Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+            y por Juan Ocampo antes de la sustentación.
         """
         pos, lleva = s
         recurso = self.escenario.recurso

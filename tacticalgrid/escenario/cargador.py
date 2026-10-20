@@ -26,7 +26,9 @@ def cargar_escenario(fuente) -> Escenario:
     Complexity: O(F·C + U), dominado por la validación.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
-    Student validation: PENDIENTE: revisar test_carga_atomica y cargar a mano un JSON inválido.
+    Student validation: pruebas test_carga_atomica, test_json_mal_formado y la carga de escenarios/invalidos/ en la GUI (captura 02), en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     if isinstance(fuente, dict):
         datos = fuente

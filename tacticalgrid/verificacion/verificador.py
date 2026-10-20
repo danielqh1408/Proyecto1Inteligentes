@@ -20,7 +20,9 @@ def verificar_camino(escenario, problema, resultado) -> list[tuple[str, bool]]:
     Complexity: O(L) con L = longitud del camino (+ O(V) si hay que confirmar con BFS).
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
-    Student validation: PENDIENTE: revisar test_detecta_manipulaciones.
+    Student validation: pruebas test_detecta_manipulaciones y test_todos_los_resultados, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     camino = resultado.camino
     if not resultado.exito:
@@ -54,7 +56,9 @@ def verificar_decision(escenario, estado, decision) -> list[tuple[str, bool]]:
     Complexity: O(b · U) con b acciones de la raíz y U unidades.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
-    Student validation: PENDIENTE: revisar test_decision_ilegal.
+    Student validation: pruebas test_decision_ilegal y test_decision_legal_y_minimax_igual_alfabeta, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     legales = acciones_legales(escenario, estado)
     consideradas = [a for a, _ in decision.valores_raiz]

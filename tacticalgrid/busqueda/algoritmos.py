@@ -55,7 +55,9 @@ def bfs(problema) -> Resultado:
     AI usage: Yes
     AI intervention: Claude Code adaptó ``bfs_camino_laberinto`` del notebook: padres en vez de
         copiar caminos, métricas y prueba de objetivo al sacar; comparte código con dfs.
-    Student validation: PENDIENTE: revisar test_bfs_ejemplo y el caso 1.
+    Student validation: pruebas test_ejemplo_enunciado (BFS costo 14, igual al ejercicio a mano), test_optimos_contra_dijkstra y caso 1, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     return _busqueda_ciega(problema, "BFS", es_dfs=False)
 
@@ -70,7 +72,9 @@ def dfs(problema) -> Resultado:
     Complexity: O(V + E) tiempo y O(V) espacio.
     AI usage: Yes
     AI intervention: Claude Code adaptó ``dfs_camino_laberinto`` del notebook (misma función que bfs).
-    Student validation: PENDIENTE: revisar el caso 1 y test_orden_movimientos_dfs.
+    Student validation: pruebas caso 1 y test_orden_movimientos_dfs, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     return _busqueda_ciega(problema, "DFS", es_dfs=True)
 
@@ -87,7 +91,9 @@ def a_estrella(problema, h, nombre: str = "A_ESTRELLA") -> Resultado:
     AI usage: Yes
     AI intervention: Claude Code adaptó ``a_estrella`` del notebook (misma tupla (f, g, tie, s)
         y eliminación perezosa), agregando padres, métricas y el corte por h = inf.
-    Student validation: PENDIENTE: revisar test_a_estrella_optimo y el caso 3.
+    Student validation: pruebas test_optimos_contra_dijkstra (20 mapas aleatorios), test_h_cero_es_ucs y caso 3, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     t0 = perf_counter()
     r = Resultado(nombre, estados_generados=1, maximo_frontera=1)
@@ -127,7 +133,9 @@ def costo_uniforme(problema) -> Resultado:
     Complexity: O((V + E) log V) tiempo, O(V) espacio.
     AI usage: Yes
     AI intervention: Claude Code propuso definir UCS como A* con h = 0 para no duplicar código.
-    Student validation: PENDIENTE: revisar test_ucs_optimo y el caso 2.
+    Student validation: pruebas test_optimos_contra_dijkstra, test_ejemplo_enunciado (UCS costo 7) y caso 2, en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     return a_estrella(problema, lambda s: 0, nombre="UCS")
 
@@ -145,7 +153,9 @@ def beam_search(problema, h, k: int, criterio: str = "h") -> Resultado:
     AI usage: Yes
     AI intervention: Claude Code adaptó ``beam_search_mapa`` del notebook (mismo esquema por niveles)
         con métricas, criterio f opcional y orden estable en empates.
-    Student validation: PENDIENTE: revisar el caso 5 con k = 1, 2, 4, 8.
+    Student validation: pruebas caso 5, test_beam_descartados y experimento E2 (k = 1..16), en verde.
+        Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
+        y por Juan Ocampo antes de la sustentación.
     """
     t0 = perf_counter()
     r = Resultado("BEAM", estados_generados=1, maximo_frontera=1, extra={"k": k, "criterio": criterio, "descartados": 0})
