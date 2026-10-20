@@ -11,7 +11,8 @@ DEFECTOS_JUEGO = {
 }
 
 # Pesos de la función de evaluación (spec 005 §4). Se pueden cambiar con juego.pesos_utilidad.
-PESOS_UTILIDAD = {"posesion": 50, "carrera": 3, "movilidad": 0.1}
+# posesion bajó de 50 a 20 por comentario de Daniel; con 10, 20 o 50 el torneo E6 da el mismo resultado.
+PESOS_UTILIDAD = {"posesion": 20, "carrera": 3, "movilidad": 0.1}
 
 # Valor de ganar (mayor que cualquier evaluación de un estado no terminal).
 VALOR_VICTORIA = 10_000

@@ -8,6 +8,7 @@ import pytest
 from tacticalgrid.adversarial.minimax import alfa_beta, minimax
 from tacticalgrid.adversarial.partida import jugar
 from tacticalgrid.adversarial.utilidad import distancias, evaluar, utilidad_terminal
+from tacticalgrid.config import PESOS_UTILIDAD
 from tacticalgrid.escenario.cargador import cargar_escenario
 from tacticalgrid.experimentos.casos import cargar
 from tacticalgrid.juego.estado import Accion, EstadoJuego, estado_inicial
@@ -68,8 +69,8 @@ def test_pesos_desde_json(datos_ejemplo):  # CA-005-7
     s = estado_inicial(e)
     datos_ejemplo["juego"]["pesos_utilidad"] = {"carrera": 0, "movilidad": 0}
     e2 = cargar_escenario(datos_ejemplo)
-    assert alfa_beta(e, s, 2).valor != alfa_beta(e2, s, 2).valor  # solo cuenta la posesión: -50 (B1 recoge en 2 jugadas)
-    assert alfa_beta(e2, s, 2).valor == -50
+    assert alfa_beta(e, s, 2).valor != alfa_beta(e2, s, 2).valor  # solo cuenta la posesión (B1 recoge en 2 jugadas)
+    assert alfa_beta(e2, s, 2).valor == -PESOS_UTILIDAD["posesion"]
 
 
 def test_acciones_legales_en_arbol():  # CA-005-8: aplicar() rechaza cualquier acción ilegal
@@ -104,3 +105,11 @@ def test_mas_profundidad_gana_en_mapa_simetrico():  # E6: con la regla R5 correg
         assert final.turnos_jugados < 200 and sum("intercepta" in a for _, _, a, _ in historial) < 5
 
         assert ganador(e, final) == gana
+
+
+def test_alias_y_profundidad_en_prueba(datos_ejemplo):  # robustez ante el JSON del profesor
+    from tacticalgrid.adversarial.partida import decidir_con
+    datos_ejemplo["prueba"] = {"modo": "adversarial", "algoritmo": "alfabeta", "profundidad": 2}
+    e = cargar_escenario(datos_ejemplo)
+    d = decidir_con(e.prueba["algoritmo"], e, estado_inicial(e))
+    assert d.algoritmo == "ALFA_BETA" and d.extra["profundidad"] == 2
