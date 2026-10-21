@@ -61,7 +61,8 @@ def test_optimos_contra_dijkstra(semilla):  # CA-003-4, CA-004-1
 def test_h_cero_es_ucs(datos_ejemplo):  # CA-004-2
     e = cargar_escenario(datos_ejemplo)
     p = ProblemaNavegacion(e, (0, 1), (3, 2))
-    assert a_estrella(p, lambda s: 0).como_dict() | {"algoritmo": "", "tiempo_ms": 0} == costo_uniforme(p).como_dict() | {"algoritmo": "", "tiempo_ms": 0}
+    ignorar = {"algoritmo": "", "tiempo_ms": 0, "preparacion_ms": 0, "tiempo_total_ms": 0}
+    assert a_estrella(p, lambda s: 0).como_dict() | ignorar == costo_uniforme(p).como_dict() | ignorar
 
 
 @pytest.mark.parametrize("semilla", range(10))

@@ -23,7 +23,7 @@ def manhattan(escenario, objetivo):
     AI intervention: Claude Code agregó el factor c_min a la Manhattan del notebook.
     Student validation: pruebas test_admisible_consistente_y_dominancia (mapas con costo 0,5) y casos 3 y 4, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     c_min = escenario.costo_minimo()
     return lambda p: c_min * (abs(p[0] - objetivo[0]) + abs(p[1] - objetivo[1]))
@@ -43,9 +43,11 @@ def obstaculos(escenario, objetivo):
     AI intervention: Claude Code propuso la heurística y escribió el BFS inverso.
     Student validation: pruebas test_admisible_consistente_y_dominancia y caso 3 (177 vs 282 expandidos), en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     c_min = escenario.costo_minimo()
+    if not escenario.transitable(objetivo):
+        return lambda p: math.inf
     pasos = {objetivo: 0}
     cola = deque([objetivo])
     while cola:
@@ -58,7 +60,16 @@ def obstaculos(escenario, objetivo):
 
 
 def manhattan_promedio(escenario, objetivo):
-    """H3 (solo para experimentar, NO admisible): costo promedio de las celdas transitables · Manhattan."""
+    """H3 experimental: costo promedio por distancia Manhattan.
+
+    Purpose: demostrar que una heurística que sobreestima puede perder el óptimo.
+    Preconditions: escenario validado con al menos una celda transitable.
+    Postconditions: devuelve una función NO admisible en general; no garantiza costo mínimo.
+    Complexity: O(F·C) preparación y memoria; O(1) por evaluación.
+    AI usage: Yes
+    AI intervention: Claude implementó H3; Codex completó su documentación.
+    Student validation: test_h3_no_admisible; revisión humana por realizar.
+    """
     costos = [escenario.costos[t] for fila in escenario.terreno for t in fila if escenario.costos[t] is not None]
     promedio = sum(costos) / len(costos)
     return lambda p: promedio * (abs(p[0] - objetivo[0]) + abs(p[1] - objetivo[1]))
@@ -80,10 +91,12 @@ def crear_heuristica(nombre: str, problema):
     AI intervention: Claude Code escribió la función y la versión para la misión.
     Student validation: pruebas test_heuristica_mision y test_todos_resuelven_la_mision, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     if nombre == "cero":
         return lambda s: 0
+    if nombre not in HEURISTICAS:
+        raise ValueError(f"Heurística desconocida: {nombre}")
     base = HEURISTICAS[nombre]
     e = problema.escenario
     if isinstance(problema, ProblemaMision):

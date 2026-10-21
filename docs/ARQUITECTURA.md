@@ -46,9 +46,9 @@ config.py: ÚNICO lugar con valores por defecto (orden de movimientos, pesos, ma
 | `adversarial/utilidad.py` | `distancias` (4 Dijkstra con caché), `restante`, `evaluar` (con desglose), `utilidad_terminal` | 005 |
 | `adversarial/minimax.py` | `decidir(poda=...)` (una sola recursión), `minimax`, `alfa_beta`, `voraz`, `ordenar_acciones`, `Decision` | 005 |
 | `adversarial/partida.py` | `jugar` (bucle por turnos), `decidir_con`, `resumen_final` | 005 |
-| `verificacion/verificador.py` | `verificar_camino`, `verificar_estado`, `verificar_decision`, `verificar_minimax_vs_alfabeta` | 006 |
-| `experimentos/` | `runner`, `experimentos` (E1–E6), `reporte` | 008 |
-| `interfaz/` | `app`, `lienzo`, paneles, `paleta` | 007 |
+| `verificacion/verificador.py` | `verificar_camino`, `verificar_decision`, `verificar_minimax_vs_alfabeta` | 006 |
+| `experimentos/` | `casos.py` (10 casos), `reporte.py` (E1–E6 y CSV) | 008 |
+| `interfaz/` | `app.py`: App, controles, lienzo y colores | 007 |
 | `__main__.py` | `validar`, `ejecutar`, `buscar`, `decidir`, `experimentos`, `gui` | 001/007/008 |
 | `config.py` | valores por defecto (nunca costos) | 000 P3 |
 
@@ -57,43 +57,42 @@ config.py: ÚNICO lugar con valores por defecto (orden de movimientos, pesos, ma
 **Modo búsqueda** (`python -m tacticalgrid ejecutar caso02.json`)
 ```
 JSON ──cargar_escenario──► Escenario ──► ProblemaNavegacion(inicio=unidad_inicio, objetivo)
-     ──► algoritmo(problema[, heurística, k]) ──► ResultadoBusqueda
-     ──► verificar_camino ──► CLI imprime to_dict() / GUI dibuja camino + explorados + métricas
+     ──► algoritmo(problema[, heurística, k]) ──► Resultado
+     ──► verificar_camino ──► CLI imprime como_dict() / GUI dibuja camino + explorados + métricas
 ```
 
 **Modo adversarial** (`python -m tacticalgrid decidir caso07.json --algoritmo ALFA_BETA`)
 ```
-JSON ──► Escenario ──► estado_inicial ──► distancias.precalcular(escenario)
-     ──► alfa_beta(escenario, estado, profundidad, orden, pesos) ──► ResultadoDecision
+JSON ──► Escenario ──► estado_inicial ──► distancias(escenario), en caché al evaluar
+     ──► alfa_beta(escenario, estado, profundidad, orden, pesos) ──► Decision
      ──► verificar_decision ──► acción + valor + valores_raiz + desglose
 ```
 
 ## 4. Interfaz de algoritmos (contrato interno)
 
 ```python
-# Búsqueda: todos reciben un ProblemaBusqueda y devuelven ResultadoBusqueda
+# Búsqueda: todos reciben un problema de navegación o misión y devuelven Resultado
 bfs(problema) / dfs(problema) / costo_uniforme(problema)
 a_estrella(problema, heuristica)
 beam_search(problema, heuristica, k, criterio="h")
 
 # Adversarial
-minimax(escenario, estado, profundidad, orden="natural", pesos=None, auditar=False) -> ResultadoDecision
-alfa_beta(escenario, estado, profundidad, orden="natural", pesos=None, auditar=False) -> ResultadoDecision
+minimax(escenario, estado, profundidad, orden=None, pesos=None) -> Decision
+alfa_beta(escenario, estado, profundidad, orden=None, pesos=None) -> Decision
 ```
-Los algoritmos de búsqueda **no saben** que existe un juego: solo ven `estado_inicial`, `es_objetivo`, `sucesores`. Por eso el mismo `bfs` resuelve navegación simple y la misión con recurso (estado compuesto).
+Los algoritmos de búsqueda **no saben** que existe un juego: solo ven `inicio`, `es_objetivo`, `sucesores`. Por eso el mismo `bfs` resuelve navegación simple y la misión con recurso (estado compuesto).
 
 ## 5. Configuración: precedencia
-`CLI/GUI` > `JSON (prueba.* / juego.*)` > `config.py`. Lo que se usó realmente queda registrado en cada resultado (para reproducir).
+`CLI/GUI` > `JSON (prueba.* / juego.*)` > `config.py`. Para reproducir se conserva el JSON, los argumentos y el resultado; este último no duplica toda la configuración.
 
 ## 6. Escenarios y resultados
 ```
 escenarios/
 ├── ejemplo_enunciado.json         # copia literal del PDF (contrato)
 ├── casos/caso01…caso10_*.json     # casos mínimos con campos extra `descripcion` y `esperado`
-├── sensibilidad/                  # pantano_7.json, pantano_15.json …
 ├── invalidos/                     # uno por regla de validación + múltiples errores
 └── externos/                      # JSON del profesor / de práctica
 resultados/
 ├── RESUMEN.md                     # esperado vs obtenido (✔/✘) de los 10 casos
-└── *.csv, *.json, graficas/*.png  # E1–E6 con cabecera de reproducibilidad
+└── E1_busqueda.csv … E6_torneo.csv # métricas reproducibles
 ```

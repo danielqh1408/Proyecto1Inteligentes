@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
+| Estado | **implementada y corregida el 20 oct** · pruebas automáticas realizadas · revisión humana de correcciones por realizar |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | A\*, heurísticas y Beam Search (20 %) |
 | Depende de | 003 (métricas, resultado, problemas) |
@@ -36,7 +36,7 @@ Sea **c_min** = menor costo entre los terrenos transitables **del escenario carg
 - **Usa:** el mapa de transitabilidad del escenario, la posición objetivo y c_min. Se precalcula **una vez por objetivo** con un BFS inverso desde el objetivo; luego cada consulta es un acceso a diccionario.
 - **Costo:** O(F·C) de precálculo (una sola vez) + O(1) por evaluación. Memoria O(F·C).
 - **Admisible:** el costo real de cualquier camino ≥ (número de pasos del camino) · c_min ≥ pasos_BFS · c_min. **Consistente:** pasos_BFS de dos vecinos difieren en ≤ 1.
-- **Domina a H1:** pasos_BFS ≥ Manhattan siempre ⇒ h₂ ≥ h₁ ⇒ A\* con H2 expande **≤** estados que con H1 (con desempates iguales) — dominancia vista en clase.
+- **Domina a H1:** pasos_BFS ≥ Manhattan siempre ⇒ h₂ ≥ h₁ ⇒ reduce los estados con f < C*. Los empates en f = C* también influyen en el total expandido.
 - **Orienta bien:** mapas con muros, laberintos, "trampas" donde el objetivo parece cerca pero hay que rodear (caso 3). Detecta además celdas **sin salida**: si pasos_BFS = ∞, el estado no puede llegar y no se inserta.
 - **Pierde discriminación:** mapas abiertos sin obstáculos (h₂ = h₁) y mapas donde la diferencia la hace el **costo del terreno** (pantanos, bosques), porque supone todo a c_min.
 - *Por qué no usar Dijkstra exacto como heurística:* sería la heurística perfecta, pero calcularla cuesta lo mismo que resolver el problema con UCS; no aporta como "conocimiento barato".
@@ -54,31 +54,24 @@ Como en clase: búsqueda **por niveles**. En cada nivel se expanden todos los es
 - Prueba de objetivo al sacar del haz (igual que los demás).
 - `visitados` **global** (como en clase): un estado descartado por el corte queda marcado y no se vuelve a generar ⇒ Beam **no es completo ni óptimo**. Es exactamente lo que el enunciado pide analizar.
 - Desempate determinista: (valor, contador de generación).
-- Extras en el resultado: `k`, `criterio`, `descartados` (candidatos eliminados por el corte), `maximo_haz`.
-- `maximo_frontera` en Beam = máximo de candidatos simultáneos **antes** del corte (memoria realmente usada en el nivel).
+- Extras en el resultado: `k`, `criterio`, `descartados` (candidatos eliminados por el corte).
+- `maximo_frontera` en Beam = máximo de haz pendiente + candidatos acumulados antes del corte (no incluye el historial).
 
 ## 5. Diseño
 
 > **Implementado:** `a_estrella` y `beam_search` en `busqueda/algoritmos.py`; `manhattan`, `obstaculos`, `manhattan_promedio` y `crear_heuristica` en `busqueda/heuristicas.py`. Evidencia: caso 3 (H2 expande 177 vs 282 de H1, mismo costo 32), caso 5 (Beam k=1 falla, k≥2 encuentra), caso 2 (H3 da costo 83 vs óptimo 33 → no admisible).
-```
-tacticalgrid/busqueda/
-├── heuristicas.py   # crear_heuristica(nombre, escenario, problema) -> Callable[[estado], float]
-│                    # registro: {"cero", "manhattan", "obstaculos", "manhattan_promedio"}
-├── a_estrella.py    # a_estrella(problema, heuristica) -> ResultadoBusqueda
-└── beam.py          # beam_search(problema, heuristica, k, criterio="h") -> ResultadoBusqueda
-```
 A\* = UCS con prioridad (f, g, tie). Con `heuristica="cero"`, A\* debe dar **exactamente** el mismo costo que UCS (prueba de cordura).
 
 ## 6. Criterios de aceptación
-- **CA-004-1** A\* con H1 y con H2 obtiene el **mismo costo** que UCS en todos los casos y en 20 mapas aleatorios con semilla. → `test_a_estrella.py::test_optimo_igual_ucs`
-- **CA-004-2** A\* con `cero` ≡ UCS (mismo costo; expandidos iguales salvo desempates). → `test_a_estrella.py::test_h_cero`
-- **CA-004-3** Admisibilidad empírica: para todo estado de los mapas de prueba, h₁ ≤ h₂ ≤ h\* (h\* por Dijkstra inverso). → `test_heuristicas.py::test_admisible_y_dominancia`
-- **CA-004-4** Consistencia: h(n) ≤ c(n,n') + h(n') para todo par vecino. → `test_heuristicas.py::test_consistente`
-- **CA-004-5** **Caso 3:** en `caso03_obstaculo_heuristica.json`, `expandidos(H2) < expandidos(H1)`. → `test_casos.py::test_caso03`
-- **CA-004-6** **Caso 4:** ambas heurísticas sobre el mismo escenario quedan en la tabla comparativa. → `test_casos.py::test_caso04`
-- **CA-004-7** **Caso 5:** en `caso05_beam.json`, al variar k ∈ {1,2,4,8} cambian `estados_expandidos` y, al menos para un k, cambia el camino o `exito`. → `test_casos.py::test_caso05`
-- **CA-004-8** Con `c_min = 0.5` en el JSON, H1 sigue siendo admisible. → `test_heuristicas.py::test_cmin_fraccionario`
-- **CA-004-9** H3 (`manhattan_promedio`) produce al menos un caso con costo > óptimo (evidencia de no admisibilidad). → `test_heuristicas.py::test_h3_no_admisible`
+- **CA-004-1** A\* con H1 y con H2 obtiene el **mismo costo** que UCS en todos los casos y en 20 mapas aleatorios con semilla. → `tests/test_busqueda.py::test_optimos_contra_dijkstra`
+- **CA-004-2** A\* con `cero` ≡ UCS (mismo costo; expandidos iguales salvo desempates). → `tests/test_busqueda.py::test_h_cero_es_ucs`
+- **CA-004-3** Admisibilidad empírica: para todo estado de los mapas de prueba, h₁ ≤ h₂ ≤ h\* (h\* por Dijkstra inverso). → `tests/test_busqueda.py`
+- **CA-004-4** Consistencia: h(n) ≤ c(n,n') + h(n') para todo par vecino. → `tests/test_busqueda.py`
+- **CA-004-5** **Caso 3:** en `caso03_obstaculo_heuristica.json`, `expandidos(H2) < expandidos(H1)`. → `tests/test_casos.py::test_caso`
+- **CA-004-6** **Caso 4:** ambas heurísticas sobre el mismo escenario quedan en la tabla comparativa. → `tests/test_casos.py::test_caso`
+- **CA-004-7** **Caso 5:** en `caso05_beam.json`, al variar k ∈ {1,2,4,8} cambian `estados_expandidos` y, al menos para un k, cambia el camino o `exito`. → `tests/test_casos.py::test_caso`
+- **CA-004-8** Con `c_min = 0.5` en el JSON, H1 sigue siendo admisible. → `tests/test_busqueda.py::test_admisible_consistente_y_dominancia`
+- **CA-004-9** H3 (`manhattan_promedio`) produce al menos un caso con costo > óptimo (evidencia de no admisibilidad). → `tests/test_busqueda.py::test_h3_no_admisible`
 
 ## 7. Tareas
 - [x] T1 `heuristicas.py` (cero, manhattan, obstaculos, manhattan_promedio) + versiones para misión — implementado con Claude; revisa el otro integrante
@@ -91,7 +84,13 @@ A\* = UCS con prioridad (f, g, tie). Con `heuristica="cero"`, A\* debe dar **exa
 
 ## 8. Para sustentar
 - *¿Su heurística es admisible? Demuéstrelo.* → Relajación del problema (§3, H2).
-- *¿Qué pasa con su heurística si el pantano cuesta 15?* → No cambia (usa c_min); sigue admisible pero discrimina menos; A\* expandirá más en zonas de pantano.
+- *¿Qué pasa con su heurística si el pantano cuesta 15?* → No cambia (usa c_min); sigue admisible pero discrimina menos; el número de expansiones puede subir o bajar según el mapa.
 - *¿Y si el camino cuesta 0.5?* → c_min = 0.5, ambas heurísticas se escalan y siguen admisibles.
 - *¿Por qué Beam con k=1 falla aquí?* → El corte descartó el único sucesor que llevaba al pasillo; con visitados global ya no se recupera.
 - *Prediga: ¿A\* con H2 expande más o menos que con H1 en un mapa sin muros?* → Igual (h₂ = h₁).
+
+## Correcciones de auditoría (20 oct 2026)
+
+Beam valida k entero positivo y criterio h/f. Conserva k estados en el haz, hasta O(k·b) en la frontera y O(V) de historial (padres, costos y expansiones). Aumentar k no garantiza completitud para cualquier mapa. Un objetivo no transitable produce heurística infinita y búsqueda sin solución. H3 se documenta con los siete campos y sigue siendo experimental, no admisible.
+
+Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.

@@ -20,6 +20,7 @@ class Resultado:
     estados_expandidos: int = 0                         # estados sacados cuyos sucesores se calcularon
     maximo_frontera: int = 0                            # mayor tamaño de la frontera
     tiempo_ms: float = 0
+    preparacion_ms: float = 0                          # construcción de la heurística
     orden_expansion: list = field(default_factory=list) # para dibujar los explorados en la GUI
     extra: dict = field(default_factory=dict)           # heuristica, k, descartados...
 
@@ -39,6 +40,8 @@ class Resultado:
             "estados_expandidos": self.estados_expandidos,
             "maximo_frontera": self.maximo_frontera,
             "tiempo_ms": round(self.tiempo_ms, 3),
+            "preparacion_ms": round(self.preparacion_ms, 3),
+            "tiempo_total_ms": round(self.tiempo_ms + self.preparacion_ms, 3),
             **self.extra,
         }
 

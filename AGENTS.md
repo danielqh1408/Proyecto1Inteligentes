@@ -42,7 +42,7 @@ Docente: **Jairo I. Vélez B.** — Universidad de Caldas, Ingeniería de Sistem
 - **Gráficas de experimentos (opcional):** `matplotlib` (ya usado en clase).
 - Sin frameworks de juego, sin dependencias pesadas. La calidad artística **no** se evalúa.
 
-## 4. Cómo correr (cuando exista el código)
+## 4. Cómo correr
 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
@@ -58,7 +58,7 @@ pytest -q                                                          # arnés de p
 
 > macOS con Python de Homebrew: `tkinter` requiere `brew install python-tk@3.12`. Alternativa sin instalar nada del sistema: `uv venv -p 3.11` (el Python de uv trae Tk).
 
-## 5. Estructura del repositorio (objetivo)
+## 5. Estructura del repositorio
 
 ```
 PrimerProyecto/
@@ -167,3 +167,5 @@ El arnés `tests/test_documentacion.py` revisará que los métodos listados en `
 | 009 | Documentación y entregables | 10 % | ✅ manual, documento técnico y docstrings completos |
 
 Leyenda: 📝 especificada · 🔨 en progreso · ✅ implementada y probada · 🎤 lista para sustentar.
+
+Revisión del 20 oct: las correcciones posteriores al tag histórico están probadas automáticamente. Los estados de revisión de Daniel de la tabla corresponden a la versión anterior; Juan y Daniel deben revisar personalmente los cambios actuales. Ver `docs/USO_IA.md`.

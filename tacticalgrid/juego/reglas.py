@@ -26,17 +26,19 @@ def acciones_legales(escenario: Escenario, estado: EstadoJuego, orden=ORDEN_MOVI
     """Acciones que puede hacer el bando en turno, en orden determinista.
 
     Purpose: función sucesor del juego (la usan Minimax, alfa-beta, la partida y el verificador).
-    Preconditions: ``estado`` es válido para ``escenario`` y no es terminal.
+    Preconditions: ``estado`` es válido para ``escenario``.
     Postconditions: por cada unidad del bando (orden del JSON): primero INTERCEPTAR si está al lado
         del portador enemigo (R5), luego MOVER a cada vecino transitable, libre y que no sea la
-        base enemiga (R2, R3) en el orden ``orden``. Si no hay ninguna, solo [PASAR] (R7).
+        base enemiga (R2, R3) en el orden ``orden``. Sin acciones, [PASAR] (R7); si es terminal, [].
     Complexity: O(U) con U unidades (4 vecinos por unidad; ``ocupadas`` es un set).
     AI usage: Yes
     AI intervention: Claude Code escribió la función siguiendo las reglas R2, R3, R5, R7 y R10.
     Student validation: pruebas test_mover_restricciones, test_interceptar, test_bloqueo_y_empate y test_orden_determinista, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
+    if es_terminal(escenario, estado):
+        return []
     bando = estado.turno
     ocupadas = set(estado.posiciones)
     base_rival = escenario.bases[rival(bando)]
@@ -64,13 +66,13 @@ def aplicar(escenario: Escenario, estado: EstadoJuego, accion: Accion) -> Estado
     Postconditions: MOVER cambia la posición de la unidad y recoge el recurso si entra a su celda (R4);
         INTERCEPTAR devuelve el recurso a su posición inicial del JSON (queda libre) y al antiguo portador
         a su posición inicial si está libre (R5, propuesta de Daniel: nadie se queda con el recurso, así
-        no hay ciclos de intercepción); siempre cambia el turno y suma 1 a turnos_jugados (R1).
+        se evita el intercambio inmediato del recurso); siempre cambia el turno y suma 1 a turnos_jugados (R1).
     Complexity: O(U), dominado por comprobar la legalidad.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
     Student validation: pruebas test_recoger_y_entregar, test_interceptar, test_accion_ilegal y test_mas_profundidad_gana_en_mapa_simetrico, en verde. La regla final de intercepción (D-14) la propuso Daniel.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     if accion not in acciones_legales(escenario, estado):
         raise ValueError(f"Acción ilegal para el bando {estado.turno}: {accion}")
@@ -90,12 +92,30 @@ def aplicar(escenario: Escenario, estado: EstadoJuego, accion: Accion) -> Estado
 
 
 def costo_accion(escenario: Escenario, accion: Accion) -> float:
-    """Costo de una acción: costo del terreno de destino al MOVER; 0 al INTERCEPTAR o PASAR."""
+    """Costo de ejecutar una acción legal.
+
+    Purpose: definir el costo de las transiciones del juego.
+    Preconditions: acción legal en el escenario.
+    Postconditions: costo de entrar al destino al MOVER; 0 al INTERCEPTAR o PASAR.
+    Complexity: O(1) tiempo y espacio.
+    AI usage: Yes
+    AI intervention: Claude implementó la función; Codex completó su documentación.
+    Student validation: test_costos_acciones en test_auditoria.py; revisión humana por realizar.
+    """
     return escenario.costo(accion.destino) if accion.tipo == "MOVER" else 0
 
 
 def ganador(escenario: Escenario, estado: EstadoJuego) -> str | None:
-    """Bando ganador si el portador está en su propia base (R6); si no, None."""
+    """Bando ganador si el portador está en su propia base (R6).
+
+    Purpose: identificar la victoria por entrega del recurso.
+    Preconditions: estado válido para el escenario.
+    Postconditions: bando del portador si está en su base; None en otro caso.
+    Complexity: O(U) tiempo y O(1) espacio.
+    AI usage: Yes
+    AI intervention: Claude implementó la regla; Codex completó la documentación.
+    Student validation: test_recoger_y_entregar; revisión humana de correcciones por realizar.
+    """
     if estado.portador is None:
         return None
     bando = bando_de(escenario, estado.portador)
@@ -105,7 +125,16 @@ def ganador(escenario: Escenario, estado: EstadoJuego) -> str | None:
 
 
 def es_terminal(escenario: Escenario, estado: EstadoJuego) -> bool:
-    """La partida termina si alguien ganó (R6) o se llegó al límite de turnos: empate (R8)."""
+    """La partida termina por victoria o límite de turnos.
+
+    Purpose: detener el juego y la expansión adversarial.
+    Preconditions: estado y configuración válidos.
+    Postconditions: True si hay ganador o turnos_jugados >= max_turnos.
+    Complexity: O(U) tiempo y O(1) espacio.
+    AI usage: Yes
+    AI intervention: Claude implementó la regla; Codex completó la documentación.
+    Student validation: test_bloqueo_y_empate y test_raiz_terminal_no_propone_jugada; revisión humana por realizar.
+    """
     max_turnos = escenario.juego.get("max_turnos", DEFECTOS_JUEGO["max_turnos"])
     return ganador(escenario, estado) is not None or estado.turnos_jugados >= max_turnos
 
@@ -117,13 +146,13 @@ def validar_estado(escenario: Escenario, estado: EstadoJuego) -> list[str]:
     Preconditions: ninguna.
     Postconditions: revisa que haya una posición por unidad, todas dentro del mapa y transitables,
         sin dos unidades en la misma celda, que el recurso esté libre XOR tenga portador existente,
-        y que el turno sea A o B.
+        que el recurso libre esté en su posición inicial, el turno sea A o B y los turnos sean enteros no negativos.
     Complexity: O(U).
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
     Student validation: pruebas test_invariantes_alcanzables (300 partidas aleatorias) y test_validar_estado_detecta_errores, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     errores = []
     if len(estado.posiciones) != len(escenario.unidades):
@@ -139,4 +168,11 @@ def validar_estado(escenario: Escenario, estado: EstadoJuego) -> list[str]:
         errores.append(f"el portador {estado.portador} no existe")
     if estado.turno not in ("A", "B"):
         errores.append(f"turno inválido {estado.turno!r}")
+    if estado.recurso is not None:
+        if not escenario.dentro(estado.recurso):
+            errores.append("el recurso está fuera del mapa")
+        elif estado.recurso != escenario.recurso:
+            errores.append("el recurso libre debe estar en su posición inicial")
+    if type(estado.turnos_jugados) is not int or estado.turnos_jugados < 0:
+        errores.append("turnos_jugados debe ser un entero no negativo")
     return errores

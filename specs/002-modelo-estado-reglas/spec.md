@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
+| Estado | **implementada y corregida el 20 oct** · pruebas automáticas realizadas · revisión humana de correcciones por realizar |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Modelado del problema y representación de estados (15 %) |
 | Depende de | 001 |
@@ -96,14 +96,14 @@ validar_estado(escenario, estado) -> list[str]           # invariantes (usado po
 
 ## 4. Criterios de aceptación
 - **CA-002-1** El estado inicial del ejemplo del enunciado tiene turno A, sin portador, recurso en (2,2). → `tests/test_reglas.py::test_estado_inicial`
-- **CA-002-2** **Caso 6:** `((2, 2), False)` y `((2, 2), True)` son estados distintos (distinto hash, distinto conjunto de objetivo) y `EstadoJuego` con la misma unidad en la misma celda, con y sin recurso, tiene acciones o valor distintos. → `test_reglas.py::test_estado_compuesto`
-- **CA-002-3** MOVER nunca lleva a obstáculo, fuera del mapa, celda ocupada ni base enemiga. → `test_reglas.py::test_mover_restricciones`
-- **CA-002-4** Entrar al recurso lo recoge; entrar a la base propia con él gana. → `test_reglas.py::test_recoger_y_entregar`
-- **CA-002-5** INTERCEPTAR solo es legal si hay adyacencia con el portador enemigo y transfiere la posesión. → `test_reglas.py::test_interceptar`
-- **CA-002-6** Bando sin movimientos ⇒ única acción PASAR; límite de turnos ⇒ empate. → `test_reglas.py::test_bloqueo_y_empate`
-- **CA-002-7** `acciones_legales` es determinista y respeta el orden configurado. → `test_reglas.py::test_orden_determinista`
-- **CA-002-8** Para todo estado alcanzado en 300 partidas aleatorias de 30 jugadas (semilla 0), `validar_estado` no reporta errores (prueba de propiedad). → `test_reglas.py::test_invariantes_alcanzables`
-- **CA-002-9** Las reglas son simétricas: intercambiar los bandos de un escenario produce acciones espejo. → `test_reglas.py::test_simetria_bandos`
+- **CA-002-2** **Caso 6:** `((2, 2), False)` y `((2, 2), True)` son estados distintos (distinto hash, distinto conjunto de objetivo) y `EstadoJuego` con la misma unidad en la misma celda, con y sin recurso, tiene acciones o valor distintos. → `tests/test_reglas.py::test_estado_compuesto`
+- **CA-002-3** MOVER nunca lleva a obstáculo, fuera del mapa, celda ocupada ni base enemiga. → `tests/test_reglas.py::test_mover_restricciones`
+- **CA-002-4** Entrar al recurso lo recoge; entrar a la base propia con él gana. → `tests/test_reglas.py::test_recoger_y_entregar`
+- **CA-002-5** INTERCEPTAR solo es legal si hay adyacencia con el portador enemigo y deja el recurso libre en su posición inicial. → `tests/test_reglas.py::test_interceptar`
+- **CA-002-6** Bando sin movimientos ⇒ única acción PASAR; límite de turnos ⇒ empate. → `tests/test_reglas.py::test_bloqueo_y_empate`
+- **CA-002-7** `acciones_legales` es determinista y respeta el orden configurado. → `tests/test_reglas.py::test_orden_determinista`
+- **CA-002-8** Para todo estado alcanzado en 300 partidas aleatorias de 30 jugadas (semilla 0), `validar_estado` no reporta errores (prueba de propiedad). → `tests/test_reglas.py::test_invariantes_alcanzables`
+- **CA-002-9** Las reglas son simétricas: intercambiar los bandos de un escenario produce acciones espejo. → `tests/test_reglas.py::test_simetria_bandos`
 
 ## 5. Tareas
 - [x] T1 `EstadoJuego`, `Accion` y `estado_inicial` — implementado con Claude; revisa Daniel
@@ -117,6 +117,12 @@ validar_estado(escenario, estado) -> list[str]           # invariantes (usado po
 ## 6. Para sustentar
 - *Explique la representación de un estado.* → Los 5 campos y por qué cada uno es necesario (§3.1).
 - *¿Por qué `(fila, columna)` no basta?* → Varias unidades, posesión del recurso, turno y límite de turnos cambian las acciones y el valor.
-- *¿Qué pasa si el portador es interceptado?* → R5: pierde el recurso, el recurso vuelve libre a su posición inicial y el antiguo portador a la suya. Interceptar es una jugada **defensiva**: reinicia la carrera. Así es imposible el ciclo infinito de intercepciones que tenía la primera versión.
+- *¿Qué pasa si el portador es interceptado?* → R5: pierde el recurso, el recurso vuelve libre a su posición inicial y el antiguo portador a la suya. Interceptar es una jugada **defensiva**: reinicia la carrera. Se evita el intercambio inmediato, pero no se garantiza ausencia de repetición de tableros; max_turnos termina la partida.
 - *¿Qué pasa si una unidad queda encerrada?* → Se mueven las otras; si ninguna puede, el bando PASA (R7); si nadie puede moverse, se llega al límite de turnos y es empate (R8).
 - *¿Por qué no se puede entrar a la base enemiga?* → Sin R3 el juego tiene una estrategia trivial que lo vuelve inganable.
+
+## Correcciones de auditoría (20 oct 2026)
+
+Los estados verifican recurso dentro del mapa y en su posición libre original, y turnos enteros no negativos. Un estado terminal no tiene acciones. La misión de una unidad solo se admite si el recurso está libre o lo lleva esa unidad; no crea un segundo recurso. La navegación sigue siendo una abstracción que ignora al adversario. La regla de intercepción no garantiza ausencia de repeticiones físicas; el límite de turnos garantiza terminación.
+
+Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.

@@ -174,7 +174,7 @@ Propuesta: **MOVER** (arriba, abajo, izquierda, derecha), **INTERCEPTAR** (si es
 Tu opinión: ✏️
 Cambio propuesto por Daniel: el que pierde el recurso vuelve a su posición inicial, y el recurso vuelve a su posición inicial.
 
-> ✅ **Implementado el 20 oct** (D‑14 aceptada). Se comprobó que los 10 casos siguen cumpliéndose y que no hay ciclos de intercepción.
+> ✅ **Implementado el 20 oct** (D‑14 aceptada). Se comprobó que los 10 casos siguen cumpliéndose y el resultado del torneo simétrico mejora. Esto no demuestra ausencia general de ciclos.
 
 **A3. Regla: nadie puede entrar a la base enemiga**
 *Por qué:* las bases son **una sola casilla**. Si no existe esta regla, la estrategia ganadora es parar una unidad encima de la base rival y el rival nunca puede ganar. El juego se rompe y Minimax lo descubriría.
@@ -229,7 +229,7 @@ Tu opinión: ✅
 
 **C2. La función de utilidad (la diseñamos nosotros)**
 Propuesta:
-- **Si alguien ganó:** ±10 000, con un pequeño bono por ganar en menos jugadas.
+- **Si alguien ganó:** ±(10 000 + max(0, max_turnos − profundidad)). La evaluación no terminal se limita a [−9999, 9999].
 - **Si no:** la suma ponderada de cinco cosas:
 
 | Componente | Idea | Peso inicial |

@@ -1,7 +1,13 @@
 # Guía de sustentación (versión final, 20 oct)
 
+Actualizada con el código corregido del 20 oct. Tres diferencias clave para explicar:
+- Una victoria domina cualquier evaluación; la suma no terminal se limita a ±9999.
+- En caso 9, profundidad 4: natural 427 hojas / 428 evaluaciones totales; heurístico 426 hojas / 2976 totales. Ordenar también cuesta.
+- Beam no garantiza completitud al subir k; recoger no garantiza mejorar la evaluación; más profundidad no garantiza ganar. Son límites que deben saber justificar.
+
+
 > La sustentación es **individual** y vale **50 %**. Cada uno debe explicar **cualquier** parte, aunque no la haya escrito.
-> Cómo usar esta guía: lee la sección 2 en voz alta; para cada respuesta, abre el archivo de la sección 5 y señala la línea. Practica las predicciones (§3) y las modificaciones (§4) **sin mirar las respuestas**.
+> Cómo usar esta guía: lee la sección 2 en voz alta; para cada respuesta, abre el archivo de la sección 5 y señala la función. Practica las predicciones (§3) y las modificaciones (§4) **sin mirar las respuestas**.
 
 ## 1. Lo que el enunciado dice que pueden pedirnos
 1. Explicar la representación de un estado.
@@ -30,7 +36,7 @@ Y pruebas de adaptación: cambiar costos, mover obstáculos/bases/unidades/recur
 - **¿Qué pasa al interceptar?** → El portador pierde el recurso: el recurso vuelve libre a su posición inicial y el portador a la suya. Fue propuesta de Daniel (D‑14).
   - La primera versión daba el recurso al interceptor y producía un ciclo infinito: 166 intercepciones en 200 turnos.
 - **¿Por qué no se puede entrar a la base enemiga?** → La base es una sola celda. Quedarse encima impediría ganar al rival para siempre.
-- **¿Qué pasa si no hay ruta?** → `exito = false` con todas las métricas; el verificador confirma con BFS que es inalcanzable.
+- **¿Qué pasa si no hay ruta?** → `exito = false` con todas las métricas; el verificador confirma con BFS que es inalcanzable, salvo Beam, que puede fallar aun habiendo ruta.
 - **¿Y si nadie puede moverse?** → Se PASA, y al llegar a 200 turnos (`juego.max_turnos`) es empate.
 
 ### Búsqueda no informada y costo (spec 003)
@@ -59,10 +65,10 @@ Y pruebas de adaptación: cambiar costos, mover obstáculos/bases/unidades/recur
 - **¿Quién es MAX?** → El bando que tiene el turno cuando se pide la decisión.
 - **¿Por qué MIN no está en desventaja?** → Mismas reglas y la misma función con el signo cambiado: `evaluar(s,"A") = −evaluar(s,"B")`. Que MIN minimice la utilidad de A es lo mismo que B maximice la suya. Son roles, no inteligencias distintas.
 - **Función de utilidad:**
-  - terminal: ±(10 000 − profundidad), para preferir ganar antes y perder después;
-  - no terminal: **20·posesión + 3·carrera + 0,1·movilidad**, donde carrera = lo que le falta al rival para ganar − lo que me falta a mí, con costos reales.
-- **¿Por qué esta acción vale más?** → `python -m tacticalgrid decidir <json>` muestra el valor de cada acción de la raíz y el desglose del estado elegido.
-- **¿Por qué 3 componentes y no 5?** → Con 5 (posesión, carrera al recurso, entrega, presión, movilidad), una unidad al lado del recurso **no lo recogía**: la evaluación no era monótona. Unificar en `restante` lo corrigió.
+  - terminal: ±(10 000 + max(0, max_turnos − profundidad)), para preferir ganar antes y perder después;
+  - no terminal: **limitar(20·posesión + 3·carrera + 0,1·movilidad, −9999, 9999)**, donde carrera = lo que le falta al rival para ganar − lo que me falta a mí, como estimación: usa Dijkstra salvo la persecución al portador, que combina pasos Manhattan y costo a base.
+- **¿Por qué esta acción vale más?** → `python -m tacticalgrid decidir <json>` muestra el valor de cada acción de la raíz (las no elegidas por alfa-beta pueden ser cotas) y los componentes del hijo inmediato elegido; esos componentes no explican por sí solos el valor de la hoja Minimax.
+- **¿Por qué 3 componentes y no 5?** → Con 5 (posesión, carrera al recurso, entrega, presión, movilidad), una unidad al lado del recurso **no lo recogía**: la evaluación no era monótona. Unificar en `restante` simplificó la fórmula, pero no garantiza monotonicidad; existe un contraejemplo con costos 10.
 - **¿Por qué posesión = 20?** → Daniel lo vio alto en 50. Probamos 10, 20 y 50 y el resultado no cambia, porque la carrera ya premia tener el recurso.
 - **¿Por qué alfa‑beta da la misma decisión?** → Solo poda ramas que no pueden cambiar el valor de la raíz. Además se elige la **primera** acción con valor **estrictamente** mayor. Caso 8: misma acción y valor (−47), con 427 nodos evaluados contra 20 478.
 - **¿Dónde está la poda?** → Una sola línea: `if poda and alfa >= beta: break` en `minimax.py`. Minimax y alfa‑beta son la misma función.
@@ -79,13 +85,13 @@ Y pruebas de adaptación: cambiar costos, mover obstáculos/bases/unidades/recur
 - **¿Qué verifica?** → Que el camino empiece en el inicio, que cada paso sea a una celda vecina, que no haya muros, que el costo coincida con las transiciones y que el final sea el objetivo. En las decisiones: acciones legales, estados válidos y que Minimax dé lo mismo que alfa‑beta.
 
 ### Uso de IA
-- **¿Qué hizo la IA?** → Claude Code generó la estructura por especificaciones, el código, las pruebas, los mapas de los casos y los borradores de los documentos. Gemini apoyó a Daniel en la revisión y el manual. Todo está declarado en `docs/USO_IA.md` y en cada método.
+- **¿Qué hizo la IA?** → Claude Code generó la estructura por especificaciones, el código, las pruebas, los mapas de los casos y los borradores de los documentos. Gemini apoyó a Daniel en la revisión y el manual. Codex realizó esta auditoría y las correcciones de código, pruebas y documentación. Todo está declarado en `docs/USO_IA.md` y en cada método.
 - **¿Qué decidimos nosotros?**
   - pedir un código simple como el de los notebooks, lo que llevó a reescribir una versión más compleja;
   - aprobar cada decisión de diseño;
   - la regla de intercepción final y el peso de posesión (Daniel).
-- **¿Cómo validamos?** → 206 pruebas automáticas (UCS y A\* contra un Dijkstra de referencia, Minimax = alfa‑beta en estados aleatorios, verificador sobre todos los resultados), 10 casos con lo esperado frente a lo obtenido, el ejercicio a mano BFS contra UCS y la revisión en la GUI.
-- **¿Qué errores encontraron al probar?** → La evaluación no monótona y el ciclo infinito de intercepciones. Los dos aparecieron jugando partidas, no en la teoría.
+- **¿Cómo validamos?** → 284 pruebas sin Tk + 4 de interfaz automáticas (UCS y A\* contra un Dijkstra de referencia, Minimax = alfa‑beta en estados aleatorios, verificador sobre todos los resultados), 10 casos con lo esperado frente a lo obtenido, el ejercicio a mano BFS contra UCS y la revisión en la GUI.
+- **¿Qué errores encontraron al probar?** → La evaluación no monótona y el ciclo infinito de intercepciones. La auditoría también encontró fallos con costos altos, carga de opciones y decisiones obsoletas; ya tienen pruebas de regresión.
 
 ## 3. Predicciones (hacerlas ANTES de ejecutar)
 | # | Cambio | Predicción | Dato real |
@@ -97,47 +103,47 @@ Y pruebas de adaptación: cambiar costos, mover obstáculos/bases/unidades/recur
 | P5 | Invertir el orden de movimientos | BFS: misma longitud; DFS: camino distinto | `test_orden_movimientos_dfs` |
 | P6 | Profundidad 2 → 4 (caso 8) | ~12 veces más nodos por nivel en Minimax; la acción puede cambiar | 144 → 20 478; (11,7) → (12,6) |
 | P7 | Orden `inverso` (caso 9) | Mismo valor, muchas menos podas útiles | 10 234 contra 427 evaluados |
-| P8 | `pesos_utilidad: {"carrera": 0}` | Solo cuenta la posesión: la IA no se acerca al recurso si no lo puede tomar dentro del horizonte | (probar en vivo) |
+| P8 | `pesos_utilidad: {"carrera": 0, "movilidad": 0}` | Solo cuenta la posesión: la IA no se acerca al recurso si no lo puede tomar dentro del horizonte | (probar en vivo) |
 | P9 | Mapa 4×4 del enunciado, pantano 7 → 1 | UCS pasa a costo 6 por (2,2); BFS cuesta 8 | `test_ejemplo_enunciado` |
 
 ## 4. Modificaciones pequeñas que hay que saber hacer en vivo
 | Petición | Dónde | Qué cambiar |
 |---|---|---|
-| Cambiar el orden de movimientos por defecto | `config.py:4` | reordenar la tupla `ORDEN_MOVIMIENTOS` (o usar `--orden` o el JSON, sin tocar código) |
-| BFS con prueba de objetivo al generar | `busqueda/algoritmos.py:27` | dentro del `for` de sucesores, devolver si `problema.es_objetivo(s2)`; explicar que los generados bajan y que en UCS/A\* esto rompería el óptimo |
-| Beam por f en vez de h | `busqueda/algoritmos.py:179` | ya existe `criterio="f"`; mostrar la línea `candidatos.sort(...)` |
-| Agregar diagonales | `escenario/modelo.py:13` | agregar `"arriba_derecha": (-1, 1)`, etc. a `DIRECCIONES` y al orden. **Ojo:** Manhattan deja de ser admisible (habría que usar Chebyshev) |
-| Nuevo componente de la utilidad | `adversarial/utilidad.py:87` | agregar una entrada a `f` y su peso en `config.py:15`; mantener la simetría (suma cero) |
-| Quitar la poda | `adversarial/minimax.py:122` | llamar `minimax(...)` (que pasa `poda=False`) en vez de `alfa_beta(...)`; mostrar que la línea `if poda and alfa >= beta: break` es la única diferencia |
+| Cambiar el orden de movimientos por defecto | `config.py` | reordenar la tupla `ORDEN_MOVIMIENTOS` (o usar `--orden` o el JSON, sin tocar código) |
+| BFS con prueba de objetivo al generar | `busqueda/algoritmos.py` | dentro del `for` de sucesores, devolver si `problema.es_objetivo(s2)`; explicar que los generados bajan y que en UCS/A\* esto rompería el óptimo |
+| Beam por f en vez de h | `busqueda/algoritmos.py` | ya existe `criterio="f"`; mostrar la línea `candidatos.sort(...)` |
+| Agregar diagonales | `escenario/modelo.py` | agregar direcciones a `DIRECCIONES`, al orden y a su validación; adaptar también reglas y pruebas. **Ojo:** Manhattan deja de ser admisible (habría que usar Chebyshev) |
+| Nuevo componente de la utilidad | `adversarial/utilidad.py` | agregar una entrada a `f` y su peso en `config.py`; mantener la simetría (suma cero) |
+| Quitar la poda | `adversarial/minimax.py` | llamar `minimax(...)` (que pasa `poda=False`) en vez de `alfa_beta(...)`; mostrar que la línea `if poda and alfa >= beta: break` es la única diferencia |
 | Cambiar el límite de turnos | JSON `juego.max_turnos` | sin tocar código |
-| Otra regla de validación | `escenario/validador.py:27` | agregar un `if` que haga `errores.append("[Rxx] campo: explicación")` |
+| Otra regla de validación | `escenario/validador.py` | agregar un `if` que haga `errores.append("[Rxx] campo: explicación")` |
 
-## 5. Mapa "dónde está cada cosa" (líneas actuales)
-| Pregunta del profesor | Archivo:línea |
+## 5. Mapa "dónde está cada cosa" (buscar por nombre de función)
+| Pregunta del profesor | Archivo / función |
 |---|---|
-| Representación del estado | `juego/estado.py:16` `EstadoJuego` |
-| Estado inicial | `juego/estado.py:37` `estado_inicial` |
-| Acciones legales (sucesores del juego) | `juego/reglas.py:25` `acciones_legales` |
-| Transición / intercepción | `juego/reglas.py:59` `aplicar` (la intercepción, en la línea 88) |
-| Victoria / terminal | `juego/reglas.py:97` `ganador`, `:107` `es_terminal` |
-| Invariantes del estado | `juego/reglas.py:113` `validar_estado` |
-| Sucesores y costo en la búsqueda | `busqueda/problema.py:26` (navegación), `:57` (misión) |
-| Costo de una celda | `escenario/modelo.py:44` `Escenario.costo` |
-| Vecinos y orden de movimientos | `escenario/modelo.py:59` `vecinos`, `config.py:4` |
-| BFS y DFS | `busqueda/algoritmos.py:27` `_busqueda_ciega` (pila o cola en la línea 33) |
-| A\* y UCS | `busqueda/algoritmos.py:82` y `:126` (eliminación perezosa en la línea 106) |
-| Beam Search | `busqueda/algoritmos.py:143` (recorte en la línea 179) |
-| Heurísticas | `busqueda/heuristicas.py:15` manhattan, `:32` obstaculos, `:70` crear_heuristica |
-| Distancias reales (Dijkstra) | `adversarial/utilidad.py:37` `distancias` |
-| Función de evaluación | `adversarial/utilidad.py:67` `restante`, `:87` `evaluar` |
-| Pesos de la utilidad | `config.py:15` (o `juego.pesos_utilidad` en el JSON) |
-| Minimax y alfa‑beta | `adversarial/minimax.py:72` `decidir`; la poda está en la línea 122 |
-| Orden de acciones | `adversarial/minimax.py:47` `ordenar_acciones` |
-| Agente voraz | `adversarial/minimax.py:150` |
-| Profundidad configurable | `prueba.profundidad` o `juego.profundidad_maxima_minimax` en el JSON → `--profundidad` → GUI (por defecto en `config.py:7`) |
-| Validación del JSON | `escenario/validador.py:27` `validar` |
-| Carga atómica | `escenario/cargador.py:17` `cargar_escenario` |
-| Verificación | `verificacion/verificador.py:12` (caminos), `:49` (decisiones) |
+| Representación del estado | `juego/estado.py` `EstadoJuego` |
+| Estado inicial | `juego/estado.py` `estado_inicial` |
+| Acciones legales (sucesores del juego) | `juego/reglas.py` `acciones_legales` |
+| Transición / intercepción | `juego/reglas.py` `aplicar` |
+| Victoria / terminal | `juego/reglas.py` `ganador`,  `es_terminal` |
+| Invariantes del estado | `juego/reglas.py` `validar_estado` |
+| Sucesores y costo en la búsqueda | `busqueda/problema.py`: `ProblemaNavegacion.sucesores` y `ProblemaMision.sucesores` |
+| Costo de una celda | `escenario/modelo.py` `Escenario.costo` |
+| Vecinos y orden de movimientos | `escenario/modelo.py` `vecinos`, `config.py` |
+| BFS y DFS | `busqueda/algoritmos.py` `_busqueda_ciega` |
+| A\* y UCS | `busqueda/algoritmos.py`: `a_estrella` y `costo_uniforme`  |
+| Beam Search | `busqueda/algoritmos.py`: `beam_search` |
+| Heurísticas | `busqueda/heuristicas.py` manhattan,  obstaculos,  crear_heuristica |
+| Distancias reales (Dijkstra) | `adversarial/utilidad.py` `distancias` |
+| Función de evaluación | `adversarial/utilidad.py` `restante`,  `evaluar` |
+| Pesos de la utilidad | `config.py` (o `juego.pesos_utilidad` en el JSON) |
+| Minimax y alfa‑beta | `adversarial/minimax.py` `decidir`; buscar `if poda and alfa >= beta` |
+| Orden de acciones | `adversarial/minimax.py` `ordenar_acciones` |
+| Agente voraz | `adversarial/minimax.py`: `voraz` |
+| Profundidad configurable | `prueba.profundidad` o `juego.profundidad_maxima_minimax` en el JSON → `--profundidad` → GUI (por defecto en `config.py`) |
+| Validación del JSON | `escenario/validador.py` `validar` |
+| Carga atómica | `escenario/cargador.py` `cargar_escenario` |
+| Verificación | `verificacion/verificador.py`: `verificar_camino` y `verificar_decision` |
 
 ## 6. Comandos para la sustentación
 ```bash
@@ -154,7 +160,7 @@ pytest -q
 ```
 
 ## 7. Checklist de la mañana (15 minutos antes)
-- [ ] `git pull` y `pytest -q` en verde (206).
+- [ ] Ejecutar `.venv/bin/python -m pytest -q -o addopts=''` sobre la copia corregida y ensayada.
 - [ ] Abrir la GUI con `.venv-gui/bin/python -m tacticalgrid gui escenarios/casos/caso03_obstaculo_heuristica.json`.
 - [ ] Tener abiertos `juego/reglas.py`, `busqueda/algoritmos.py`, `adversarial/utilidad.py` y `adversarial/minimax.py`.
 - [ ] Tener a mano `resultados/RESUMEN.md` y `docs/DOCUMENTO_TECNICO.md`.

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
+| Estado | **implementada y corregida el 20 oct** · pruebas automáticas realizadas · revisión humana de correcciones por realizar |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | Experimentación, métricas e interpretación (10 %) + evidencia de los demás criterios |
 | Depende de | 003, 004, 005, 006 |
@@ -46,29 +46,29 @@ Además:
 
 > **Implementado:** `tacticalgrid/experimentos/casos.py` (una función por caso: carga, ejecuta y compara con lo esperado; la usan los tests y el reporte) y `experimentos/reporte.py` (E1–E6 + `resultados/RESUMEN.md`). Comando: `python -m tacticalgrid experimentos` (≈ 5 s). Los escenarios incluyen `descripcion`, `esperado` y `mapa_ascii` (dibujo del mapa) como campos extra.
 > Cambios frente al bosquejo: sin gráficas (matplotlib opcional, no instalado); tiempo de una sola corrida (no mediana de 5); E6 usa `escenarios/partida_simetrica.json` (21×21 simétrico por rotación) para que el resultado dependa del agente y no del mapa.
-> **Hallazgos para el documento técnico:** caso 2 (BFS 17 pasos/costo 83 vs UCS 33/33); caso 3 (A\* H2 177 vs H1 282 expandidos); caso 5 (Beam k=1 falla); E3 (con pantano ≥ 3 UCS cambia al rodeo); E4/E5 (alfa‑beta prof. 4: 427 evaluados vs 20 478 de Minimax; con orden inverso 10 234); E6 (más profundidad gana; igual profundidad empata).
->
-> Bosquejo original:
-```
-tacticalgrid/experimentos/
-├── runner.py       # ejecutar_caso(ruta) -> dict con obtenidos + comparación contra `esperado`
-├── experimentos.py # E1…E6, cada uno una función pura que devuelve filas
-└── reporte.py      # escribe CSV/JSON y resultados/RESUMEN.md (tablas markdown + ✔/✘ esperado vs obtenido)
-```
-- `python -m tacticalgrid experimentos [--solo E2] [--salida resultados/]`.
-- Cada archivo de salida incluye cabecera con: fecha, commit (`git rev-parse --short HEAD`), versión de Python, parámetros. ⇒ reproducibilidad.
-- Tiempos: mediana de 5 repeticiones (el resto de métricas es determinista).
-- Gráficas con matplotlib **opcionales** (si no está instalado, solo CSV).
+> **Hallazgos para el documento técnico:** caso 2 (BFS 17 pasos/costo 83 vs UCS 33/33); caso 3 (A\* H2 177 vs H1 282 expandidos); caso 5 (Beam k=1 falla); E3 (con pantano ≥ 3 UCS cambia al rodeo); E4/E5 (alfa‑beta prof. 4: 427 evaluados vs 20 478 de Minimax; con orden inverso 10 234); E6 (en el mapa probado, profundidad 3 gana a 1 y 3 contra 3 empata).
+
+`casos.py` implementa los diez casos y `reporte.py` E1–E6, exportación CSV y resumen Markdown.
+- `python -m tacticalgrid experimentos [--salida resultados/]`.
+- `RESUMEN.md` incluye fecha, commit, indicación de cambios locales y versión de Python; los CSV contienen parámetros y métricas.
+- Tiempos: una ejecución por configuración; no se calcula mediana de cinco repeticiones (el resto de métricas es determinista).
+- El generador actual produce CSV y Markdown, sin gráficas.
 
 ## 5. Criterios de aceptación
 - **CA-008-1** `pytest tests/test_casos.py` ejecuta los 10 casos y compara `esperado` vs obtenido. → verde.
 - **CA-008-2** `python -m tacticalgrid experimentos` regenera `resultados/` sin intervención y `RESUMEN.md` muestra ✔ en los 10 casos.
-- **CA-008-3** Ejecutar dos veces produce CSV idénticos salvo la columna de tiempo.
+- **CA-008-3** Ejecutar dos veces produce CSV idénticos salvo las columnas de tiempo.
 - **CA-008-4** Cada caso declara estado inicial (en el propio JSON) y una descripción en el campo extra `descripcion`.
 
 ## 6. Tareas
 - [x] T1 Diseñar los mapas de los casos 1–6 — generados con Claude (ver `mapa_ascii` en cada JSON); **verificar a mano al revisar** — ambos
 - [x] T2 Diseñar los estados de los casos 7–10 — implementado con Claude; revisan ambos
-- [x] T3 `runner.py` + comparación con `esperado` — implementado con Claude; revisan ambos
+- [x] T3 `casos.py` + comparación con `esperado` — implementado con Claude; revisan ambos
 - [x] T4 E1–E6 + `RESUMEN.md` — implementado con Claude; revisan ambos
 - [x] T5 Interpretación escrita de cada experimento — docs/DOCUMENTO_TECNICO.md §8 (20 oct)
+
+## Correcciones de auditoría (20 oct 2026)
+
+Regenerar E1–E6 con los nuevos contadores y tiempos separados. Se conserva una corrida por medición; no se promete mediana ni gráficas inexistentes. Las conclusiones del torneo se limitan al mapa y agentes probados. El resumen identifica si hay cambios locales respecto al commit registrado.
+
+Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.

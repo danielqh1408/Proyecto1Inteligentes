@@ -9,6 +9,10 @@ Extras: E00 campo ausente o de tipo incorrecto · R10 dos unidades en la misma c
 
 from __future__ import annotations
 
+import math
+
+from tacticalgrid.config import ORDEN_MOVIMIENTOS, PESOS_UTILIDAD
+
 OBLIGATORIOS = ("version", "mapa", "tipos_terreno", "terreno", "bases", "recurso", "unidades", "turno", "juego")
 BANDOS = ("A", "B")
 
@@ -37,7 +41,7 @@ def validar(datos) -> list[str]:
     AI intervention: Claude Code escribió la función siguiendo la lista de reglas del PDF.
     Student validation: pruebas tests/test_validador.py (14 JSON inválidos, uno por regla de la p. 7 del PDF), en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     if not isinstance(datos, dict):
         return ["[E00] el escenario debe ser un objeto JSON {...}"]
@@ -63,7 +67,8 @@ def validar(datos) -> list[str]:
             errores.append(f"[E00] tipos_terreno.{nombre}: 'transitable' debe ser true o false")
             continue
         costo = t.get("costo")
-        if t["transitable"] and not (isinstance(costo, (int, float)) and not isinstance(costo, bool) and costo > 0):
+        if t["transitable"] and not (isinstance(costo, (int, float)) and not isinstance(costo, bool)
+                                     and math.isfinite(costo) and costo > 0):
             errores.append(f"[R3] tipos_terreno.{nombre}: es transitable y su costo {costo!r} no es > 0")
             continue
         costos[nombre] = costo if t["transitable"] else None
@@ -129,4 +134,43 @@ def validar(datos) -> list[str]:
         if portador is not None and not (isinstance(portador, str) and portador in ids):
             errores.append(f"[R9] juego.portador_recurso: {portador!r} no es una unidad existente")
 
+    # Opciones que la aplicación consume: validar antes de cambiar el escenario activo.
+    prueba = datos.get("prueba")
+    if prueba is not None and not isinstance(prueba, dict):
+        errores.append("[E00] prueba: debe ser un objeto JSON o null")
+    prueba = prueba if isinstance(prueba, dict) else {}
+    for bloque, nombre, campos in ((juego, "juego", ("profundidad_maxima_minimax", "max_turnos")),
+                                    (prueba, "prueba", ("profundidad", "k"))):
+        for campo in campos:
+            if campo in bloque and not (_entero(bloque[campo]) and bloque[campo] > 0):
+                errores.append(f"[E00] {nombre}.{campo}: debe ser un entero positivo")
+    if "objetivo" in prueba:
+        revisar_pos(prueba["objetivo"], "prueba.objetivo")
+    if "unidad_inicio" in prueba and prueba["unidad_inicio"] not in list(ids):
+        errores.append("[E00] prueba.unidad_inicio: debe identificar una unidad existente")
+    for campo in ("mision", "unidades_bloquean"):
+        if campo in prueba and not isinstance(prueba[campo], bool):
+            errores.append(f"[E00] prueba.{campo}: debe ser true o false")
+    if "orden_movimientos" in prueba:
+        orden = prueba["orden_movimientos"]
+        if not (isinstance(orden, list) and len(orden) == 4
+                and all(isinstance(x, str) for x in orden) and set(orden) == set(ORDEN_MOVIMIENTOS)):
+            errores.append("[E00] prueba.orden_movimientos: debe ordenar las cuatro direcciones sin repetir")
+    for bloque, campo, permitidos in (
+        (prueba, "modo", ("busqueda", "partida", "adversarial")),
+        (prueba, "heuristica", ("manhattan", "obstaculos", "manhattan_promedio", "cero")),
+        (juego, "orden_acciones", ("natural", "inverso", "heuristico")),
+    ):
+        if campo in bloque and bloque[campo] not in permitidos:
+            errores.append(f"[E00] {campo}: use uno de {', '.join(permitidos)}")
+    if "algoritmo" in prueba and not isinstance(prueba["algoritmo"], str):
+        errores.append("[E00] prueba.algoritmo: debe ser un texto")
+    pesos = juego.get("pesos_utilidad", {})
+    if not isinstance(pesos, dict):
+        errores.append("[E00] juego.pesos_utilidad: debe ser un objeto JSON")
+    else:
+        for nombre, peso in pesos.items():
+            if nombre in PESOS_UTILIDAD and not (isinstance(peso, (int, float))
+                    and not isinstance(peso, bool) and math.isfinite(peso)):
+                errores.append(f"[E00] juego.pesos_utilidad.{nombre}: debe ser un número finito")
     return errores

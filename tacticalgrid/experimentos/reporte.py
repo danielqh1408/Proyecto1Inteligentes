@@ -11,6 +11,7 @@ import platform
 import subprocess
 from datetime import datetime
 from pathlib import Path
+from time import perf_counter
 
 from tacticalgrid.adversarial.minimax import alfa_beta, minimax
 from tacticalgrid.adversarial.partida import jugar, resumen_final
@@ -23,8 +24,8 @@ from tacticalgrid.juego.estado import estado_inicial
 
 CASOS_BUSQUEDA = ["caso01_bfs_vs_dfs", "caso02_ruta_corta_vs_economica", "caso03_obstaculo_heuristica",
                   "caso04_comparacion_heuristicas", "caso05_beam", "caso06_estado_compuesto"]
-METRICAS = ["exito", "longitud", "costo", "estados_generados", "estados_expandidos", "maximo_frontera", "tiempo_ms"]
-METRICAS_ADV = ["accion", "valor", "nodos_generados", "nodos_evaluados", "nodos_podados", "profundidad_alcanzada", "tiempo_ms"]
+METRICAS = ["exito", "longitud", "costo", "estados_generados", "estados_expandidos", "maximo_frontera", "tiempo_ms", "preparacion_ms", "tiempo_total_ms"]
+METRICAS_ADV = ["accion", "valor", "nodos_generados", "nodos_evaluados", "nodos_podados", "evaluaciones_ordenamiento", "evaluaciones_desglose", "evaluaciones_totales", "nodos_generados_totales", "profundidad_alcanzada", "tiempo_ms"]
 
 
 def _fila(base: dict, datos: dict, columnas: list) -> dict:
@@ -50,10 +51,14 @@ def e2_beam():
     for caso in ("caso03_obstaculo_heuristica", "caso05_beam"):
         e = cargar(caso)
         problema = crear_problema(e)
-        h = crear_heuristica("manhattan", problema)
         for criterio in ("h", "f"):
             for k in (1, 2, 4, 8, 16):
-                r = beam_search(problema, h, k, criterio).como_dict()
+                t0 = perf_counter()
+                h = crear_heuristica("manhattan", problema)
+                preparacion_ms = (perf_counter() - t0) * 1000
+                resultado = beam_search(problema, h, k, criterio)
+                resultado.preparacion_ms = preparacion_ms
+                r = resultado.como_dict()
                 filas.append(_fila({"caso": caso, "k": k, "criterio": criterio, "descartados": r["descartados"]}, r, METRICAS))
     return filas
 
@@ -128,12 +133,14 @@ def generar(salida: Path) -> bool:
     salida.mkdir(parents=True, exist_ok=True)
     try:
         commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
+        if subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.strip():
+            commit += " + cambios locales"
     except OSError:
         commit = "?"
     partes = [
         "# Resultados de los experimentos",
         f"Generado: {datetime.now():%Y-%m-%d %H:%M} · commit `{commit or '?'}` · Python {platform.python_version()}",
-        "Regenerar con: `python -m tacticalgrid experimentos`. Todo es determinista salvo `tiempo_ms`.",
+        "Regenerar con: `python -m tacticalgrid experimentos`. Todo es determinista salvo las columnas de tiempo. tiempo_total_ms = tiempo_ms + preparacion_ms; incluye preparar la heurística, no cargar el JSON. Las evaluaciones totales incluyen hojas, ordenamiento y desglose del hijo elegido.",
         "## Casos mínimos del enunciado (esperado vs obtenido)",
     ]
     todos_ok = True
@@ -146,7 +153,7 @@ def generar(salida: Path) -> bool:
     for nombre, funcion in EXPERIMENTOS.items():
         filas = funcion()
         with open(salida / f"{nombre}.csv", "w", newline="", encoding="utf-8") as archivo:
-            escritor = csv.DictWriter(archivo, fieldnames=list(filas[0]))
+            escritor = csv.DictWriter(archivo, fieldnames=list(filas[0]), lineterminator="\n")
             escritor.writeheader()
             escritor.writerows(filas)
         partes += [f"## {nombre} — {funcion.__doc__.strip()}", f"Archivo: `{nombre}.csv`", _markdown(filas)]

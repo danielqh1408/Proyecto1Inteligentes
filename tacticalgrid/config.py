@@ -14,5 +14,5 @@ DEFECTOS_JUEGO = {
 # posesion bajó de 50 a 20 por comentario de Daniel; con 10, 20 o 50 el torneo E6 da el mismo resultado.
 PESOS_UTILIDAD = {"posesion": 20, "carrera": 3, "movilidad": 0.1}
 
-# Valor de ganar (mayor que cualquier evaluación de un estado no terminal).
+# Umbral de victoria: la evaluación no terminal se limita a ±(VALOR_VICTORIA - 1).
 VALOR_VICTORIA = 10_000

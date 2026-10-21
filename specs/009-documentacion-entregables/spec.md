@@ -16,14 +16,14 @@
 - [x] **Manual de usuario** → `docs/MANUAL_USUARIO.md` (con capturas).
 - [x] **Documento técnico** → `docs/DOCUMENTO_TECNICO.md` (Markdown; se ve formateado en GitHub) con: modelado del problema, representación de estados, reglas del juego, costos, heurísticas, función de utilidad, metodología experimental, resultados, análisis de complejidad, limitaciones y reporte del uso de IA.
 - [x] Evidencia para reproducir experimentos (`resultados/` + comando).
-- [x] Repositorio y documentos = **misma versión** que se sustenta (tag `v1.0-sustentacion`).
+- [x] Código y documentos corregidos en la misma revisión; el commit de `main` identifica la entrega. El tag histórico `v1.0-sustentacion` corresponde a la versión anterior.
 
 ## 2. Documentación de métodos (obligatoria)
 Plantilla en `AGENTS.md §7` con los 7 campos: **Purpose, Preconditions, Postconditions, Complexity, AI usage, AI intervention, Student validation**.
 
-Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.py` (fuente única de verdad; 24 métodos: validador, cargador, costo/vecinos, estado inicial, reglas, sucesores, los 5 algoritmos, heurísticas, distancias, evaluación, decidir, orden de acciones y verificador).
+Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.py` (fuente única de verdad; 31 métodos: validador, cargador, costo/vecinos, estado inicial, reglas, sucesores, los 5 algoritmos, heurísticas, distancias, evaluación, decidir, orden de acciones y verificador).
 
-**Arnés:** `tests/test_documentacion.py` importa cada método de la lista y falla si su docstring no contiene los 7 rótulos o si `Student validation` sigue en `PENDIENTE` al momento de la entrega (`pytest -m entrega`).
+**Arnés:** `tests/test_documentacion.py` importa cada método de la lista y falla si su docstring no contiene los 7 rótulos o si no identifica pruebas como evidencia de validación (`pytest -m entrega`).
 
 ## 3. Uso de IA
 - Registro cronológico en `docs/USO_IA.md`: fecha, herramienta, quién la usó, para qué, archivos afectados, cómo se validó.
@@ -37,14 +37,20 @@ Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.
 
 ## 5. Criterios de aceptación
 - **CA-009-1** `pytest tests/test_documentacion.py` en verde.
-- **CA-009-2** `pytest -m entrega` en verde (sin `PENDIENTE`).
+- **CA-009-2** `pytest -m entrega` en verde (evidencia de pruebas identificada; no certifica revisión humana).
 - **CA-009-3** El documento técnico tiene las 11 secciones exigidas y cada afirmación numérica referencia un archivo de `resultados/`.
-- **CA-009-4** `git shortlog -sn` muestra commits de ambos integrantes en código (no solo en documentación).
+- **CA-009-4** `git shortlog -sn` debe evidenciar aportes reales de ambos integrantes, como exige el PDF. El historial disponible atribuye a Daniel documentación y revisión; no se inventan commits de código.
 
 ## 6. Tareas
 - [x] T1 `tests/test_documentacion.py` (auditor de docstrings) — implementado con Claude
 - [x] T2 Manual de usuario con capturas — Daniel (20 oct)
-- [x] T3 Documento técnico completo con cifras reales (Claude, revisado por el equipo; ver USO_IA)
-- [x] T4 `Student validation` en los 24 métodos auditados (`pytest -m entrega` en verde)
+- [x] T3 Documento técnico completo con cifras reales (Claude y Codex; revisión humana de correcciones por realizar)
+- [x] T4 `Student validation` en los 31 métodos auditados (`pytest -m entrega` en verde)
 - [ ] T5 Simulacros de sustentación — Juan (`/sustentacion NNN`)
-- [x] T6 Tag `v1.0-sustentacion` (20 oct; moverlo si se cambia algo antes de sustentar)
+- [x] T6 Tag `v1.0-sustentacion` (histórico; no mover automáticamente)
+
+## Correcciones de auditoría (20 oct 2026)
+
+Ampliar el arnés de los siete campos a todas las funciones relevantes identificadas en la auditoría. Actualizar informe, manual, guías, arquitectura y trazabilidad con nombres reales. Declarar la intervención de Codex y distinguir validación automática de revisión humana, sin afirmar revisiones futuras como completadas. El tag v1.0-sustentacion es histórico mientras las correcciones estén sin commit; no se mueve ni se publica automáticamente. Git debe evidenciar aportes reales de ambos, conforme al PDF, sin inventar autorías de código.
+
+Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.

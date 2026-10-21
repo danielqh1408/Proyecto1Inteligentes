@@ -46,7 +46,7 @@ def estado_inicial(escenario: Escenario) -> EstadoJuego:
     AI intervention: Claude Code escribió la función.
     Student validation: pruebas test_estado_inicial y test_portador_desde_json, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     posiciones = tuple(u.pos for u in escenario.unidades)
     portador = escenario.portador

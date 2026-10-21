@@ -27,7 +27,7 @@ El juego es solo el **entorno de experimentación**. Lo que se evalúa es el **s
 
 ## 🚀 Instalación y ejecución
 
-> Estado (20 oct 2026, versión `v1.0-sustentacion`): specs 001–009 completas, 206 pruebas automáticas en verde, 10 casos mínimos cumplidos, manual con capturas y documento técnico. Ver `AGENTS.md §10`.
+> Estado (20 oct 2026): correcciones de auditoría, diez casos mínimos cumplidos y experimentos regenerados. 284 pruebas sin Tk + 4 de interfaz con Tk. El tag `v1.0-sustentacion` corresponde a la versión anterior; la revisión corregida se identifica por el commit de `main`. La revisión humana se realiza con las guías actualizadas.
 
 ```bash
 git clone git@github.com:danielqh1408/Proyecto1Inteligentes.git
@@ -84,4 +84,4 @@ Manual completo: [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md). Resultados de
 
 ## 🤖 Uso de IA generativa
 
-Se usa **Claude Code (Anthropic)** como apoyo para estructurar la documentación SDD, las especificaciones y, más adelante, partes del código. Todo uso queda registrado en [docs/USO_IA.md](docs/USO_IA.md) y en la documentación de cada método (campos *AI usage / AI intervention / Student validation*). Ambos integrantes son responsables de explicar y modificar cualquier parte de la solución.
+Se usaron **Claude Code**, **Gemini** y **Codex** como apoyo en implementación, revisión, pruebas y documentación. Todo uso queda registrado en [docs/USO_IA.md](docs/USO_IA.md) y en la documentación de cada método (campos *AI usage / AI intervention / Student validation*). Ambos integrantes son responsables de explicar y modificar cualquier parte de la solución.

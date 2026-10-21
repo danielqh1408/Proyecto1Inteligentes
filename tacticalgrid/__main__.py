@@ -11,7 +11,7 @@ from tacticalgrid.juego.estado import estado_inicial
 from tacticalgrid.verificacion import verificador
 
 COLUMNAS = ("algoritmo", "heuristica", "k", "exito", "longitud", "costo",
-            "estados_generados", "estados_expandidos", "maximo_frontera", "tiempo_ms")
+            "estados_generados", "estados_expandidos", "maximo_frontera", "tiempo_ms", "preparacion_ms", "tiempo_total_ms")
 
 
 def tabla(filas: list[dict]) -> str:
@@ -78,7 +78,7 @@ def comando_decidir(args) -> int:
         print(f"  {accion:24} {valor}")
     if args.verificar:
         chequeos = verificador.verificar_decision(e, estado, d)
-        chequeos += verificador.verificar_minimax_vs_alfabeta(e, estado, args.profundidad, args.orden)
+        chequeos += verificador.verificar_minimax_vs_alfabeta(e, estado, d.extra["profundidad"], d.extra["orden"])
         print("Verificación:\n" + verificador.texto(chequeos))
     return 0
 
@@ -180,7 +180,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     try:
         return args.funcion(args)
-    except (EscenarioInvalido, ValueError) as error:
+    except (EscenarioInvalido, ValueError, OSError) as error:
         print(error)
         return 1
 

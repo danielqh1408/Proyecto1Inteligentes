@@ -68,7 +68,7 @@ Comandos (`.claude/commands/`): `/nueva-spec`, `/implementar-spec NNN [tarea]`, 
 Tipos de prueba usados: unitarias, **de propiedad** (estados alcanzables aleatorios con semilla fija ⇒ invariantes), **diferenciales** (UCS vs Dijkstra de referencia; Minimax vs αβ), **de contrato** (JSON del enunciado), **golden** (`esperado` en los casos).
 
 ### C. Arnés de verificación en ejecución
-`tacticalgrid/verificacion/` + botón **Verificar** en la GUI + `--verificar` en la CLI + modo `auditar=True` en Minimax/αβ. Es lo que pide el enunciado y a la vez el oráculo de B.
+`tacticalgrid/verificacion/` + botón **Verificar** en la GUI + `--verificar` en la CLI; `aplicar` valida legalidad y las pruebas comprueban invariantes. Es lo que pide el enunciado y a la vez el oráculo de B.
 
 ### D. Arnés de experimentos (reproducibilidad)
 `python -m tacticalgrid experimentos` regenera `resultados/` con cabecera (fecha, commit, Python, parámetros) y `RESUMEN.md` (✔/✘). Determinismo garantizado por P5.

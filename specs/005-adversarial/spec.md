@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
+| Estado | **implementada y corregida el 20 oct** · pruebas automáticas realizadas · revisión humana de correcciones por realizar |
 | Responsable | Daniel · Revisor: Juan |
 | Rúbrica | Minimax y poda alfa‑beta (20 %) |
 | Depende de | 002 (reglas), 004 (distancias precalculadas reutilizan la infraestructura de búsqueda) |
@@ -31,11 +31,11 @@ Distancias precalculadas **una vez por escenario** (Dijkstra con costos del JSON
 - `Drec_X(p)`: costo mínimo desde `p` hasta la posición libre del recurso para unidades del bando X.
 
 **Estados terminales** (perspectiva MAX, `prof` = profundidad a la que se alcanzó):
-- MAX gana: `+V_GANAR − prof` (prefiere ganar **antes**). MIN gana: `−V_GANAR + prof` (prefiere perder **después**). Empate: `0`.
+- MAX gana: `+(V_GANAR + max(0, max_turnos − prof))` (prefiere ganar **antes**). MIN gana: `−(V_GANAR + max(0, max_turnos − prof))` (prefiere perder **después**). Empate: `0`.
 
-**Estados no terminales:** `E(s) = Σ wᵢ · fᵢ(s)` *(versión implementada en `adversarial/utilidad.py`)*
+**Estados no terminales:** `E(s) = limitar(Σ wᵢ · fᵢ(s), −9999, 9999)` *(versión implementada en `adversarial/utilidad.py`)*
 
-Primero se define **`restante(X)`** = costo que le falta al bando X para ganar si nadie lo estorbara:
+Primero se define **`restante(X)`** = aproximación de lo que le falta al bando X:
 - si X lleva el recurso: `Dbase_X(portador)`;
 - si el recurso está libre: `min_{u∈X} Drec_X(u) + Dbase_X(recurso)`;
 - si lo lleva el rival: `min_{u∈X} manhattan(u, portador) + Dbase_X(portador)` (alcanzarlo para interceptar y volver).
@@ -48,7 +48,7 @@ Primero se define **`restante(X)`** = costo que le falta al bando X para ganar s
 
 `V_GANAR = 10 000` (en `config.VALOR_VICTORIA`).
 
-> **Lección aprendida (para la sustentación):** la primera versión tenía 5 componentes separados (posesión, carrera al recurso, progreso de entrega, presión, movilidad). Al jugar partidas se vio que **una unidad al lado del recurso prefería no recogerlo**: al recogerlo desaparecía el término "carrera al recurso" (grande) y aparecía "entrega" (negativo). La evaluación no era **monótona**. Unificar todo en `restante` corrige eso: recoger el recurso nunca empeora el valor (`test_recoger_siempre_mejora`). La proximidad del adversario sigue presente dentro de `restante` del bando que persigue.
+> **Lección aprendida (para la sustentación):** la primera versión tenía 5 componentes separados (posesión, carrera al recurso, progreso de entrega, presión, movilidad). Al jugar partidas se vio que **una unidad al lado del recurso prefería no recogerlo**: al recogerlo desaparecía el término "carrera al recurso" (grande) y aparecía "entrega" (negativo). La evaluación no era **monótona**. Unificar en `restante` simplifica la explicación, pero no garantiza monotonicidad: `test_recoger_no_es_garantia_monotona` demuestra un contraejemplo. La proximidad del adversario sigue presente dentro de `restante` del bando que persigue.
 
 - Pesos configurables en `config.py` y sobreescribibles con `juego.pesos_utilidad` en el JSON (sin tocar código).
 - `evaluar(...)` devuelve también el **desglose** `{posesion, carrera, movilidad}` para explicar por qué una acción vale más que otra.
@@ -60,8 +60,8 @@ Primero se define **`restante(X)`** = costo que le falta al bando X para ganar s
 > **Implementado:** `adversarial/minimax.py` — `decidir(..., poda)` es UNA sola función recursiva; `minimax` y `alfa_beta` la llaman con `poda=False/True`. La única diferencia es `if poda and alfa >= beta: break`. `voraz` = `decidir` con profundidad 1. `adversarial/partida.py` tiene el bucle por turnos. CLI: `decidir`, `partida`, `ejecutar`.
 
 ```python
-minimax(escenario, estado, profundidad, orden="natural", pesos=None) -> ResultadoDecision
-alfa_beta(escenario, estado, profundidad, orden="natural", pesos=None) -> ResultadoDecision
+minimax(escenario, estado, profundidad, orden="natural", pesos=None) -> Decision
+alfa_beta(escenario, estado, profundidad, orden="natural", pesos=None) -> Decision
 ```
 - Recursión con `es_max`, igual a `minimax_limitado` de clase: terminal ⇒ utilidad; profundidad 0 ⇒ evaluación; si no, max/min de los hijos.
 - **Desempate (invariante RF‑005‑3):** en la raíz se elige la **primera** acción cuyo valor sea **estrictamente** mejor (`>` para MAX). En alfa‑beta, un hijo podado devuelve una cota ≤ α y nunca reemplaza a la mejor ⇒ misma acción que Minimax.
@@ -77,22 +77,22 @@ alfa_beta(escenario, estado, profundidad, orden="natural", pesos=None) -> Result
 | `tiempo_ms` | `perf_counter` alrededor de la decisión. |
 | `accion` | Acción recomendada (texto legible, p. ej. `A2 → derecha (5,6)`). |
 | `valor` | Valor Minimax del estado raíz. |
-| `valores_raiz` | (extra) `[(accion, valor, es_cota)]` por cada acción de la raíz — en alfa‑beta las no elegidas pueden ser cotas. |
-| `variacion_principal` | (extra) secuencia de acciones esperada y `desglose` de la evaluación en la hoja. |
+| `valores_raiz` | (extra) `[(accion, valor)]` por cada acción de la raíz — en alfa‑beta las no elegidas pueden ser cotas. |
+| `desglose` | Componentes del hijo inmediato elegido, no de la hoja Minimax. |
 
 ## 6. Modo partida (`prueba.modo = partida`)
-Bucle por turnos donde cada bando se controla como `MINIMAX`, `ALFA_BETA` o `VORAZ` (= `decidir` con profundidad 1: no mira la respuesta del rival; contraste del caso 7). El control `HUMANO` se hace desde la GUI (spec 007). Cada jugada se valida con `reglas.aplicar` y se registra en un historial exportable.
+Bucle por turnos donde cada bando se controla como `MINIMAX`, `ALFA_BETA` o `VORAZ` (= `decidir` con profundidad 1: no mira la respuesta del rival; contraste del caso 7). El control `HUMANO` se hace desde la GUI (spec 007). Cada jugada se valida con `reglas.aplicar` y la CLI imprime el historial.
 
 ## 7. Criterios de aceptación
-- **CA-005-1** **Caso 8:** Minimax y alfa‑beta devuelven la misma acción y el mismo valor en todos los estados de `escenarios/casos/` y en 50 estados alcanzables aleatorios (semilla fija), para profundidades 1–4 y los 3 órdenes; `nodos_evaluados(αβ) ≤ nodos_evaluados(minimax)` y es estrictamente menor en el caso 8. → `test_adversarial.py::test_minimax_igual_alfabeta`
-- **CA-005-2** **Caso 7:** en `caso07_decision_adversarial.json` la acción de Minimax (prof ≥ 3) **no** es la del agente VORAZ (no avanza directo al recurso: bloquea o se posiciona para interceptar). → `test_casos.py::test_caso07`
-- **CA-005-3** **Caso 9:** en `caso09_orden_acciones.json`, `nodos_podados` difiere entre `natural`, `inverso` y `heuristico`, con el mismo **valor** (la acción puede cambiar solo si hay empates de valor, porque se elige la primera en el orden). → `test_casos.py::test_caso09`
-- **CA-005-4** **Caso 10:** el mismo estado evaluado con profundidad 1…5 reporta nodos y tiempo crecientes; se registra si cambia la acción. → `test_casos.py::test_caso10`
-- **CA-005-5** Simetría: `evaluar(s, "A") == -evaluar(s, "B")` para estados no terminales. → `test_utilidad.py::test_suma_cero`
-- **CA-005-6** Ganar en 1 jugada vale más que ganar en 3 (preferencia por victorias rápidas). → `test_utilidad.py::test_preferencia_victoria_rapida`
-- **CA-005-7** Cambiar `juego.pesos_utilidad` en el JSON cambia el valor. → `test_utilidad.py::test_pesos_desde_json`
-- **CA-005-8** Toda acción considerada en el árbol es legal (verificador en modo auditoría, spec 006). → `test_adversarial.py::test_acciones_legales_en_arbol`
-- **CA-005-9** La profundidad del JSON se usa si no se pasa otra; la CLI la sobreescribe. → `test_cli.py::test_profundidad`
+- **CA-005-1** **Caso 8:** Minimax y alfa‑beta devuelven la misma acción y el mismo valor en todos los estados de `escenarios/casos/` y en 50 estados alcanzables aleatorios (semilla fija), para profundidades 1–4 y los 3 órdenes; `nodos_evaluados(αβ) ≤ nodos_evaluados(minimax)` y es estrictamente menor en el caso 8. → `tests/test_adversarial.py::test_minimax_igual_alfabeta`
+- **CA-005-2** **Caso 7:** en `caso07_decision_adversarial.json` la acción de Minimax (prof ≥ 3) **no** es la del agente VORAZ (no avanza directo al recurso: bloquea o se posiciona para interceptar). → `tests/test_casos.py::test_caso`
+- **CA-005-3** **Caso 9:** en `caso09_orden_acciones.json`, `nodos_podados` difiere entre `natural`, `inverso` y `heuristico`, con el mismo **valor** (la acción puede cambiar solo si hay empates de valor, porque se elige la primera en el orden). → `tests/test_casos.py::test_caso`
+- **CA-005-4** **Caso 10:** el mismo estado evaluado con profundidad 1…5 reporta nodos y tiempo crecientes; se registra si cambia la acción. → `tests/test_casos.py::test_caso`
+- **CA-005-5** Simetría: `evaluar(s, "A") == -evaluar(s, "B")` para estados no terminales. → `tests/test_adversarial.py::test_suma_cero`
+- **CA-005-6** Ganar en 1 jugada vale más que ganar en 3 (preferencia por victorias rápidas). → `tests/test_adversarial.py::test_preferencia_victoria_rapida`
+- **CA-005-7** Cambiar `juego.pesos_utilidad` en el JSON cambia el valor. → `tests/test_adversarial.py::test_pesos_desde_json`
+- **CA-005-8** Toda acción considerada en el árbol es legal (verificador en modo auditoría, spec 006). → `tests/test_adversarial.py::test_acciones_legales_en_arbol`
+- **CA-005-9** La profundidad del JSON se usa si no se pasa otra; la CLI la sobreescribe. → `tests/test_adversarial.py::test_profundidad_desde_json`
 
 ## 8. Tareas
 - [x] T1 Distancias precalculadas (Dijkstra multi‑fuente inversa) — implementado con Claude; revisa Daniel
@@ -110,7 +110,13 @@ Bucle por turnos donde cada bando se controla como `MINIMAX`, `ALFA_BETA` o `VOR
 - *¿Por qué esta acción vale más que esta otra?* → `python -m tacticalgrid decidir <json>` muestra el valor de cada acción de la raíz y el `desglose` del estado elegido.
 - *¿Por qué MIN no está en desventaja?* → §3: mismas reglas, misma función negada; minimizar E_A = maximizar E_B.
 - *¿Por qué alfa‑beta da la misma decisión?* → Solo descarta ramas que no pueden cambiar el valor de la raíz; desempate por primera acción estrictamente mejor.
-- *¿Qué pasa si invierto el orden de acciones?* → Mismo valor y acción; cambia cuántas ramas se podan. Mejor orden ≈ O(b^(m/2)); peor ≈ O(b^m).
+- *¿Qué pasa si invierto el orden de acciones?* → Mismo valor; puede cambiar la acción si hay empates, y cambia la cantidad de ramas podadas. Mejor orden ≈ O(b^(m/2)); peor ≈ O(b^m).
 - *¿Qué pasa si sube la profundidad de 2 a 4?* → Nodos crecen ~b² veces (b ≈ 10–15); la acción puede cambiar al "ver" una intercepción que antes estaba fuera del horizonte.
 - *Si posesion = 0, ¿qué hace la IA?* → Sigue queriendo el recurso por la carrera (recogerlo reduce lo que le falta), pero deja de "proteger" la posesión con fuerza: puede preferir otra jugada si acerca más la victoria.
-- *¿Por qué cambiaron de 5 a 3 componentes?* → Ver la lección aprendida en §4: la evaluación debe ser monótona respecto al objetivo.
+- *¿Por qué cambiaron de 5 a 3 componentes?* → Ver la lección aprendida en §4: tres componentes son más fáciles de interpretar, sin prometer monotonicidad.
+
+## Correcciones de auditoría (20 oct 2026)
+
+La evaluación no terminal conserva la suma ponderada y la recorta a [-9999, 9999]. Ganar vale 10000 + max(0, max_turnos - profundidad); perder es su negativo y empatar vale 0. Ganar siempre supera cualquier evaluación y se prefieren victorias tempranas. La distancia inalcanzable se calcula como 1 + suma de costos transitables del mapa, sin el antiguo 1000 fijo. `restante` es una aproximación, no garantiza monotonicidad al recoger. Se rechaza profundidad no positiva y se devuelve acción None para una raíz terminal. Los contadores de árbol conservan su significado; se añaden evaluaciones de ordenamiento, de desglose y totales (también nodos generados totales). El desglose se calcula una vez, para el hijo elegido; no es el valor Minimax de la hoja. Los valores raíz podados pueden ser cotas.
+
+Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.

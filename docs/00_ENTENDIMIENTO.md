@@ -65,15 +65,15 @@ Eso es exactamente la **pregunta central**: *¿cómo cambia la forma de decidir 
 | Estado inicial, acciones, sucesores, objetivo, costo | 002 | `juego/`, `busqueda/problema.py` | `test_reglas.py` | Modelado 15 % |
 | Mismas reglas para ambos bandos | 002 / 005 | `juego/reglas.py`, `adversarial/utilidad.py` | `test_simetria_bandos`, `test_suma_cero` | Modelado / Minimax |
 | Reglas deterministas (bloqueo, sin ruta, pérdida del portador) | 002 | `juego/reglas.py` | `test_bloqueo_y_empate`, `test_interceptar` | Modelado 15 % |
-| BFS y DFS con métricas | 003 | `busqueda/no_informada.py` | caso 1 | BFS/DFS/UCS 15 % |
-| UCS; BFS ≠ UCS en un escenario | 003 | `busqueda/costo_uniforme.py` | caso 2 | BFS/DFS/UCS 15 % |
-| A\* con 2 heurísticas justificadas | 004 | `busqueda/a_estrella.py`, `heuristicas.py` | casos 3, 4; `test_heuristicas.py` | A\*/Beam 20 % |
-| Beam k = 1, 2, 4, 8 + análisis | 004 / 008 | `busqueda/beam.py` | caso 5, E2 | A\*/Beam 20 % |
-| Minimax y αβ con profundidad configurable | 005 | `adversarial/minimax.py`, `alfa_beta.py` | casos 8, 10 | Minimax 20 % |
-| Utilidad propia explicable | 005 | `adversarial/utilidad.py` | caso 7, `test_utilidad.py` | Minimax 20 % |
-| Misma decisión MM vs αβ; efecto del orden | 005 | `adversarial/orden.py` | casos 8, 9 | Minimax 20 % |
+| BFS y DFS con métricas | 003 | `busqueda/algoritmos.py` | caso 1 | BFS/DFS/UCS 15 % |
+| UCS; BFS ≠ UCS en un escenario | 003 | `busqueda/algoritmos.py` | caso 2 | BFS/DFS/UCS 15 % |
+| A\* con 2 heurísticas justificadas | 004 | `busqueda/algoritmos.py`, `heuristicas.py` | casos 3, 4; `test_busqueda.py` | A\*/Beam 20 % |
+| Beam k = 1, 2, 4, 8 + análisis | 004 / 008 | `busqueda/algoritmos.py` | caso 5, E2 | A\*/Beam 20 % |
+| Minimax y αβ con profundidad configurable | 005 | `adversarial/minimax.py` | casos 8, 10 | Minimax 20 % |
+| Utilidad propia explicable | 005 | `adversarial/utilidad.py` | caso 7, `test_adversarial.py` | Minimax 20 % |
+| Misma decisión MM vs αβ; efecto del orden | 005 | `adversarial/minimax.py` | casos 8, 9 | Minimax 20 % |
 | Métricas comparables en la interfaz | 003 / 005 / 007 | `resultado.py`, `interfaz/` | tabla de métricas | Experimentación 10 % |
-| Visualización mínima (+ explorados/frontera) | 007 | `interfaz/lienzo.py` | capturas en manual | Interfaz 5 % |
+| Visualización mínima y explorados (sin dibujo de frontera) | 007 | `interfaz/app.py` | capturas en manual | Interfaz 5 % |
 | Verificación de soluciones | 006 | `verificacion/verificador.py` | `test_verificador.py` | Validación 5 % |
 | 10 casos mínimos reproducibles | 008 | `experimentos/` | `test_casos.py`, `resultados/RESUMEN.md` | Experimentación 10 % |
 | Documentación de métodos (7 campos) | 009 | todo el paquete | `test_documentacion.py` | Calidad/doc 10 % |

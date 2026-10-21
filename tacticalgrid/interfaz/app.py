@@ -10,13 +10,13 @@ import json
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from tacticalgrid.adversarial.partida import AGENTES, decidir_con, resumen_final
+from tacticalgrid.adversarial.partida import AGENTES, ALIAS as ALIAS_AGENTES, decidir_con, resumen_final
 from tacticalgrid.busqueda.ejecutar import ALGORITMOS, ALIAS, crear_problema, ejecutar_busqueda
 from tacticalgrid.busqueda.resultado import posicion
 from tacticalgrid.config import DEFECTOS_JUEGO, ORDEN_MOVIMIENTOS
 from tacticalgrid.escenario.cargador import EscenarioInvalido, cargar_escenario
 from tacticalgrid.juego.estado import estado_inicial
-from tacticalgrid.juego.reglas import acciones_legales, aplicar, es_terminal
+from tacticalgrid.juego.reglas import acciones_legales, aplicar, es_terminal, validar_estado
 from tacticalgrid.verificacion import verificador
 
 COLORES = {"camino": "#e8dcc0", "pasto": "#b5d99c", "bosque": "#4f8a4b", "pantano": "#7a8f6a", "muro": "#3b3b3b"}
@@ -46,6 +46,7 @@ class App:
         self.escenario = self.estado = self.resultado = self.problema = self.decision = None
         self.objetivo = None
         self.animacion = None
+        self.partida_programada = None
 
         izquierda = ttk.Frame(raiz, padding=6)
         izquierda.pack(side="left", fill="both", expand=True)
@@ -58,6 +59,7 @@ class App:
         self.lienzo = tk.Canvas(izquierda, width=620, height=620, bg="white", highlightthickness=0)
         self.lienzo.pack(fill="both", expand=True, pady=4)
         self.lienzo.bind("<Button-1>", self.clic_en_celda)
+        self.lienzo.bind("<Configure>", lambda evento: self.dibujar() if self.escenario else None)
         self.leyenda = ttk.Label(izquierda, text="")
         self.leyenda.pack(fill="x")
 
@@ -97,6 +99,7 @@ class App:
                  ("k (Beam)", ttk.Spinbox(f, textvariable=self.v_k, from_=1, to=64, width=5)),
                  ("Orden", ttk.Combobox(f, textvariable=self.v_orden, values=list(ORDENES), width=30, state="readonly"))]
         self.combo_unidad = filas[0][1]
+        self.combo_orden = filas[4][1]
         for i, (nombre, control) in enumerate(filas):
             ttk.Label(f, text=nombre).grid(row=i, column=0, sticky="w")
             control.grid(row=i, column=1, sticky="w", pady=1)
@@ -146,6 +149,11 @@ class App:
     def cargar(self, ruta: str):
         try:
             escenario = cargar_escenario(ruta)
+            prueba = escenario.prueba or {}
+            nombre = str(prueba.get("algoritmo", "BFS")).upper().replace("-", "_").replace(" ", "_")
+            nombre = ALIAS.get(nombre, ALIAS_AGENTES.get(nombre, nombre))
+            if nombre not in ALGORITMOS + AGENTES:
+                raise ValueError(f"Algoritmo desconocido: {nombre}")
         except EscenarioInvalido as error:  # carga atómica: el escenario anterior sigue intacto
             messagebox.showerror("Escenario inválido", "\n".join(error.errores))
             return
@@ -156,10 +164,15 @@ class App:
         self.raiz.title(f"TacticalGrid — {ruta.split('/')[-1]}")
         ids = [u.id for u in escenario.unidades]
         self.combo_unidad["values"] = ids
-        prueba = escenario.prueba or {}
         self.v_unidad.set(prueba.get("unidad_inicio", ids[0] if ids else ""))
-        nombre = str(prueba.get("algoritmo", "BFS")).upper()
-        self.v_algoritmo.set(ALIAS.get(nombre, nombre) if ALIAS.get(nombre, nombre) in ALGORITMOS else "BFS")
+        self.v_algoritmo.set(nombre if nombre in ALGORITMOS else "BFS")
+        self.v_agente.set(nombre if nombre in AGENTES else "ALFA_BETA")
+        self.v_heuristica.set(prueba.get("heuristica", "manhattan"))
+        self.v_k.set(prueba.get("k", 2))
+        self.v_bloquean.set(prueba.get("unidades_bloquean", False))
+        orden = ", ".join(prueba.get("orden_movimientos", ORDEN_MOVIMIENTOS))
+        self.combo_orden["values"] = list(dict.fromkeys([*ORDENES, orden]))
+        self.v_orden.set(orden)
         self.v_mision.set(bool(prueba.get("mision", False)))
         objetivo = prueba.get("objetivo")
         self.objetivo = (objetivo["fila"], objetivo["columna"]) if objetivo else None
@@ -168,6 +181,7 @@ class App:
         self.v_orden_acc.set(escenario.juego.get("orden_acciones", "natural"))
         self.leyenda["text"] = "Leyenda: " + "   ".join(
             f"{n} ({'muro' if c is None else c})" for n, c in escenario.costos.items())
+        self.tabla.delete(*self.tabla.get_children())
         self.reiniciar()
         self.escribir(f"Escenario cargado: {escenario.filas}x{escenario.columnas}, {len(escenario.unidades)} unidades, "
                       f"prueba.modo = {prueba.get('modo', '-')}")
@@ -175,6 +189,10 @@ class App:
     def reiniciar(self):
         if not self.escenario:
             return
+        for pendiente in (self.animacion, self.partida_programada):
+            if pendiente:
+                self.raiz.after_cancel(pendiente)
+        self.animacion = self.partida_programada = None
         self.estado = estado_inicial(self.escenario)
         self.resultado = self.decision = None
         self.dibujar()
@@ -182,8 +200,10 @@ class App:
     # ------------------------------------------------------------------ dibujo
 
     def tamano_celda(self) -> float:
-        ancho = max(self.lienzo.winfo_width(), 620)
-        alto = max(self.lienzo.winfo_height(), 620)
+        ancho = self.lienzo.winfo_width()
+        alto = self.lienzo.winfo_height()
+        ancho = ancho if ancho > 1 else 620
+        alto = alto if alto > 1 else 620
         return min(ancho / self.escenario.columnas, alto / self.escenario.filas, 48)
 
     def centro(self, celda):
@@ -246,7 +266,7 @@ class App:
 
     def crear_problema(self):
         return crear_problema(self.escenario, unidad=self.v_unidad.get(), objetivo=self.objetivo,
-                              mision=self.v_mision.get(), orden=ORDENES[self.v_orden.get()],
+                              mision=self.v_mision.get(), orden=tuple(x.strip() for x in self.v_orden.get().split(",")),
                               unidades_bloquean=self.v_bloquean.get())
 
     def agregar_fila(self, resultado):
@@ -259,9 +279,15 @@ class App:
         if not self.v_mision.get() and self.objetivo is None:
             messagebox.showinfo("Falta el objetivo", "Haga clic en una celda del mapa para elegir el objetivo.")
             return
-        self.problema = self.crear_problema()
-        self.resultado = ejecutar_busqueda(self.escenario, self.v_algoritmo.get(), self.v_heuristica.get(),
-                                           int(self.v_k.get()), problema=self.problema)
+        try:
+            problema = self.crear_problema()
+            resultado = ejecutar_busqueda(self.escenario, self.v_algoritmo.get(), self.v_heuristica.get(),
+                                          self.v_k.get(), problema=problema)
+        except (ValueError, tk.TclError) as error:
+            messagebox.showerror("No se pudo buscar", str(error))
+            return
+        self.reiniciar()  # las búsquedas usan las posiciones iniciales del JSON
+        self.problema, self.resultado = problema, resultado
         self.decision = None
         self.agregar_fila(self.resultado)
         d = self.resultado.como_dict()
@@ -287,7 +313,13 @@ class App:
     def comparar(self):
         if not self.escenario or (not self.v_mision.get() and self.objetivo is None):
             return
-        self.problema = self.crear_problema()
+        try:
+            problema = self.crear_problema()
+        except ValueError as error:
+            messagebox.showerror("No se pudo comparar", str(error))
+            return
+        self.reiniciar()
+        self.problema = problema
         for algoritmo, heuristica, k in [("BFS", None, None), ("DFS", None, None), ("UCS", None, None),
                                          ("A_ESTRELLA", "manhattan", None), ("A_ESTRELLA", "obstaculos", None),
                                          ("BEAM", "manhattan", 1), ("BEAM", "manhattan", 2), ("BEAM", "manhattan", 4), ("BEAM", "manhattan", 8)]:
@@ -318,19 +350,26 @@ class App:
     def decidir(self):
         if not self.escenario or es_terminal(self.escenario, self.estado):
             return
-        self.decision = decidir_con(self.v_agente.get(), self.escenario, self.estado, int(self.v_prof.get()), self.v_orden_acc.get())
+        try:
+            self.decision = decidir_con(self.v_agente.get(), self.escenario, self.estado, self.v_prof.get(), self.v_orden_acc.get())
+        except (ValueError, tk.TclError) as error:
+            messagebox.showerror("No se pudo decidir", str(error))
+            return
         self.resultado = None
         d = self.decision.como_dict()
         lineas = [f"{d['algoritmo']}: mejor acción para {self.estado.turno} = {d['accion']}   valor = {d['valor']}",
                   f"nodos generados {d['nodos_generados']} · evaluados {d['nodos_evaluados']} · podados {d['nodos_podados']} · "
                   f"profundidad {d['profundidad_alcanzada']} · {d['tiempo_ms']} ms",
-                  f"desglose del estado elegido: {d.get('desglose')}", "", "Valor de cada acción de la raíz:"]
+                  f"evaluaciones totales {d['evaluaciones_totales']} (ordenamiento {d['evaluaciones_ordenamiento']}, "
+                  f"desglose {d['evaluaciones_desglose']}) · generados totales {d['nodos_generados_totales']}",
+                  f"componentes del hijo inmediato elegido: {d.get('desglose')}", "", "Valores raíz (alfa-beta: los no elegidos pueden ser cotas):"]
         lineas += [f"  {'→' if a == d['accion'] else ' '} {a:24} {v}" for a, v in d["valores_raiz"]]
         self.escribir("\n".join(lineas))
         self.dibujar(flecha=self.flecha_de(self.decision.accion))
 
     def aplicar_y_dibujar(self, accion):
         self.estado = aplicar(self.escenario, self.estado, accion)
+        self.resultado = self.decision = None
         self.dibujar()
 
     def siguiente_turno(self) -> bool:
@@ -341,14 +380,21 @@ class App:
         if agente == "HUMANO":
             self.escribir(f"Turno de {self.estado.turno} (HUMANO): elija una acción de la lista y pulse 'Aplicar'.")
             return False
-        d = decidir_con(agente, self.escenario, self.estado, int(self.v_prof.get()), self.v_orden_acc.get())
+        try:
+            d = decidir_con(agente, self.escenario, self.estado, self.v_prof.get(), self.v_orden_acc.get())
+        except (ValueError, tk.TclError) as error:
+            messagebox.showerror("No se pudo jugar", str(error))
+            return False
         self.escribir(f"{self.estado.turno} ({agente}) juega {d.accion}  valor = {d.valor}")
         self.aplicar_y_dibujar(d.accion)
         return True
 
     def jugar_todo(self):
+        if self.partida_programada:
+            self.raiz.after_cancel(self.partida_programada)
+            self.partida_programada = None
         if self.siguiente_turno():
-            self.raiz.after(150, self.jugar_todo)
+            self.partida_programada = self.raiz.after(150, self.jugar_todo)
 
     def aplicar_humano(self):
         seleccion = self.lista_acciones.curselection()
@@ -358,14 +404,17 @@ class App:
     # ------------------------------------------------------------------ verificación
 
     def verificar(self):
+        if not self.escenario:
+            return
         if self.resultado is not None:
             chequeos = verificador.verificar_camino(self.escenario, self.problema, self.resultado)
         elif self.decision is not None:
             chequeos = verificador.verificar_decision(self.escenario, self.estado, self.decision)
-            chequeos += verificador.verificar_minimax_vs_alfabeta(self.escenario, self.estado, int(self.v_prof.get()), self.v_orden_acc.get())
+            chequeos += verificador.verificar_minimax_vs_alfabeta(self.escenario, self.estado,
+                self.decision.extra["profundidad"], self.decision.extra["orden"])
         else:
-            self.escribir("Ejecute primero una búsqueda o pida una decisión.")
-            return
+            errores = validar_estado(self.escenario, self.estado)
+            chequeos = [(error, False) for error in errores] or [("el estado actual es válido", True)]
         self.escribir("Verificación (spec 006):\n" + verificador.texto(chequeos))
 
 

@@ -28,7 +28,7 @@ def cargar_escenario(fuente) -> Escenario:
     AI intervention: Claude Code escribió la función.
     Student validation: pruebas test_carga_atomica, test_json_mal_formado y la carga de escenarios/invalidos/ en la GUI (captura 02), en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     if isinstance(fuente, dict):
         datos = fuente

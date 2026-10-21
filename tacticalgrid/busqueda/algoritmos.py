@@ -57,7 +57,7 @@ def bfs(problema) -> Resultado:
         copiar caminos, métricas y prueba de objetivo al sacar; comparte código con dfs.
     Student validation: pruebas test_ejemplo_enunciado (BFS costo 14, igual al ejercicio a mano), test_optimos_contra_dijkstra y caso 1, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     return _busqueda_ciega(problema, "BFS", es_dfs=False)
 
@@ -74,7 +74,7 @@ def dfs(problema) -> Resultado:
     AI intervention: Claude Code adaptó ``dfs_camino_laberinto`` del notebook (misma función que bfs).
     Student validation: pruebas caso 1 y test_orden_movimientos_dfs, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     return _busqueda_ciega(problema, "DFS", es_dfs=True)
 
@@ -93,7 +93,7 @@ def a_estrella(problema, h, nombre: str = "A_ESTRELLA") -> Resultado:
         y eliminación perezosa), agregando padres, métricas y el corte por h = inf.
     Student validation: pruebas test_optimos_contra_dijkstra (20 mapas aleatorios), test_h_cero_es_ucs y caso 3, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     t0 = perf_counter()
     r = Resultado(nombre, estados_generados=1, maximo_frontera=1)
@@ -135,7 +135,7 @@ def costo_uniforme(problema) -> Resultado:
     AI intervention: Claude Code propuso definir UCS como A* con h = 0 para no duplicar código.
     Student validation: pruebas test_optimos_contra_dijkstra, test_ejemplo_enunciado (UCS costo 7) y caso 2, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     return a_estrella(problema, lambda s: 0, nombre="UCS")
 
@@ -143,20 +143,24 @@ def costo_uniforme(problema) -> Resultado:
 def beam_search(problema, h, k: int, criterio: str = "h") -> Resultado:
     """Beam Search por niveles: en cada nivel solo se conservan los ``k`` mejores candidatos.
 
-    Purpose: búsqueda con memoria limitada (spec 004); muestra que recortar puede perder caminos.
+    Purpose: limitar el haz (spec 004); muestra que recortar puede perder caminos.
     Preconditions: k >= 1; ``criterio`` es "h" (como en clase) o "f" (g + h).
     Postconditions: visitados global como en el notebook: lo descartado no se vuelve a generar,
         así que puede fallar aunque exista camino y no garantiza el óptimo.
         ``extra`` incluye k, criterio y ``descartados`` (candidatos eliminados por el recorte).
-        ``maximo_frontera`` = mayor número de candidatos de un nivel antes de recortar.
-    Complexity: O(d · k · b · log(k·b)) tiempo y O(k · b) memoria por nivel, d = niveles.
+        ``maximo_frontera`` incluye el haz pendiente y los candidatos nuevos.
+    Complexity: O(d · k · b · log(k·b)) tiempo; O(k·b) frontera y O(V) historial, d = niveles.
     AI usage: Yes
     AI intervention: Claude Code adaptó ``beam_search_mapa`` del notebook (mismo esquema por niveles)
         con métricas, criterio f opcional y orden estable en empates.
     Student validation: pruebas caso 5, test_beam_descartados y experimento E2 (k = 1..16), en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
+    if type(k) is not int or k < 1:
+        raise ValueError("k de Beam debe ser un entero positivo")
+    if criterio not in ("h", "f"):
+        raise ValueError("El criterio de Beam debe ser h o f")
     t0 = perf_counter()
     r = Resultado("BEAM", estados_generados=1, maximo_frontera=1, extra={"k": k, "criterio": criterio, "descartados": 0})
     haz = [problema.inicio]
@@ -164,7 +168,7 @@ def beam_search(problema, h, k: int, criterio: str = "h") -> Resultado:
     g = {problema.inicio: 0}
     while haz:
         candidatos = []
-        for s in haz:
+        for i, s in enumerate(haz):
             if problema.es_objetivo(s):
                 return _terminar(r, padres, s, t0)
             r.estados_expandidos += 1
@@ -175,7 +179,7 @@ def beam_search(problema, h, k: int, criterio: str = "h") -> Resultado:
                     g[s2] = g[s] + c
                     candidatos.append(s2)
                     r.estados_generados += 1
-        r.maximo_frontera = max(r.maximo_frontera, len(candidatos))
+            r.maximo_frontera = max(r.maximo_frontera, len(haz) - i - 1 + len(candidatos))
         candidatos.sort(key=lambda s: h(s) if criterio == "h" else g[s] + h(s))  # sort estable: empates por orden de generación
         r.extra["descartados"] += max(len(candidatos) - k, 0)
         haz = candidatos[:k]

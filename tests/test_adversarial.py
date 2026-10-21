@@ -51,7 +51,7 @@ def test_preferencia_victoria_rapida(datos_ejemplo):  # CA-005-6
     assert utilidad_terminal(e, gana_b, "A", 1) < utilidad_terminal(e, gana_b, "A", 3) < 0
 
 
-def test_recoger_siempre_mejora(datos_ejemplo):
+def test_recoger_mejora_en_ejemplo(datos_ejemplo):
     e = cargar_escenario(datos_ejemplo)
     junto = EstadoJuego(((0, 1), (1, 0), (3, 2), (2, 3)), None, (2, 2), "B")
     recogido = aplicar(e, junto, Accion("MOVER", "B1", (2, 2)))
@@ -97,7 +97,7 @@ def test_partida_termina(datos_ejemplo):
     assert es_terminal(e, final) and len(historial) == final.turnos_jugados
 
 
-def test_mas_profundidad_gana_en_mapa_simetrico():  # E6: con la regla R5 corregida no hay ciclos de intercepción
+def test_mas_profundidad_gana_en_mapa_simetrico():  # E6: resultado observado en este mapa, no garantía general
     e = cargar_escenario("escenarios/partida_simetrica.json")
     for agentes, profundidades, gana in (({"A": "ALFA_BETA", "B": "VORAZ"}, {"A": 3}, "A"),
                                          ({"A": "VORAZ", "B": "ALFA_BETA"}, {"B": 3}, "B")):

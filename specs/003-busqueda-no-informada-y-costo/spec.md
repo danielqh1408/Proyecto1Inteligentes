@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
+| Estado | **implementada y corregida el 20 oct** · pruebas automáticas realizadas · revisión humana de correcciones por realizar |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | BFS, DFS y Costo Uniforme (15 %) |
 | Depende de | 001, 002 (§3.4 problemas de búsqueda) |
@@ -33,7 +33,6 @@ Primera pregunta del proyecto: *¿existe una ruta?* (BFS/DFS) y luego *¿cuál e
 | `maximo_frontera` | Máximo de `len(frontera)` observado tras cada inserción (incluye entradas obsoletas del heap — se documenta). |
 | `tiempo_ms` | `time.perf_counter()` alrededor del algoritmo, sin incluir carga ni dibujo. |
 | `orden_expansion` | (extra, para la GUI) lista de posiciones en el orden en que se expandieron. |
-| `frontera_final` | (extra, para la GUI) posiciones que quedaron en la frontera al terminar. |
 
 **Prueba de objetivo:** en los cinco algoritmos se hace **al extraer** de la frontera (no al generar). Es lo que hacen los notebooks de clase para UCS/A\* y es necesario para la optimalidad de UCS/A\*; usarlo también en BFS/DFS hace las métricas comparables. *Consecuencia a explicar:* BFS genera algunos nodos más que si probara al generar.
 
@@ -46,16 +45,7 @@ Primera pregunta del proyecto: *¿existe una ruta?* (BFS/DFS) y luego *¿cuál e
 > - `ejecutar.py` arma el problema desde `prueba` y corre el algoritmo pedido (lo usan CLI, GUI y experimentos).
 > - `sucesores(s)` devuelve `[(s2, costo)]`; `padres[s2] = (s, costo)` hace de conjunto de visitados.
 > - CLI: `python -m tacticalgrid buscar <json> [--algoritmo --heuristica --k --mision --orden --objetivo]` y `comparar <json>`.
->
-> El bosquejo original queda abajo como referencia.
 
-```
-tacticalgrid/busqueda/
-├── resultado.py         # ResultadoBusqueda (dataclass) + to_dict() con las claves del enunciado
-├── metricas.py          # ContadorMetricas: generar(), expandir(), observar_frontera(n)
-├── no_informada.py      # bfs(problema), dfs(problema)
-└── costo_uniforme.py    # costo_uniforme(problema)
-```
 
 Pseudocódigo (búsqueda en grafo, misma forma que en clase):
 
@@ -65,7 +55,7 @@ BFS:  frontera = deque([inicio]); padres = {inicio: None}            # padres ha
           s = frontera.popleft()
           if objetivo(s): return reconstruir(padres, s)
           expandidos += 1
-          for (a, s2, c) in sucesores(s):
+          for (s2, c) in sucesores(s):
               if s2 not in padres: padres[s2] = s; frontera.append(s2); generados += 1
 
 DFS:  idéntico con pila (pop() del final). Visitados se marcan al apilar (como en clase).
@@ -76,7 +66,7 @@ UCS:  frontera = [(0, tie, inicio)]; mejor_g = {inicio: 0}
           if g != mejor_g[s]: continue                     # entrada obsoleta (eliminación perezosa)
           if objetivo(s): return reconstruir(...)
           expandidos += 1
-          for (a, s2, c) in sucesores(s):
+          for (s2, c) in sucesores(s):
               ng = g + c
               if ng < mejor_g.get(s2, inf): mejor_g[s2] = ng; padres[s2] = s; heappush(frontera, (ng, next(tie), s2))
 ```
@@ -94,15 +84,15 @@ UCS:  frontera = [(0, tie, inicio)]; mejor_g = {inicio: 0}
 V = celdas transitables (× 2 en `ProblemaMision`), E ≤ 4V. En términos de árbol: BFS O(b^d), UCS O(b^(1+⌊C*/ε⌋)).
 
 ## 6. Criterios de aceptación
-- **CA-003-1** En el ejemplo del enunciado, BFS desde A1 (0,1) a (3,2) encuentra camino válido de longitud mínima (verificado por spec 006). → `test_busqueda_no_informada.py::test_bfs_ejemplo`
-- **CA-003-2** **Caso 1:** en `caso01_bfs_vs_dfs.json` ambos encuentran solución con `orden_expansion` distinto. → `test_casos.py::test_caso01`
-- **CA-003-3** **Caso 2:** en `caso02_ruta_corta_vs_economica.json`, `len(BFS) < len(UCS)` y `costo(UCS) < costo(BFS)`. → `test_casos.py::test_caso02`
-- **CA-003-4** UCS coincide en costo con un Dijkstra de referencia en 20 mapas pseudoaleatorios con semilla fija. → `test_busqueda_costo.py::test_ucs_optimo`
-- **CA-003-5** Objetivo inalcanzable ⇒ `exito=False`, `camino=[]`, métricas presentes. → `test_busqueda_no_informada.py::test_sin_ruta`
-- **CA-003-6** Inicio == objetivo ⇒ `exito=True`, `longitud=0`, `costo=0`, `expandidos=0`. → `test_..._trivial`
-- **CA-003-7** Cambiar `orden_movimientos` cambia el camino de DFS en el caso 1 y no cambia la longitud de BFS. → `test_..._orden_movimientos`
-- **CA-003-8** `to_dict()` contiene exactamente las claves del enunciado (+ extras documentados). → `test_resultado.py::test_formato`
-- **CA-003-9** Los tres algoritmos funcionan sobre `ProblemaMision` (la unidad recoge y entrega). → `test_..._mision`
+- **CA-003-1** En el ejemplo del enunciado, BFS desde A1 (0,1) a (3,2) encuentra camino válido de longitud mínima (verificado por spec 006). → `tests/test_busqueda.py`
+- **CA-003-2** **Caso 1:** en `caso01_bfs_vs_dfs.json` ambos encuentran solución con `orden_expansion` distinto. → `tests/test_casos.py::test_caso`
+- **CA-003-3** **Caso 2:** en `caso02_ruta_corta_vs_economica.json`, `len(BFS) < len(UCS)` y `costo(UCS) < costo(BFS)`. → `tests/test_casos.py::test_caso`
+- **CA-003-4** UCS coincide en costo con un Dijkstra de referencia en 20 mapas pseudoaleatorios con semilla fija. → `tests/test_busqueda.py`
+- **CA-003-5** Objetivo inalcanzable ⇒ `exito=False`, `camino=[]`, métricas presentes. → `tests/test_busqueda.py::test_sin_ruta`
+- **CA-003-6** Inicio == objetivo ⇒ `exito=True`, `longitud=0`, `costo=0`, `expandidos=0`. → `tests/test_busqueda.py::test_inicio_es_objetivo`
+- **CA-003-7** Cambiar `orden_movimientos` cambia el camino de DFS en el caso 1 y no cambia la longitud de BFS. → `tests/test_busqueda.py::test_orden_movimientos_dfs`
+- **CA-003-8** `como_dict()` contiene exactamente las claves del enunciado (+ extras documentados). → `tests/test_busqueda.py`
+- **CA-003-9** Los tres algoritmos funcionan sobre `ProblemaMision` (la unidad recoge y entrega). → `tests/test_busqueda.py::test_todos_resuelven_la_mision`
 
 ## 7. Tareas
 - [x] T1 `Resultado` + métricas (`busqueda/resultado.py`) — implementado con Claude; revisa el otro integrante
@@ -115,5 +105,11 @@ V = celdas transitables (× 2 en `ProblemaMision`), E ≤ 4V. En términos de á
 ## 8. Para sustentar
 - *¿Por qué BFS encuentra el camino más corto en movimientos pero no el más barato?* → Explora por niveles (número de aristas), ignora costos.
 - *¿Por qué UCS revisa `g != mejor_g[s]`?* → `heapq` no permite disminuir prioridad; se re‑inserta y se descartan entradas viejas (eliminación perezosa).
-- *¿Qué cambia si el pantano pasa de 7 a 15?* → BFS: nada (no usa costos). UCS: puede desviarse más para evitar el pantano; su costo óptimo nunca baja.
+- *¿Qué cambia si el pantano pasa de 7 a 15?* → BFS: conserva el camino, pero el costo reportado puede aumentar. UCS: puede desviarse más para evitar el pantano; su costo óptimo nunca baja.
 - *¿Por qué DFS cambia con el orden de movimientos?* → La pila hace que el último sucesor insertado se explore primero.
+
+## Correcciones de auditoría (20 oct 2026)
+
+`tiempo_ms` mide la búsqueda. `preparacion_ms` mide construir la heurística; `tiempo_total_ms` suma ambas fases, sin cargar el archivo ni dibujar. El máximo de frontera de Beam cuenta los estados pendientes del haz más los candidatos nuevos del nivel. El historial no forma parte de la frontera.
+
+Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.

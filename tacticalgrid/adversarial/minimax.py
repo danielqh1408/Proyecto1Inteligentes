@@ -21,9 +21,11 @@ class Decision:
     algoritmo: str
     accion: object = None
     valor: float = 0
-    nodos_generados: int = 1          # estados creados con aplicar + la raíz
-    nodos_evaluados: int = 0          # llamadas a utilidad terminal o a evaluar
+    nodos_generados: int = 1          # estados del árbol + la raíz (excluye ordenamiento)
+    nodos_evaluados: int = 0          # hojas del árbol: utilidad terminal o evaluación
     nodos_podados: int = 0            # acciones hermanas que alfa-beta no exploró
+    evaluaciones_ordenamiento: int = 0  # cada una crea un hijo temporal con aplicar
+    evaluaciones_desglose: int = 0      # explicación del hijo elegido, fuera del árbol
     profundidad_alcanzada: int = 0
     tiempo_ms: float = 0
     valores_raiz: list = field(default_factory=list)  # (acción, valor) de cada acción de la raíz
@@ -37,6 +39,10 @@ class Decision:
             "nodos_generados": self.nodos_generados,
             "nodos_evaluados": self.nodos_evaluados,
             "nodos_podados": self.nodos_podados,
+            "evaluaciones_ordenamiento": self.evaluaciones_ordenamiento,
+            "evaluaciones_desglose": self.evaluaciones_desglose,
+            "evaluaciones_totales": self.nodos_evaluados + self.evaluaciones_ordenamiento + self.evaluaciones_desglose,
+            "nodos_generados_totales": self.nodos_generados + self.evaluaciones_ordenamiento,
             "profundidad_alcanzada": self.profundidad_alcanzada,
             "tiempo_ms": round(self.tiempo_ms, 3),
             "valores_raiz": [[str(a), v] for a, v in self.valores_raiz],
@@ -44,26 +50,27 @@ class Decision:
         }
 
 
-def ordenar_acciones(escenario, estado, orden: str, bando_max: str, pesos) -> list:
+def ordenar_acciones(escenario, estado, orden: str, bando_max: str, pesos, decision: Decision) -> list:
     """Acciones legales en el orden pedido: "natural" (R10), "inverso" o "heuristico".
 
     Purpose: permitir el experimento del enunciado "cambiar el orden de generación de acciones".
     Preconditions: ``orden`` es uno de los tres nombres.
     Postconditions: mismas acciones, distinto orden. "heuristico" pone primero las que dejan el mejor
         estado para quien mueve (evaluación estática, descendente para MAX y ascendente para MIN);
-        esas evaluaciones de ordenamiento no se cuentan en ``nodos_evaluados``.
-    Complexity: O(b) para natural/inverso; O(b · (U + b log b)) para heurístico.
+        esas evaluaciones se cuentan en ``evaluaciones_ordenamiento`` y en los totales.
+    Complexity: O(U) para natural/inverso; O(b·U + b log b) para heurístico; O(b) espacio.
     AI usage: Yes
     AI intervention: Claude Code escribió la función.
     Student validation: pruebas caso 9 (test_casos.py) y test_minimax_igual_alfabeta con los 3 órdenes, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     acciones = acciones_legales(escenario, estado)
     if orden == "inverso":
         return acciones[::-1]
     if orden == "heuristico":
         es_max = estado.turno == bando_max
+        decision.evaluaciones_ordenamiento += len(acciones)
         valor = lambda a: evaluar(escenario, aplicar(escenario, estado, a), bando_max, pesos)[0]
         return sorted(acciones, key=valor, reverse=es_max)
     return acciones
@@ -73,10 +80,10 @@ def decidir(escenario, estado, profundidad=None, poda=True, orden=None, pesos=No
     """Mejor acción para el bando en turno (MAX) mirando ``profundidad`` jugadas hacia adelante.
 
     Purpose: decisión adversarial: "¿cuál es mi mejor acción teniendo en cuenta las respuestas del rival?".
-    Preconditions: ``estado`` no es terminal; profundidad >= 1. Lo que no se pase se toma del JSON
+    Preconditions: ``estado`` válido; profundidad entera >= 1. Lo que no se pase se toma del JSON
         (prueba.profundidad o juego.profundidad_maxima_minimax, juego.orden_acciones,
         juego.pesos_utilidad) o de config.
-    Postconditions: ``accion`` es legal; ``valor`` es el valor Minimax de la raíz; se elige la PRIMERA
+    Postconditions: raíz terminal devuelve accion=None; en otro caso ``accion`` es legal; ``valor`` es el valor Minimax de la raíz; se elige la PRIMERA
         acción con valor estrictamente mayor, así Minimax y alfa-beta coinciden. Con ``poda`` se dejan de
         explorar las acciones restantes de un nodo cuando alfa >= beta (no pueden cambiar la decisión).
     Complexity: Minimax O(b^d); alfa-beta O(b^(d/2)) en el mejor orden y O(b^d) en el peor
@@ -86,17 +93,26 @@ def decidir(escenario, estado, profundidad=None, poda=True, orden=None, pesos=No
         función con métricas, orden de acciones y la bandera ``poda``.
     Student validation: pruebas test_minimax_igual_alfabeta, test_toma_la_victoria_inmediata, test_profundidad_desde_json y casos 7 a 10, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     t0 = perf_counter()
     juego = escenario.juego
     prueba = escenario.prueba or {}
-    profundidad = (profundidad or prueba.get("profundidad")
-                   or juego.get("profundidad_maxima_minimax", DEFECTOS_JUEGO["profundidad_maxima_minimax"]))
+    if profundidad is None:
+        profundidad = prueba.get("profundidad", juego.get("profundidad_maxima_minimax", DEFECTOS_JUEGO["profundidad_maxima_minimax"]))
+    if type(profundidad) is not int or profundidad < 1:
+        raise ValueError("La profundidad debe ser un entero positivo")
     orden = orden or juego.get("orden_acciones", DEFECTOS_JUEGO["orden_acciones"])
+    if orden not in ("natural", "inverso", "heuristico"):
+        raise ValueError("Orden de acciones desconocido")
     pesos = {**PESOS_UTILIDAD, **juego.get("pesos_utilidad", {}), **(pesos or {})}
     bando_max = estado.turno
     d = Decision("ALFA_BETA" if poda else "MINIMAX", extra={"profundidad": profundidad, "orden": orden})
+    if es_terminal(escenario, estado):
+        d.valor = utilidad_terminal(escenario, estado, bando_max, 0)
+        d.nodos_evaluados = 1
+        d.tiempo_ms = (perf_counter() - t0) * 1000
+        return d
 
     def valor(s, nivel, alfa, beta):
         d.profundidad_alcanzada = max(d.profundidad_alcanzada, nivel)
@@ -108,7 +124,7 @@ def decidir(escenario, estado, profundidad=None, poda=True, orden=None, pesos=No
             return evaluar(escenario, s, bando_max, pesos)[0]
         es_max = s.turno == bando_max
         mejor = -math.inf if es_max else math.inf
-        acciones = ordenar_acciones(escenario, s, orden, bando_max, pesos)
+        acciones = ordenar_acciones(escenario, s, orden, bando_max, pesos, d)
         for i, accion in enumerate(acciones):
             hijo = aplicar(escenario, s, accion)
             d.nodos_generados += 1
@@ -125,16 +141,18 @@ def decidir(escenario, estado, profundidad=None, poda=True, orden=None, pesos=No
         return mejor
 
     d.valor, alfa = -math.inf, -math.inf
-    for accion in ordenar_acciones(escenario, estado, orden, bando_max, pesos):
+    for accion in ordenar_acciones(escenario, estado, orden, bando_max, pesos, d):
         hijo = aplicar(escenario, estado, accion)
         d.nodos_generados += 1
         v = valor(hijo, 1, alfa, math.inf)
         d.valores_raiz.append((accion, v))
         if v > d.valor:
             d.valor, d.accion = v, accion
-            d.extra["desglose"] = evaluar(escenario, hijo, bando_max, pesos)[1]
+            elegido = hijo
         if poda:
             alfa = max(alfa, d.valor)
+    d.extra["desglose"] = evaluar(escenario, elegido, bando_max, pesos)[1]
+    d.evaluaciones_desglose = 1
     d.tiempo_ms = (perf_counter() - t0) * 1000
     return d
 

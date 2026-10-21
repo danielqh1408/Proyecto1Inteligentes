@@ -4,9 +4,10 @@ no confía en lo que reporta el algoritmo. Cada función devuelve [(chequeo, ok)
 from __future__ import annotations
 
 from tacticalgrid.adversarial.minimax import alfa_beta, minimax
+from tacticalgrid.adversarial.utilidad import utilidad_terminal
 from tacticalgrid.busqueda.algoritmos import bfs
 from tacticalgrid.busqueda.resultado import posicion
-from tacticalgrid.juego.reglas import acciones_legales, aplicar, validar_estado
+from tacticalgrid.juego.reglas import acciones_legales, aplicar, es_terminal, validar_estado
 
 
 def verificar_camino(escenario, problema, resultado) -> list[tuple[str, bool]]:
@@ -22,7 +23,7 @@ def verificar_camino(escenario, problema, resultado) -> list[tuple[str, bool]]:
     AI intervention: Claude Code escribió la función.
     Student validation: pruebas test_detecta_manipulaciones y test_todos_los_resultados, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
     camino = resultado.camino
     if not resultado.exito:
@@ -30,6 +31,8 @@ def verificar_camino(escenario, problema, resultado) -> list[tuple[str, bool]]:
         if resultado.algoritmo != "BEAM":
             chequeos.append(("BFS confirma que el objetivo es inalcanzable", not bfs(problema).exito))
         return chequeos
+    if not camino:
+        return [("un resultado exitoso contiene un camino", False)]
     celdas = [posicion(s) for s in camino]
     pasos = list(zip(camino, camino[1:]))
     sin_obstaculos = all(escenario.transitable(c) for c in celdas)
@@ -58,8 +61,14 @@ def verificar_decision(escenario, estado, decision) -> list[tuple[str, bool]]:
     AI intervention: Claude Code escribió la función.
     Student validation: pruebas test_decision_ilegal y test_decision_legal_y_minimax_igual_alfabeta, en verde.
         Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-        y por Juan Ocampo antes de la sustentación.
+        Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
     """
+    if es_terminal(escenario, estado):
+        return [
+            ("el estado terminal es válido", not validar_estado(escenario, estado)),
+            ("un estado terminal no propone acciones", decision.accion is None and not decision.valores_raiz),
+            ("el valor es la utilidad terminal", decision.valor == utilidad_terminal(escenario, estado, estado.turno, 0)),
+        ]
     legales = acciones_legales(escenario, estado)
     consideradas = [a for a, _ in decision.valores_raiz]
     return [

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **implementada** · revisada por Daniel (20 oct) · falta la revisión de Juan antes de la sustentación |
+| Estado | **implementada y corregida el 20 oct** · pruebas automáticas realizadas · revisión humana de correcciones por realizar |
 | Responsable | Juan · Revisor: Daniel |
 | Rúbrica | Validación de escenarios y soluciones (5 %) — y es la base de todo lo demás |
 | Depende de | — |
@@ -77,7 +77,7 @@ Mensajes de error: `"[código] campo: explicación"`, p. ej. `[R4] bases.B: (4, 
 - **CA-001-1** El JSON del enunciado carga como 4×4, pantano = 7, muro no transitable, 4 unidades, `prueba.modo == "busqueda"`. → `tests/test_escenario.py::test_carga_ejemplo_enunciado` ✅
 - **CA-001-2** Cada regla violada en `escenarios/invalidos/*.json` produce su código. → `tests/test_validador.py::test_cada_regla[...]` ✅
 - **CA-001-3** Varias violaciones a la vez se reportan todas. → `test_cada_regla[varios_errores]` ✅
-- **CA-001-4** Un JSON inválido no reemplaza el escenario activo. → `test_escenario.py::test_carga_atomica` ✅
+- **CA-001-4** Un JSON inválido no reemplaza el escenario activo. → `tests/test_escenario.py::test_carga_atomica` ✅
 - **CA-001-5** Pantano 7 → 15 en el JSON cambia `costo((2,2))` sin tocar código. → `test_costos_desde_json` ✅
 - **CA-001-6** Campos extra se aceptan y se conservan. → `test_campos_extra` ✅
 - **CA-001-7** `"bando": "a"` se normaliza a `"A"`. → `test_bando_minuscula` ✅
@@ -103,3 +103,9 @@ Mensajes de error: `"[código] campo: explicación"`, p. ej. `[R4] bases.B: (4, 
 - *¿Por qué `True` no vale como fila?* → En Python `bool` es subclase de `int`; `_entero` lo excluye a propósito.
 - *¿Por qué se detiene si R1 falla?* → Sin una matriz coherente no se puede saber qué terreno hay en una celda, así que R2, R4 y R5 darían errores falsos o excepciones.
 - *¿Complejidad de validar?* → O(F·C + U): se recorre la matriz una vez y la lista de unidades una vez.
+
+## Correcciones de auditoría (20 oct 2026)
+
+Se validan también los campos opcionales que la aplicación consume: estructura de `prueba`, objetivo dentro del mapa, unidad existente, k/profundidad/max_turnos enteros positivos, orden de movimientos como permutación de las cuatro direcciones, booleanos y pesos numéricos finitos. Bases o recurso sobre muros siguen admitidos por el contrato; se tratan como destinos inalcanzables. Una prueba incompleta o mal tipada se rechaza antes de reemplazar el escenario.
+
+Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.

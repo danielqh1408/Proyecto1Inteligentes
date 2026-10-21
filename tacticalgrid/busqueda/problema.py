@@ -34,7 +34,7 @@ class ProblemaNavegacion:
         AI intervention: Claude Code escribió el método.
         Student validation: pruebas test_navegacion_sucesores, en verde.
             Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-            y por Juan Ocampo antes de la sustentación.
+            Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
         """
         return [(v, self.escenario.costo(v)) for v in self.escenario.vecinos(s, self.orden) if v not in self.bloqueadas]
 
@@ -46,6 +46,8 @@ class ProblemaMision:
     """
 
     def __init__(self, escenario: Escenario, id_unidad: str, orden=ORDEN_MOVIMIENTOS, bloqueadas=()):
+        if escenario.portador is not None and escenario.portador != id_unidad:
+            raise ValueError("La misión requiere el recurso libre o que la unidad elegida sea el portador")
         unidad = next(u for u in escenario.unidades if u.id == id_unidad)
         self.escenario, self.orden, self.bloqueadas = escenario, orden, set(bloqueadas)
         self.inicio = (unidad.pos, escenario.portador == id_unidad or unidad.pos == escenario.recurso)
@@ -65,7 +67,7 @@ class ProblemaMision:
         AI intervention: Claude Code escribió el método.
         Student validation: pruebas test_mision_estado_compuesto y caso 6, en verde.
             Revisado por Daniel Quintero (20 oct: código, pytest y GUI; ver docs/USO_IA.md)
-            y por Juan Ocampo antes de la sustentación.
+            Revisión humana de las correcciones de Codex por realizar; ver docs/USO_IA.md.
         """
         pos, lleva = s
         recurso = self.escenario.recurso
