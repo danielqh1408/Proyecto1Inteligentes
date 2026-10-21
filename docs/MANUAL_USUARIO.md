@@ -1,157 +1,185 @@
-# Manual de usuario — TacticalGrid
+# Manual de usuario
 
-**Proyecto 1 — Sistemas Inteligentes I**  
-**Universidad de Caldas — Ingeniería de Sistemas y Computación**  
-**Integrantes:** Daniel Quintero Hurtado y Juan David Ocampo González  
-**Docente:** Jairo I. Vélez B.
+**TacticalGrid · Proyecto 1 · Sistemas Inteligentes I**
+Universidad de Caldas · Ingeniería de Sistemas y Computación
+Daniel Quintero Hurtado · Juan David Ocampo González
+Docente: Jairo I. Vélez B. · Edición de entrega: 21 de octubre de 2026
 
----
+## 1. Preparación y ejecución
 
-## 1. Instalación
-
-**Requisitos:** Python 3.11 o superior con `tkinter` (solo requerido para la interfaz gráfica). El núcleo del sistema utiliza únicamente la librería estándar de Python.
+El programa requiere Python 3.11 o superior. El núcleo utiliza la librería estándar; la interfaz necesita Tkinter. Ejecute los comandos desde la raíz del repositorio, donde están `tacticalgrid/` y `escenarios/`.
 
 ```bash
-git clone git@github.com:danielqh1408/Proyecto1Inteligentes.git
+git clone https://github.com/danielqh1408/Proyecto1Inteligentes.git
 cd Proyecto1Inteligentes
 python3 -m venv .venv
-source .venv/bin/activate            # Windows: .venv\Scripts\Activate.ps1
-pip install -r requirements.txt      # instala pytest (y matplotlib opcional)
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m tkinter
+python -m tacticalgrid gui
 ```
 
-**macOS con Python de Homebrew:** la instalación por defecto no incluye `tkinter`. Opciones para habilitarlo:
-- Instalar el paquete de Tk: `brew install python-tk@3.12`
-- O crear el entorno virtual con el Python de `uv` (que ya incluye `tkinter`): `uv venv -p 3.11 .venv`
+En Windows, active el entorno con `.venv\Scripts\Activate.ps1` desde PowerShell. `python -m tkinter` debe abrir una ventana de comprobación; puede cerrarla antes de iniciar TacticalGrid. En macOS, si su Python de Homebrew no incluye Tk, instale el paquete correspondiente a su versión de Python; por ejemplo, `python-tk@3.12` para Python 3.12. El equipo también verificó un entorno Python 3.11 de uv con Tk.
 
-**Comprobar la instalación:**
+Para revisar la instalación completa, incluidas las comprobaciones documentales de entrega:
+
 ```bash
-pytest -q
+python -m pytest -o addopts='' -q
 ```
-Deben ejecutarse y pasar en verde todas las pruebas del arnés.
 
----
+La revisión del 21 de octubre aprobó 288 pruebas con Tk disponible. Sin Tk, las cuatro pruebas gráficas se omiten; no debe interpretarse esa omisión como validación de la interfaz.
 
-## 2. El escenario JSON
+## 2. Abrir un escenario y reconocer el tablero
 
-Toda la configuración del entorno y de las pruebas proviene del archivo JSON siguiendo el formato común del enunciado (`escenarios/ejemplo_enunciado.json` corresponde al ejemplo oficial del PDF). No existen mapas, posiciones ni costos quemados en el código.
+Pulse **Cargar JSON…** y seleccione un archivo de `escenarios/casos/`, el ejemplo oficial o un escenario externo. La carga válida actualiza los controles y limpia las comparaciones anteriores. La carga inválida muestra los errores y conserva el escenario previo.
 
-Además de los campos obligatorios del contrato (`version`, `mapa`, `tipos_terreno`, `terreno`, `bases`, `recurso`, `unidades`, `turno`, `juego.portador_recurso` y `prueba`), el programa reconoce los siguientes campos opcionales:
+El tablero usa coordenadas **(fila, columna)** desde cero. Los colores y costos aparecen en la leyenda. Las unidades azules pertenecen a A; las rojas, a B. Las bases están identificadas por letras y el portador tiene un borde dorado. El indicador superior muestra quién juega, quién lleva el recurso y cuántos turnos se han ejecutado.
 
-| Campo | Para qué sirve | Valor por defecto |
-|---|---|---|
-| `juego.profundidad_maxima_minimax` | Profundidad límite de búsqueda para Minimax y Poda Alfa-Beta | `3` |
-| `juego.max_turnos` | Límite máximo de turnos de la partida antes de declarar empate | `200` |
-| `juego.orden_acciones` | Orden de evaluación de jugadas: `natural`, `inverso` o `heuristico` | `natural` |
-| `juego.pesos_utilidad` | Pesos de evaluación, p. ej. `{"posesion": 20, "carrera": 3, "movilidad": 0.1}` | Valores base en `config.py` |
-| `prueba.algoritmo` | `BFS`, `DFS`, `UCS`, `A_ESTRELLA`, `BEAM` (o `MINIMAX`, `ALFA_BETA`, `VORAZ`) | `BFS` / `ALFA_BETA` |
-| `prueba.heuristica` | `manhattan`, `obstaculos`, `manhattan_promedio`, `cero` | `manhattan` |
-| `prueba.profundidad` | Profundidad de la decisión; prevalece sobre juego.profundidad_maxima_minimax | configuración del juego |
-| `prueba.k` | Ancho del haz ($k$) para Beam Search | `2` |
-| `prueba.orden_movimientos` | Orden de expansión, p. ej. `["arriba", "abajo", "izquierda", "derecha"]` | `["abajo", "arriba", "derecha", "izquierda"]` |
-| `prueba.mision` | `true`: la unidad debe recoger el recurso libre o llevar el que ya porta a su base; se rechaza si lo porta otra unidad | `false` |
-| `prueba.unidades_bloquean` | `true`: las demás unidades actúan como obstáculos durante la búsqueda | `false` |
+Los terrenos y costos se obtienen del JSON. Los obstáculos no se pueden atravesar. La cruz naranja representa el objetivo de navegación seleccionado; no es el recurso. El recurso libre se representa con un rombo amarillo.
 
-### Validación y carga atómica
-Antes de aplicar cualquier escenario, el sistema valida las reglas de integridad (dimensiones consistentes, terrenos definidos en el catálogo, costos transitables $> 0$, posiciones dentro del mapa, ninguna unidad sobre obstáculos ni superpuesta, identificadores únicos, bandos/turno válidos y portador existente). Si el JSON contiene errores, el programa los reporta todos indicando código y campo, y conserva intacto el escenario previo. También valida los campos opcionales usados por la aplicación: objetivo, unidad, k, profundidad, órdenes, booleanos y pesos. Bases o recurso sobre un muro se admiten por el contrato y resultan inalcanzables.
+**Objetivo de la partida:** llevar el recurso a la base propia. Estar en la base sin recurso no produce victoria.
 
-![Rechazo atómico de un escenario inválido](capturas/02_error_validacion.png)
+## 3. Buscar una ruta
 
----
+Abra **Búsqueda**. Seleccione la unidad, el algoritmo y, cuando corresponda, la heurística y el ancho `k`. Conserve el objetivo cargado o selecciónelo haciendo clic en el tablero.
 
-## 3. Línea de comandos (CLI)
-
-Todos los modos del sistema pueden ejecutarse desde la terminal mediante `python -m tacticalgrid`:
-
-| Comando | Qué hace |
+| Control | Uso |
 |---|---|
-| `python -m tacticalgrid validar a.json b.json …` | Valida uno o varios escenarios JSON e informa si cumplen el contrato o lista sus errores |
-| `python -m tacticalgrid ejecutar a.json` | Ejecuta automáticamente lo que indique `prueba.modo` (`busqueda`, `adversarial` o `partida`) y verifica la solución |
-| `python -m tacticalgrid buscar a.json [--algoritmo X --heuristica H --k N --mision --orden … --objetivo f,c --verificar]` | Ejecuta una búsqueda puntual e imprime el resultado en el formato JSON del enunciado |
-| `python -m tacticalgrid comparar a.json` | Imprime una tabla comparativa con BFS, DFS, UCS, A\* (2 heurísticas) y Beam Search ($k = 1, 2, 4, 8$) sobre el mismo escenario |
-| `python -m tacticalgrid decidir a.json [--algoritmo MINIMAX\|ALFA_BETA\|VORAZ --profundidad N --orden O --verificar]` | Calcula la mejor acción para el bando en turno; si el estado es terminal devuelve acción None; informa métricas y valores/cotas raíz |
-| `python -m tacticalgrid partida a.json --a ALFA_BETA --b VORAZ --profundidad 3` | Juega una partida completa por turnos entre dos agentes e imprime el historial y el ganador |
-| `python -m tacticalgrid experimentos` | Regenera todos los archivos de evidencia reproducible en `resultados/` (10 casos mínimos + experimentos E1–E6) |
-| `python -m tacticalgrid gui [a.json]` | Abre la interfaz gráfica interactiva (cargando opcionalmente el escenario indicado) |
+| BFS | Busca mínimos movimientos; ignora costos al ordenar. |
+| DFS | Profundiza por ramas; no garantiza mínimos movimientos ni costo. |
+| UCS | Minimiza el costo acumulado. |
+| A_ESTRELLA | Combina costo acumulado y estimación restante. |
+| BEAM | Conserva hasta k candidatos para el siguiente nivel; puede perder soluciones. |
+| Heurística | Manhattan, obstáculos, promedio experimental o cero. UCS no necesita elegir una. |
+| Orden | Cambia el orden de generación de movimientos. |
+| Misión | Recoger el recurso y llevarlo a la base; el estado incluye si lo transporta. |
+| Las otras unidades bloquean | Trata sus posiciones iniciales como obstáculos estáticos. Por defecto se ignoran en navegación. |
 
----
+Pulse **Ejecutar** para dibujar el camino y agregar una fila. **Animar exploración** muestra los estados expandidos progresivamente. **Comparar todos** agrega ejecuciones de BFS, DFS, UCS, A* y Beam. Los resultados se calculan desde las posiciones iniciales del JSON: ejecutar una búsqueda reinicia la vista de partida.
 
-## 4. Interfaz gráfica (GUI)
+**Manhattan** ignora muros; **obstáculos** incorpora sus rodeos mediante BFS y costo mínimo. Ambas permiten A* óptimo en este modelo. `manhattan_promedio` es experimental y no garantiza optimalidad. En Beam, la interfaz usa criterio h: menor estimación restante primero.
 
-Para iniciar la interfaz gráfica ejecute:
+Si aparece `exito = false`, no hay camino devuelto. En Beam esto puede ocurrir aunque exista una ruta, debido al descarte de alternativas. Costo cero junto a fracaso no significa que exista una solución gratuita.
+
+## 4. Consultar decisiones y comparar profundidades
+
+Abra **Adversarial / Partida**. Para una comparación controlada, mantenga el mismo estado y cambie una sola opción por vez.
+
+| Control | Función |
+|---|---|
+| Algoritmo | Agente que se consulta al pulsar Decidir. |
+| Profundidad | Número máximo de acciones individuales anticipadas. Profundidad 3 desde A significa A, B, A. |
+| Orden de acciones | Natural, inverso o heurístico. Cambia el orden de exploración de las mismas acciones legales. |
+| Decidir | Recomienda una acción y muestra una flecha; no mueve ninguna ficha. |
+| Juega A / Juega B | Agentes que ejecutan los turnos de la partida. Son independientes del selector Algoritmo. |
+
+Por ejemplo, con Algoritmo = ALFA_BETA y Juega A = Juega B = MINIMAX, **Decidir** consulta alfa-beta, pero **Siguiente turno** y **Jugar hasta el final** utilizan Minimax para ambos bandos.
+
+El orden heurístico usa la evaluación de posesión, carrera y movilidad; no usa la heurística de obstáculos de A*. Intenta explorar primero las opciones favorables a quien juega y registra por separado las evaluaciones necesarias para ordenar.
+
+### Comparación en la tabla
+
+Cada pulsación de **Decidir** agrega algoritmo, orden, profundidad, acción, valor, generados, evaluados, evaluaciones totales, podados y tiempo. Cambiar de pestaña muestra la tabla correspondiente y conserva sus filas. **Limpiar tabla** y **Exportar JSON…** actúan sobre la tabla visible.
+
+La tabla adversarial se limpia al mover, reiniciar o cargar otro escenario: evita mezclar decisiones de estados distintos. Para comparar profundidades 1 a 5, cambie el control y pulse Decidir cinco veces, sin avanzar turnos.
+
+![Tabla actual: cinco profundidades sobre el mismo estado, con cero turnos ejecutados.](capturas/08_tabla_profundidad_actual.png)
+
+**Figura 1.** Captura real aportada por Juan durante el ensayo del 21 de octubre. Los tiempos corresponden a esa sesión y pueden diferir de los CSV. Las cifras de nodos, acciones y valores coinciden con el caso 10. Las capturas 01–07 conservadas en el repositorio son históricas y no se usan como evidencia numérica actual.
+
+### Interpretar el resultado
+
+El valor se expresa desde la perspectiva del bando que decide: mayor es mejor para ese bando. Un valor negativo no significa derrota segura ni una probabilidad de perder. El desglose muestra la evaluación del **hijo inmediato elegido**; el valor Minimax proviene del análisis hasta la profundidad indicada y puede ser distinto. En alfa-beta, los valores de acciones no elegidas pueden ser cotas, no sus valores exactos.
+
+## 5. Jugar una partida
+
+Seleccione quién controla A y B. **Siguiente turno** calcula y ejecuta una acción del bando activo. **Jugar hasta el final** repite el proceso hasta una victoria, el límite de turnos o un turno humano. Para HUMANO, seleccione una acción de la lista y pulse **Aplicar acción seleccionada**. **Reiniciar** vuelve al estado inicial y detiene una partida automática o animación pendiente.
+
+Las reglas son iguales para ambos bandos:
+
+- Cada turno permite una acción de una unidad propia.
+- Se mueve en cuatro direcciones a una celda transitable y desocupada; no se entra en la base rival.
+- Entrar en la casilla del recurso libre lo recoge.
+- Una unidad adyacente al portador rival puede interceptarlo. El recurso vuelve a su origen; el antiguo portador vuelve a su posición inicial si está libre, y permanece donde estaba si está ocupada.
+- Si no hay ninguna acción, el bando pasa. No hay eliminación de unidades.
+- Gana quien entrega el recurso en su base. Sin ganador al alcanzar el límite, hay empate; el valor predeterminado es 200 turnos individuales.
+
+Puede haber movimientos repetitivos: la evaluación limitada no penaliza explícitamente repetir tableros. El límite asegura que la partida termina; no garantiza que siempre haya ganador.
+
+## 6. Verificar y leer métricas
+
+Pulse **Verificar** después de Ejecutar o Decidir, antes de mover. Si ya se ejecutó un turno, se comprueba el estado actual, porque la recomendación anterior dejó de corresponder a ese estado.
+
+| Resultado disponible | Comprobaciones |
+|---|---|
+| Camino | Inicio, vecindad, obstáculos, sucesores válidos, costo recalculado, longitud y objetivo. |
+| Búsqueda fallida | Camino vacío; BFS confirma inalcanzabilidad salvo en Beam, que puede fallar por descarte. |
+| Decisión | Legalidad y cobertura de las acciones de la raíz, acción elegida y validez de sus sucesores. Además se compara Minimax y alfa-beta con igual configuración. |
+| Solo estado | Posiciones válidas, sin superposición, portador/recurso coherentes, turno y contador válidos. |
+
+El verificador adversarial no vuelve a recorrer cada nodo interno del árbol. La generación y aplicación de acciones legales se comparte con los algoritmos y se comprueba con pruebas automáticas. Verificar una decisión profunda puede tardar más porque también ejecuta Minimax sin poda.
+
+**Generados** son inserciones en la frontera de búsqueda, o estados creados en el árbol adversarial. **Expandidos** son estados cuyos sucesores se analizaron. **Evaluados** son hojas donde se calculó utilidad. **Podados** cuenta acciones hermanas omitidas en los cortes, no todos sus descendientes hipotéticos. **Frontera máxima** mide candidatos pendientes, no toda la memoria.
+
+Longitud cuenta movimientos; costo suma las entradas a terrenos sin cobrar la posición inicial. Los tiempos de búsqueda separan algoritmo, preparación de la heurística y total en el detalle y los CSV. En adversarial, las evaluaciones totales incluyen hojas, ordenamiento y desglose. Los tiempos no son constantes del algoritmo.
+
+## 7. Recorrido de los diez casos
+
+Cargue el JSON correspondiente desde `escenarios/casos/`. Mantenga las demás opciones y el estado inicial al comparar.
+
+| Caso | Prueba | Qué observar |
+|---|---|---|
+| 1 | BFS y DFS | 29 frente a 137 movimientos; estrategias de exploración distintas. |
+| 2 | BFS y UCS | 17 pasos/costo 83 frente a 33 pasos/costo 33. |
+| 3 | A* Manhattan y obstáculos | Costo 32; 282 frente a 177 expansiones. |
+| 4 | UCS y A* con ambas heurísticas | Costo 64 en los tres; 332, 294 y 289 expansiones. |
+| 5 | Beam Manhattan, k = 1, 2, 4, 8 | k = 1 falla; los otros encuentran costo 21. |
+| 6 | UCS con Misión activada | Ida y regreso; 20 movimientos/costo 22, posiciones repetidas con distinto estado. |
+| 7 | Minimax natural, profundidad 1 y 4 | A2 a (8,11) frente a (9,12); considerar respuestas cambia la acción. |
+| 8 | Minimax y alfa-beta, profundidad 4, natural | Misma acción y valor -47; 20478 frente a 427 hojas. |
+| 9 | Alfa-beta, profundidad 4, tres órdenes | Valor -47; comparar hojas, ordenamiento y totales. |
+| 10 | Alfa-beta natural, profundidad 1–5 | Crecimiento de trabajo; cambian valores y algunas acciones. |
+
+Los nombres completos de archivo y la evidencia están en `resultados/RESUMEN.md`. El caso 8 corresponde a `caso08_minimax_vs_alfabeta.json`; el caso 10, a `caso10_profundidad.json`.
+
+## 8. JSON externo y terminal
+
+El formato común incluye version, dimensiones, catálogo de terrenos, matriz, bases, recurso, unidades, turno y juego.portador_recurso. **prueba es opcional.** Admite los modos busqueda, adversarial y partida. El ejemplo oficial 4×4 se acepta; los diez escenarios propios son 20×20 y tienen tres unidades por bando.
+
+Antes de reemplazar el escenario se validan dimensiones, terrenos, costos positivos finitos, posiciones, unidades no superpuestas, identificadores, bandos, turno y portador. También se validan las opciones de prueba que utiliza la aplicación. Bases o recurso sobre un muro se admiten según el contrato y se tratan como inalcanzables.
+
+| Opción adicional | Valor predeterminado |
+|---|---|
+| juego.profundidad_maxima_minimax | 3 |
+| juego.max_turnos | 200 |
+| juego.orden_acciones | natural |
+| juego.pesos_utilidad | posesion: 20, carrera: 3, movilidad: 0.1 |
+| prueba.k | 2 |
+| prueba.heuristica | manhattan |
+| prueba.mision / prueba.unidades_bloquean | false / false |
+
+`prueba.profundidad` prevalece sobre la profundidad de juego. Los argumentos explícitos de CLI/GUI prevalecen sobre el JSON. En la terminal puede usar:
+
 ```bash
-python -m tacticalgrid gui escenarios/ejemplo_enunciado.json
+python -m tacticalgrid validar escenarios/ejemplo_enunciado.json
+python -m tacticalgrid ejecutar escenarios/ejemplo_enunciado.json
+python -m tacticalgrid buscar escenarios/casos/caso02_ruta_corta_vs_economica.json --algoritmo UCS --verificar
+python -m tacticalgrid decidir escenarios/casos/caso08_minimax_vs_alfabeta.json --algoritmo ALFA_BETA --profundidad 4 --verificar
+python -m tacticalgrid experimentos
 ```
 
-![Escenario inicial cargado en la GUI](capturas/01_escenario_inicial.png)
+Para otras opciones: `python -m tacticalgrid --help` y la ayuda del subcomando. Los CSV E1–E6 se regeneran junto al resumen. Mantenga copias de los JSON antes de cambiar costos para una demostración.
 
-Las capturas originales de esta sección ilustran la disposición de la interfaz. Las cifras y etiquetas antiguas no son evidencia de la revisión actual; los resultados reproducibles vigentes están en `resultados/`. La captura adversarial anterior se retira porque usaba el peso de posesión 50 en lugar de 20.
+## 9. Problemas frecuentes
 
-### 4.1 Barra superior y Mapa
-- **Barra superior:**
-  - **Cargar JSON…:** abre el selector de archivos para cargar cualquier escenario nuevo. Si el archivo es inválido, muestra la lista de errores sin perder el escenario actual. Una carga válida toma las opciones del JSON, restablece los valores omitidos y limpia la tabla de resultados.
-  - **Verificar:** ejecuta el verificador independiente sobre el último resultado de búsqueda o decisión adversarial. Después de mover se descarta la decisión anterior y se verifica el estado actual.
-  - **Indicadores de estado:** muestra en todo momento el turno actual (`A` o `B`), qué unidad porta el recurso (o si está libre) y el resumen del último resultado.
-- **Mapa interactivo y Leyenda:**
-  - Cada color representa un tipo de terreno y en la parte inferior se muestra automáticamente la leyenda con el nombre y el costo leídos del JSON.
-  - **Gris oscuro:** obstáculo (celda no transitable).
-  - **Bordes azul / rojo:** bases de los bandos A y B.
-  - **Rombo amarillo:** recurso libre en el mapa.
-  - **Círculos etiquetados:** unidades del bando A (azul) y del bando B (rojo) con su respectivo `id`.
-  - **Borde dorado:** resalta la unidad que porta actualmente el recurso.
-  - **Selección de objetivo con clic:** al hacer clic sobre cualquier celda del mapa se fija como coordenada objetivo para la búsqueda (marcada con una **✕ naranja**).
+| Situación | Qué hacer |
+|---|---|
+| Falta tkinter | Use un Python con Tk; compruebe primero `python -m tkinter`. |
+| Un JSON es rechazado | Corrija los campos que indica el mensaje; el tablero anterior permanece intacto. |
+| No aparece la tabla nueva | Cierre y vuelva a ejecutar la aplicación desde la versión actual del repositorio. |
+| Decidir no mueve | Es una consulta. Para ejecutar use Siguiente turno o una acción humana. |
+| Un agente repite movimientos | Puede ocurrir con horizonte limitado; el máximo de turnos termina en empate. |
+| Beam falla | No demuestra que sea inalcanzable; compare con BFS/UCS y varíe k. |
+| Misma posición aparece dos veces | En Misión puede ser sin recurso y con recurso: son estados distintos. |
 
-### 4.2 Pestaña Búsqueda
-Permite configurar y ejecutar los algoritmos de búsqueda sobre las posiciones iniciales del JSON. Al buscar, la vista de partida se reinicia para coincidir con ese problema:
-- **Controles:** selección de unidad de inicio, algoritmo (`BFS`, `DFS`, `UCS`, `A_ESTRELLA`, `BEAM`), heurística (`manhattan`, `obstaculos`, `manhattan_promedio`, `cero`), ancho del haz `k`, orden de movimientos y casillas para activar el modo **Misión** (recoger el recurso y llevarlo a la base) y **Las otras unidades bloquean**.
-- **Ejecutar:** calcula la ruta, dibuja sobre el mapa los estados expandidos (puntos blancos) y el camino solución (línea naranja), y añade una fila a la tabla comparativa de métricas.
-- **Animar exploración:** reproduce paso a paso el orden en que el algoritmo expandió los estados.
-- **Comparar todos:** ejecuta de una sola vez BFS, DFS, UCS, A\* con ambas heurísticas y Beam Search ($k = 1, 2, 4, 8$) sobre el problema actual y agrega todas las filas a la tabla para compararlas directamente.
-
-![Comparación de BFS y UCS en el Caso 02](capturas/03_bfs_vs_ucs_caso02.png)
-
-![Ejecución de A* comparando heurísticas en el Caso 03](capturas/04_a_estrella_caso03.png)
-
-### 4.3 Pestaña Adversarial / Partida
-Permite tanto analizar una decisión táctica puntual como simular partidas completas por turnos:
-- **Decisión puntual (*Decidir*):**
-  - Permite elegir el algoritmo (`MINIMAX`, `ALFA_BETA` o `VORAZ`), la profundidad máxima de búsqueda y el orden de generación de acciones (`natural`, `inverso` o `heuristico`).
-  - Al pulsar **Decidir**, resalta en el mapa la acción recomendada con una **flecha amarilla** y muestra en el panel de detalle las métricas (`nodos_generados`, `nodos_evaluados`, `nodos_podados`, `profundidad_alcanzada`, `tiempo_ms`), las evaluaciones de ordenamiento y totales, los componentes del hijo inmediato elegido y el valor de cada acción en la raíz. En alfa-beta, las acciones no elegidas pueden mostrar cotas. El desglose del hijo no es el valor Minimax de una hoja.
-
-Para reproducir el ejemplo actual: `python -m tacticalgrid decidir escenarios/casos/caso08_minimax_vs_alfabeta.json --profundidad 4 --verificar`. Resultado: A2 → (12, 6), valor −47; 427 hojas, 428 evaluaciones totales.
-
-- **Simulación de Partida:**
-  - **Juega A / Juega B:** permite asignar a cada bando `HUMANO`, `ALFA_BETA`, `MINIMAX` o `VORAZ`.
-  - **Siguiente turno:** ejecuta un turno del bando activo.
-  - **Jugar hasta el final:** avanza automáticamente los turnos hasta que un bando entregue el recurso en su base o se alcance la condición de empate.
-  - **Modo HUMANO:** seleccione una de las acciones legales listadas en el panel y pulse **Aplicar acción seleccionada**.
-  - **Reiniciar:** restaura el tablero al estado inicial definido en el JSON.
-
-![Modo partida por turnos y reporte de verificación](capturas/06_partida_y_verificacion.png)
-
-### 4.4 Tabla comparativa de métricas
-Ubicada en la parte inferior, acumula los resultados de todas las ejecuciones realizadas (`algoritmo`, `exito`, `longitud`, `costo`, `generados`, `expandidos`, `frontera`, `tiempo_ms`) para facilitar el análisis comparativo. El detalle de una búsqueda y los CSV también separan tiempo del algoritmo, preparación de la heurística y tiempo total (sin cargar JSON ni dibujar). Incluye los botones **Limpiar tabla** y **Exportar JSON…** para guardar los resultados.
-
----
-
-## 5. Ejemplos rápidos para pruebas y sustentación
-
-1. **Ruta más corta en pasos vs. ruta más económica en costo (Caso 2):**
-   ```bash
-   python -m tacticalgrid comparar escenarios/casos/caso02_ruta_corta_vs_economica.json
-   ```
-   Permite verificar cómo `BFS` minimiza el número de movimientos mientras `UCS` y `A*` rodean el terreno costoso para minimizar el costo acumulado $g(n)$.
-
-2. **Efecto de obstáculos en forma de U y dominancia heurística (Caso 3):**
-   En la GUI, cargue `escenarios/casos/caso03_obstaculo_heuristica.json`, seleccione `A_ESTRELLA` y pulse **Animar exploración** primero con la heurística `manhattan` y luego con `obstaculos`. Observará que ambas encuentran el costo óptimo, pero `obstaculos` expande menos estados.
-
-3. **Invariancia y ahorro de Poda Alfa-Beta frente a Minimax (Caso 8):**
-   ```bash
-   python -m tacticalgrid decidir escenarios/casos/caso08_minimax_vs_alfabeta.json --algoritmo MINIMAX --profundidad 3 --verificar
-   python -m tacticalgrid decidir escenarios/casos/caso08_minimax_vs_alfabeta.json --algoritmo ALFA_BETA --profundidad 3 --verificar
-   ```
-   Comprueba que ambos algoritmos eligen exactamente la misma acción y el mismo valor Minimax, pero `ALFA_BETA` evalúa menos nodos al podar ramas con $\alpha \ge \beta$.
-
-4. **Decisión táctica frente a adversario vs. comportamiento voraz (Caso 7):**
-   ```bash
-   python -m tacticalgrid decidir escenarios/casos/caso07_decision_adversarial.json --verificar
-   ```
+Manual actualizado con apoyo de Codex. La trazabilidad de herramientas, pruebas y revisión humana está en `docs/USO_IA.md`.

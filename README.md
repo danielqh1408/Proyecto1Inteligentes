@@ -82,6 +82,16 @@ Manual completo: [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md). Resultados de
 | [docs/DOCUMENTO_TECNICO.md](docs/DOCUMENTO_TECNICO.md) | Documento técnico (modelado, heurísticas, utilidad, resultados, complejidad, limitaciones, uso de IA) |
 | [resultados/RESUMEN.md](resultados/RESUMEN.md) | Casos mínimos (esperado vs obtenido) y experimentos E1–E6 |
 
+## Entrega del 21 de octubre
+
+- [Índice y comprobación de entregables](docs/ENTREGA.md).
+- [Manual de usuario en PDF](output/pdf/Manual_usuario_TacticalGrid.pdf) y [fuente editable](docs/MANUAL_USUARIO.md).
+- [Documento técnico en PDF](output/pdf/Documento_tecnico_TacticalGrid.pdf), con gráficas y trazabilidad de la rúbrica; [fuente](docs/DOCUMENTO_TECNICO.md).
+- [Guion breve de sustentación en PDF](output/pdf/Guion_sustentacion_TacticalGrid.pdf) y [fuente](docs/GUION_DEMO.md).
+- [Validación de entrega](resultados/VALIDACION_ENTREGA.md): suite completa, casos y evidencia reproducible.
+
+La tabla de métricas cambia con la pestaña: Búsqueda o Adversarial / Partida. Cada consulta de Decidir agrega una fila; al mover o reiniciar se limpia la comparación adversarial. Los PDF se regeneran con `python herramientas/generar_entregables.py`, instalando antes `herramientas/requirements-documentos.txt` en un entorno documental separado. El juego no depende de esas bibliotecas.
+
 ## 🤖 Uso de IA generativa
 
 Se usaron **Claude Code**, **Gemini** y **Codex** como apoyo en implementación, revisión, pruebas y documentación. Todo uso queda registrado en [docs/USO_IA.md](docs/USO_IA.md) y en la documentación de cada método (campos *AI usage / AI intervention / Student validation*). Ambos integrantes son responsables de explicar y modificar cualquier parte de la solución.

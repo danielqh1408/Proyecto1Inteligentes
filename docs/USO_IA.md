@@ -38,3 +38,12 @@ Comprobación adicional final: 40 mapas rectangulares nuevos, 360 búsquedas ver
 Juan compartió la revisión de Claude, que confirmó las correcciones y señaló referencias vacías en la guía. A petición explícita de Juan, Codex limpió esos restos (funciones y archivos en lugar de números de línea), precisó la explicación de distancias y preparó todos los cambios para commit y push a `origin/main`, conservando el tag histórico. La revisión de Claude es revisión asistida por IA; no se registra como revisión humana de Juan o Daniel.
 
 El conteo de 253 pruebas corresponde al entorno sin Tk y con la configuración predeterminada que excluye `entrega`. La suite completa suma 31 comprobaciones de entrega y 4 de interfaz: 288. Para incluir los marcadores se usa `python -m pytest -q -o addopts=''` con un Python que incluya Tk.
+
+### Tabla de comparación adversarial — 21 oct 2026
+Codex añadió una tabla visual que acumula las consultas de «Decidir» para comparar profundidad, orden, acción, valor y métricas. Cambia con la pestaña activa; «Limpiar tabla» y «Exportar JSON» actúan sobre la tabla visible. Al mover, reiniciar o cargar se limpia la comparación adversarial para no mezclar estados. No se modificaron algoritmos ni reglas. Revisión humana pendiente.
+
+### Entregables PDF y ensayo — 21 de octubre de 2026
+
+A solicitud de Juan, Codex refinó manual, documento técnico, trazabilidad y guion, generó PDF y figuras desde los CSV, y mantuvo las fuentes Markdown. Corrigió referencias antiguas a cinco componentes de utilidad, dominancia sin matices, confusión entre paridad y efecto horizonte, y alcance del verificador. No cambió reglas ni algoritmos en esta etapa. La captura 08 fue aportada por Juan y muestra la tabla que aprobó durante el ensayo.
+
+Validación: suite completa con Python 3.11/Tk (288 pruebas) y regeneración de los diez casos y E1–E6 el 21 de octubre. Se revisan renderizados y texto de los PDF. Juan recorrió los diez casos y explicó sus resultados en la conversación; no se atribuye una revisión línea por línea ni una nueva revisión de Daniel. Las nuevas piezas documentales y la tabla visual fueron producidas con IA; las autorías históricas se conservan sin fabricar contribuciones.

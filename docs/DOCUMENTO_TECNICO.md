@@ -2,9 +2,9 @@
 
 **Proyecto 1 · Sistemas Inteligentes I · Universidad de Caldas** · Docente: Jairo I. Vélez B.
 **Integrantes:** Daniel Quintero Hurtado · Juan David Ocampo González
-**Versión del código:** revisión corregida del 20 oct 2026, posterior a `80acd10`, identificada por el commit de `main`. El tag `v1.0-sustentacion` identifica la versión anterior y no contiene estas correcciones.
+**Edición de entrega:** 21 de octubre de 2026. Código auditado más tabla comparativa adversarial; el commit que contiene estos documentos identifica la entrega. El tag `v1.0-sustentacion` es histórico y no identifica esta edición.
 
-> Redactado con apoyo de Claude Code y actualizado por Codex tras pruebas de regresión. La revisión humana de estas correcciones está por realizar (ver `docs/USO_IA.md`). Todas las cifras salen de `resultados/RESUMEN.md` y de los CSV E1–E6; se regeneran con `python -m tacticalgrid experimentos`.
+> Redactado con apoyo de Claude Code y actualizado por Codex tras pruebas de regresión. Juan recorrió los diez casos durante el ensayo y revisó la tabla adversarial; esto no certifica revisión línea por línea ni una nueva revisión de Daniel (ver `docs/USO_IA.md`). Todas las cifras salen de `resultados/RESUMEN.md` y de los CSV E1–E6; se regeneran con `python -m tacticalgrid experimentos`.
 
 ---
 
@@ -48,7 +48,7 @@ class EstadoJuego:
 
 El estado es **inmutable y hashable** (`frozen=True`, tuplas), así se puede usar en conjuntos y diccionarios de visitados. Invariantes (`reglas.validar_estado`): todas las unidades dentro del mapa y en celdas transitables, sin dos unidades en la misma celda, y el recurso libre o con portador, nunca ambas cosas.
 
-**Caso 6 (estado compuesto):** en `caso06_estado_compuesto.json` la unidad A1 entra a un pasillo sin salida, recoge el recurso al fondo y vuelve por las mismas celdas. Cada celda del pasillo aparece dos veces en el camino de la misión: una con `lleva = False` y otra con `lleva = True` (UCS: costo 22, 20 movimientos). Con el estado `(fila, columna)` el segundo paso por una celda se descartaría como "ya visitado" y la misión sería imposible.
+**Caso 6 (estado compuesto):** en `caso06_estado_compuesto.json` la unidad A1 entra a un pasillo sin salida, recoge el recurso al fondo y vuelve por las mismas celdas. Varias celdas del pasillo aparecen dos veces en el camino de la misión: una con `lleva = False` y otra con `lleva = True` (UCS: costo 22, 20 movimientos). Con el estado `(fila, columna)` el segundo paso por una celda se descartaría como "ya visitado" y la misión sería imposible.
 
 ## 3. Reglas del juego
 
@@ -63,8 +63,8 @@ Ambos bandos usan exactamente las mismas reglas (`juego/reglas.py`).
 | R5 | **INTERCEPTAR**: una unidad al lado del portador enemigo le hace perder el recurso. El recurso vuelve libre a su posición inicial y el antiguo portador vuelve a su posición inicial (si está ocupada, se queda donde está). |
 | R6 | Si el portador está en la base de su bando, ese bando **gana**. |
 | R7 | Si un bando no tiene ninguna acción, su única acción es **PASAR**. |
-| R8 | Al llegar a `max_turnos` (200 por defecto, configurable en el JSON) la partida termina en **empate**. |
-| R9 | En modo búsqueda, si no hay camino el resultado es `exito = false` con todas las métricas; no es un error. |
+| R8 | Al llegar a `max_turnos` (200 por defecto, configurable en el JSON) sin ganador, la partida termina en **empate**. Una entrega válida conserva la victoria incluso en el último turno. |
+| R9 | En modo búsqueda, si no se encuentra camino se devuelve `exito = false` con métricas. En Beam puede existir una ruta descartada: fracaso no implica inalcanzabilidad. |
 | R10 | Orden determinista: unidades en el orden del JSON; para cada una, primero INTERCEPTAR y luego MOVER en el orden `abajo, arriba, derecha, izquierda` (el de los notebooks), configurable. |
 
 **Historia de R5 (decisión D‑14):**
@@ -73,6 +73,20 @@ Ambos bandos usan exactamente las mismas reglas (`juego/reglas.py`).
 - **Versión final (propuesta de Daniel):** también el recurso vuelve a su sitio. Interceptar es una jugada **defensiva** que reinicia la carrera, y elimina el intercambio inmediato del recurso entre dos unidades. No garantiza ausencia de ciclos; el límite de turnos asegura la terminación. Como consecuencia, el recurso libre siempre está en su posición inicial.
 
 En **modo búsqueda** las demás unidades se ignoran, porque el enunciado dice que en esa etapa se ignora al adversario. Con `prueba.unidades_bloquean: true` se tratan como obstáculos.
+
+
+### Algoritmos y estructuras auxiliares
+
+| Método | Estructura / prioridad | Garantía en el modelo implementado |
+|---|---|---|
+| BFS | Cola FIFO, padres como visitados | Mínimos movimientos en el grafo finito; no mínimo costo con terrenos distintos. |
+| DFS | Pila LIFO, padres como visitados | Encuentra una ruta si existe en el grafo finito explorado; no garantiza optimalidad. |
+| UCS | Heap por g, mejor_g y padres | Mínimo costo con costos positivos; se implementa reutilizando A* con h = 0. |
+| A* | Heap por g + h y desempate de inserción | Mínimo costo con H1/H2 consistentes; elimina entradas obsoletas y conserva mejores costos. |
+| Beam | Candidatos por nivel, orden h y recorte a k | Incompleto y subóptimo en general; mantiene visitados globales y padres. |
+| Minimax / alfa-beta | Recursión, listas de acciones y límites alfa/beta | Mejor valor del árbol limitado; misma decisión si profundidad, utilidad y orden coinciden. |
+
+El orden natural adversarial recorre unidades según JSON y movimientos abajo, arriba, derecha, izquierda, con intercepción primero si corresponde. Inverso revierte la lista completa. Heurístico evalúa hijos inmediatos: mayor primero en MAX y menor primero en MIN. El empate conserva la primera mejor acción. Profundidad cuenta acciones individuales, no rondas completas. Una evaluación a profundidad 1 es el agente de contraste VORAZ; no usa la h de navegación.
 
 ## 4. Costos
 
@@ -104,7 +118,7 @@ Sea **c_min** el menor costo entre los terrenos transitables **presentes en el m
 ### H1 — Manhattan: h₁(n) = c_min · (|f − f_obj| + |c − c_obj|)
 - **Qué estima:** el costo restante si no hubiera muros y todo costara lo mismo que el terreno más barato.
 - **Qué información usa:** la posición actual, la del objetivo y c_min.
-- **Costo computacional:** O(1) por evaluación.
+- **Costo computacional:** O(F·C) de preparación para obtener c_min en esta implementación; después O(1) por evaluación.
 - **Admisibilidad:** sí. Cualquier camino con movimientos en 4 direcciones necesita al menos la distancia Manhattan en pasos, y cada paso cuesta al menos c_min. Además es **consistente**: entre dos vecinos h cambia como mucho en c_min, que es ≤ el costo del paso.
 - **Por qué multiplicar por c_min:** la Manhattan "pura" solo es admisible si todos los costos son ≥ 1. Si el profesor pone un terreno de costo 0,5, la pura sobreestima y A\* puede perder el óptimo. Las pruebas usan mapas con costo 0,5 para comprobarlo (`test_admisible_consistente_y_dominancia`).
 - **Dónde orienta bien:** mapas abiertos.
@@ -154,7 +168,7 @@ Sea **c_min** el menor costo entre los terrenos transitables **presentes en el m
 
   El último caso es una **aproximación**: mezcla pasos Manhattan y costo de terreno, y omite que después de interceptar el recurso vuelve a su posición inicial. Una distancia inalcanzable se penaliza con 1 + suma de los costos de las celdas transitables; supera cualquier ruta mínima simple del mapa.
 
-Así la función cubre los factores que sugiere el enunciado: posesión, distancias relevantes, proximidad del adversario, unidades disponibles y control de posiciones (bloquear baja la movilidad del rival).
+La función selecciona tres criterios entre los permitidos por el enunciado. La proximidad se aproxima en restante y el control de posiciones se refleja indirectamente en movilidad. No hay un término independiente de costo acumulado de la partida, cantidad de unidades supervivientes ni control territorial. Las unidades no se eliminan.
 
 **Por qué una acción vale más que otra:** `python -m tacticalgrid decidir <json>` (o *Decidir* en la GUI) muestra los valores de las acciones de la raíz (en alfa-beta, las no elegidas pueden ser cotas). El desglose corresponde al hijo inmediato elegido: no es la evaluación de la hoja que determina el valor Minimax.
 
@@ -180,8 +194,8 @@ Así la función cubre los factores que sugiere el enunciado: posesión, distanc
   - *nodos evaluados* = hojas terminales o cortadas por profundidad; *evaluaciones_ordenamiento* cuenta el trabajo adicional para ordenar y *evaluaciones_desglose* la explicación del hijo elegido. *evaluaciones_totales* suma los tres; *nodos_generados_totales* incluye hijos temporales del ordenamiento;
   - *nodos podados* = en cada corte α ≥ β, número de acciones hermanas que no se exploraron;
   - *profundidad alcanzada*, *tiempo*, *acción* y *valor*.
-- **Verificación:** las pruebas pasan **todos** los resultados por el verificador, que recalcula todo desde el escenario. UCS y A\* se comparan con un Dijkstra escrito aparte en 20 mapas aleatorios con semilla fija. Minimax y alfa‑beta se comparan en estados aleatorios con los tres órdenes de acciones.
-- **Reproducibilidad:** todo es determinista (desempates por contador de inserción y orden fijo de acciones), salvo el tiempo. `python -m tacticalgrid experimentos` regenera `resultados/` en unos 5 segundos. La comprobación actual incluye 284 pruebas sin Tk y 4 pruebas adicionales de interfaz con Tk. El arnés documental revisa 31 métodos; no acredita comprensión humana.
+- **Verificación:** las pruebas incluyen verificación de caminos y decisiones contra el escenario y las reglas; el alcance exacto del botón se describe en la sección 12. UCS y A\* se comparan con un Dijkstra escrito aparte en 20 mapas aleatorios con semilla fija. Minimax y alfa‑beta se comparan en estados aleatorios con los tres órdenes de acciones.
+- **Reproducibilidad:** todo es determinista (desempates por contador de inserción y orden fijo de acciones), salvo el tiempo. `python -m tacticalgrid experimentos` regenera `resultados/`; el tiempo depende del equipo. La comprobación actual incluye 284 pruebas sin Tk y 4 pruebas adicionales de interfaz con Tk. El arnés documental revisa 31 métodos; no acredita comprensión humana.
 
 ## 8. Resultados e interpretación
 
@@ -199,7 +213,7 @@ Así la función cubre los factores que sugiere el enunciado: posesión, distanc
 
 **Casos 7 a 10 (adversarial):**
 - **Caso 7:** el agente voraz (1 jugada) mueve A2 hacia el recurso. Minimax con profundidad 4 ve que B1 lo recogerá primero y prefiere poner a A2 en la entrada del pasillo que B1 necesita para llegar a su base. Decidir frente a un adversario **no** es lo mismo que avanzar directo al objetivo.
-- **Caso 8:** con profundidad 4, Minimax evalúa 20 478 hojas; alfa‑beta, 427 hojas, con **la misma acción y el mismo valor** (−47). Alfa‑beta solo descarta ramas que no pueden cambiar el valor de la raíz, y en caso de empate se elige la primera acción con valor estrictamente mayor.
+- **Caso 8:** con profundidad 4, Minimax evalúa 20 478 hojas; alfa‑beta, 427 hojas, con **la misma acción y el mismo valor** (−47). Alfa‑beta solo descarta ramas que no pueden cambiar el valor de la raíz, y en caso de empate se conserva la primera mejor acción encontrada; solo se reemplaza con un valor estrictamente mayor.
 - **Caso 9 y E5, orden de acciones:** con profundidad 4, el orden *natural* evalúa 427 nodos, el *heurístico* 426 y el *inverso* 10 234. El valor es el mismo (−47) en los tres. Un buen orden encuentra pronto la mejor jugada y poda más.
   - Con orden inverso la acción elegida es otra, (11, 7) en vez de (12, 6), porque las dos valen lo mismo y se elige la primera en el orden de generación.
   - El orden heurístico casi no mejora al natural aquí, y realiza más trabajo total: natural 428 evaluaciones, heurístico 2976 (426 hojas + 2549 de ordenamiento + 1 desglose), inverso 10 235. Los tiempos actuales están en E5; no son constantes del algoritmo.
@@ -213,18 +227,18 @@ Así la función cubre los factores que sugiere el enunciado: posesión, distanc
 | Valor | −35 | −41 | −38 | −47 | −44 |
 
   - Minimax crece unas **12 veces por nivel**: el factor de ramificación efectivo es b ≈ 12 (3 unidades × ~4 movimientos).
-  - Alfa‑beta crece entre 2,6 y 4,9 veces por nivel (unas 3,6 en promedio). Es muy cercano a √b ≈ 3,5, que es lo que predice la teoría para un buen orden: O(b^(d/2)).
+  - En las hojas de alfa-beta, los cocientes entre profundidades son aproximadamente 2,83; 4,88; 2,57 y 4,71. Esta muestra ilustra el efecto de la poda; no demuestra la cota asintótica O(b^(d/2)) del mejor orden.
   - La acción cambia con la profundidad: con más horizonte la IA "ve" consecuencias que antes no veía.
-  - El valor oscila según si la última jugada mirada es de MAX o de MIN. Es el **efecto horizonte**.
+  - El valor oscila en esta muestra con la paridad de la profundidad: los cortes alternan después de A y después de B. El efecto horizonte consiste en no ver consecuencias más allá del corte; no debe identificarse exclusivamente con esta oscilación.
 
 **E6, torneo en el mapa simétrico:**
 - Alfa‑beta con profundidad 3 le gana al voraz y a alfa‑beta con profundidad 1, jugando con A o con B. Es el resultado de este experimento; más profundidad no garantiza ganar en cualquier escenario.
 - Con la misma profundidad (3 contra 3) es empate por límite de turnos, sin intercepciones: ambos se defienden.
-- Voraz contra voraz gana B. La única asimetría del mapa es quién empieza, así que el resultado entre agentes iguales depende de detalles del orden.
+- Voraz contra voraz gana B en este escenario y orden. El turno inicial y los desempates pueden influir; este único torneo no permite atribuir causalidad a un factor aislado.
 
 ## 9. Análisis de complejidad
 
-F·C = celdas del mapa; V = celdas transitables (×2 en la misión); E ≤ 4V transiciones; U = unidades; b = acciones por turno; d = profundidad.
+F·C = celdas del mapa; V = celdas transitables (×2 en la misión); E ≤ 4V transiciones; T = tipos de terreno; U = unidades; b = acciones por turno; d = profundidad. En la tabla, las cotas de árboles cuentan nodos y suponen tamaño de estado fijo; si U varía, los estados retenidos ocupan O(b·d·U).
 
 | Método | Tiempo | Espacio | Comentario |
 |---|---|---|---|
@@ -235,27 +249,27 @@ F·C = celdas del mapa; V = celdas transitables (×2 en la misión); E ≤ 4V tr
 | BFS / DFS | O(V + E) | O(V) | `padres` hace de visitados; el camino se reconstruye en O(L) |
 | UCS / A\* con H1 o H2 consistente | O((V + E) log V) | O(V) | heap con eliminación perezosa; heurísticas inconsistentes pueden reexpandir estados |
 | Beam | O(d · k·b · log(k·b)) | O(k·b) frontera + O(V) historial | limita candidatos, sin garantía de completitud u optimalidad |
-| H1 | O(1) | O(1) | |
+| H1 | O(F·C) preparación + O(1) por consulta | O(1) | el costo mínimo se obtiene recorriendo el mapa |
 | H2 | O(F·C) una vez + O(1) | O(F·C) | BFS inverso desde el objetivo |
 | `distancias` | 4 × O(V log V) una vez | O(V) | Dijkstra inverso, en caché por escenario |
 | `evaluar` | O(U) | O(U) | por la movilidad (genera acciones de ambos bandos) |
-| Minimax | O(b^d) | O(b·d) | recursión de profundidad d |
-| Alfa‑beta | O(b^(d/2)) mejor orden; O(b^d) peor | O(b·d) | E4/E5 ilustran el efecto del orden; no prueban cotas asintóticas |
+| Minimax | O(b^d) nodos | O(b·d) nodos retenidos | cada transición/evaluación añade O(U); sin ordenar heurísticamente |
+| Alfa-beta | O(b^(d/2)) mejor orden; O(b^d) peor, en nodos | O(b·d) nodos retenidos | transición/evaluación O(U); ordenar cada lista añade O(b·U + b log b) |
 
 Para comparar con la teoría: en el árbol, BFS es O(b^d) y UCS es O(b^(1+⌊C*/ε⌋)). En BFS/DFS sobre la cuadrícula, los visitados acotan los estados a O(V). Minimax no usa visitados: su árbol crece con b y d.
 
 ## 10. Limitaciones
 
 - **Unidades idénticas** (`estandar`): no hay tipos con habilidades distintas.
-- **Horizonte limitado:** la decisión depende de la evaluación en las hojas y el valor oscila con la paridad de la profundidad. No usamos profundización iterativa ni búsqueda de quiescencia.
+- **Horizonte limitado:** la decisión depende de la evaluación en las hojas; el valor puede oscilar con la paridad de la profundidad. No usamos profundización iterativa ni búsqueda de quiescencia.
 - **Sin tabla de transposiciones:** Minimax reevalúa estados repetidos. Minimax puro con profundidad > 5 se vuelve lento (b ≈ 12 ⇒ más de 240 000 nodos con d = 5).
 - **Aproximación en la evaluación:** el término `restante` del bando que persigue usa Manhattan hasta el portador e ignora que, tras interceptar, el recurso vuelve a su posición inicial.
 - **Empates entre agentes de igual profundidad** (E6): con evaluaciones simétricas y prudentes, la partida puede quedarse sin progreso hasta el límite de turnos.
 - **Beam con visitados globales** (como en clase): puede fallar aunque exista camino. Es una limitación esperada del algoritmo, no un error.
-- **La heurística propia no considera los costos de terreno**, solo los muros. Pierde discriminación en mapas abiertos o con terrenos caros.
+- **La heurística propia usa el costo mínimo**, pero ignora las diferencias entre costos de las celdas. Pierde discriminación en mapas abiertos o con terrenos caros.
 - **Tiempos** medidos en un solo computador con una sola corrida por configuración. La caché de distancias se reutiliza entre decisiones del mismo escenario; el primer cálculo puede ser más caro. No son un benchmark estadístico.
 - **Recorte de la evaluación:** con costos o pesos muy grandes, estados diferentes pueden empatar en ±9999. Se acepta esta pérdida de discriminación para mantener sencilla la fórmula y asegurar que ganar siempre tenga prioridad.
-- **Interfaz básica** (tkinter): suficiente para observar y experimentar, sin cuidado estético.
+- **Interfaz Tkinter:** compara métricas y dibuja decisiones. No implementa una tabla de transposiciones, deshacer ni una gráfica interactiva del árbol. La tabla adversarial acumula consultas del mismo estado y se limpia al mover o reiniciar.
 
 ## 11. Reporte del uso de IA
 
@@ -263,4 +277,45 @@ Claude Code apoyó la implementación original, los mapas, las pruebas y la docu
 
 Se repitieron E1–E6 y coincidieron todas las columnas no temporales. La suite completa con Python 3.11/Tk aprobó 288 pruebas. Como comprobación adicional se generaron 40 mapas rectangulares nuevos: pasaron 360 búsquedas con verificador y 36 comparaciones Minimax/alfa-beta; los diez casos también se ejecutaron desde CLI.
 
-Las pruebas automáticas comprueban comportamiento y regresiones; no demuestran que los integrantes comprendan el código. Juan y Daniel deben revisar estas correcciones y poder explicar los algoritmos, la utilidad y sus limitaciones. El historial Git conserva los aportes reales: no se atribuyen cambios de código a quien no los haya hecho.
+Las pruebas automáticas comprueban comportamiento y regresiones; no demuestran que los integrantes comprendan el código. El ensayo de Juan del 21 de octubre recorrió los diez casos y sus métricas. La revisión individual de Daniel y la revisión línea por línea no se presumen completadas. Ambos deben poder explicar los algoritmos, la utilidad y sus limitaciones. El historial Git conserva los aportes reales: no se atribuyen cambios de código a quien no los haya hecho.
+
+## 12. Contrato JSON, verificación e interfaz
+
+El cargador admite el formato común del enunciado: version, mapa, tipos_terreno, terreno, bases, recurso, unidades, turno y juego.portador_recurso. El bloque prueba es opcional. Normaliza bandos a mayúsculas y conserva campos propios sin reinterpretar los obligatorios. Las opciones usadas por CLI/GUI se validan antes de sustituir el escenario. La prueba oficial 4×4 se acepta; los escenarios de desarrollo cumplen 20×20 y tres unidades por bando. Los costos son positivos y finitos y proceden del catálogo cargado.
+
+**Carga atómica:** un archivo inválido no modifica el escenario anterior. Se comprueban dimensiones/matriz, catálogo, costos, posiciones, identificadores, bandos, turno, portador y superposiciones. Un recurso o base en muro puede ser inalcanzable: no se rechaza un contrato válido por exigir una solución. La navegación ignora otras unidades salvo opción de bloqueo; la partida siempre respeta ocupación y base enemiga.
+
+**Verificación de caminos:** recalcula costo, vecindad, transitabilidad, sucesores, inicio, longitud y objetivo. Si una búsqueda completa falla, BFS confirma inalcanzabilidad. En Beam solo se comprueba camino vacío al fallar, porque no es completo. Validar una ruta no certifica por sí mismo que sea óptima; esa propiedad se contrasta con UCS/oráculos en las pruebas.
+
+**Verificación adversarial:** comprueba acción elegida, legalidad y cobertura de acciones de la raíz, y validez de los estados que producen. Una raíz terminal debe no proponer acciones y tener utilidad terminal correcta. No vuelve a recorrer todo el árbol interno. Cada transición del algoritmo usa acciones_legales/aplicar; los tests ejercitan las invariantes y la equivalencia Minimax/alfa-beta. El botón también ejecuta una comparación con la misma profundidad y orden. Tras mover solo verifica el estado vigente.
+
+**Interfaz:** las pestañas muestran tablas diferentes. Decidir acumula consultas adversariales sin ejecutar jugadas; Siguiente turno utiliza Juega A/B y mueve. La tabla adversarial se limpia al cambiar el estado. La figura del manual muestra la interfaz vigente; los detalles completos y exportación siguen disponibles. Código, configuración, casos y documentos se entregan juntos.
+
+## 13. Figuras de los experimentos
+
+Las figuras se generan desde los CSV E4 y E5 mediante herramientas/generar_entregables.py. Se separan hojas, trabajo adicional y tiempos. Los tiempos son una medición por configuración; la caché de distancias puede favorecer decisiones posteriores. No se usan para afirmar superioridad universal.
+
+![Profundidad y hojas evaluadas: Minimax hasta 4 y alfa-beta hasta 5.](figuras/profundidad.png)
+
+Figura 1. Fuente: resultados/E4_profundidad.csv. Eje vertical logarítmico para comparar magnitudes. Minimax no se ejecuta a profundidad 5 en E4; no se inventa ese punto.
+
+![Trabajo total del ordenamiento: hojas, ordenamiento y desglose a profundidad 4.](figuras/orden.png)
+
+Figura 2. Fuente: resultados/E5_orden.csv. Natural 428 evaluaciones totales; inverso 10235; heurístico 2976. Una hoja menos no compensa las 2549 evaluaciones de ordenamiento en este caso.
+
+## 14. Trazabilidad de la rúbrica
+
+Los porcentajes siguientes corresponden al componente grupal (50 % de la evaluación total); el otro 50 % es individual y depende de la sustentación.
+
+| Criterio grupal | Peso | Evidencia de esta entrega |
+|---|---|---|
+| Modelado y estados | 15 % | Secciones 1–3; juego/estado.py y reglas.py; caso 6 y test_reglas.py. |
+| BFS, DFS y UCS | 15 % | Secciones 3–4 y 8; busqueda/algoritmos.py; casos 1–2, E1 y E3. |
+| A*, heurísticas y Beam | 20 % | Secciones 5, 8–10; casos 3–5, E1/E2 y pruebas de admisibilidad. |
+| Minimax y alfa-beta | 20 % | Secciones 6–8; adversarial/; casos 7–10, E4/E5/E6. |
+| Experimentación e interpretación | 10 % | Secciones 7–8 y 13; CSV E1–E6, resumen esperado/obtenido, scripts reproducibles. |
+| Interfaz y visualización | 5 % | Manual actualizado, captura real y tablas por pestaña; tests/test_interfaz.py. |
+| Validación y verificación | 5 % | Sección 12; escenario/validador.py, verificacion/ y casos inválidos. |
+| Calidad y documentación | 10 % | Arquitectura, 31 métodos con siete campos, registro IA, README y fuentes de los PDF. |
+
+La matriz acredita correspondencia entre requisitos y evidencia; no anticipa la nota del profesor. El historial Git conserva contribuciones reales de ambos integrantes sin inventar autorías. La intervención de IA se declara en este documento, en USO_IA.md y en los métodos relevantes.

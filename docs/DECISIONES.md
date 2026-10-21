@@ -26,7 +26,7 @@
 **Contexto:** la sección de validación dice "a o b"; el ejemplo usa `"A"`. **Decisión:** aceptar ambas y normalizar a mayúscula. **Consecuencia:** un JSON con minúsculas del profesor no se rechaza.
 
 ### D‑02 · Qué se valida
-**Contexto:** el enunciado lista 9 validaciones; hay otras situaciones raras (base sobre muro, recurso sobre base, mapa < 20×20). **Decisión:** se validan solo las 9 del enunciado, los tipos de dato y que dos unidades no compartan celda (rompería el modelo de estado). Lo demás no se revisa. **Alternativas:** advertencias extra (descartado por la regla de simplicidad: más código sin valor en la nota) o ser más estrictos (riesgo de rechazar un JSON válido del profesor).
+**Contexto:** el enunciado lista 9 validaciones; hay otras situaciones raras (base sobre muro, recurso sobre base, mapa < 20×20). **Decisión:** se validan solo las 9 del enunciado, los tipos de dato y que dos unidades no compartan celda (rompería el modelo de estado). La revisión posterior también valida las opciones que consume la aplicación (profundidad, k, órdenes, pesos y prueba), para evitar errores de ejecución. No impone que una base o recurso sean alcanzables. **Alternativas:** advertencias extra (descartado por la regla de simplicidad: más código sin valor en la nota) o ser más estrictos (riesgo de rechazar un JSON válido del profesor).
 
 ### D‑03 · Recurso con portador
 **Decisión:** si `juego.portador_recurso` ≠ null, el recurso está en la posición de esa unidad; `recurso` se conserva como dato original. **Consecuencia:** el estado nunca tiene recurso "en dos lugares".
@@ -53,7 +53,7 @@
 **Contexto:** se necesita cargar archivos, controles (combos, spinbox), tablas y una cuadrícula; la estética no se evalúa. **Decisión:** `tkinter` + `ttk`. **Alternativas:** Pygame (hay que construir botones, tablas y diálogo de archivos a mano), Streamlit (modelo de recarga incómodo para turnos), web React (otro stack y otra capa de API). **Riesgo:** en macOS con Python de Homebrew falta Tk ⇒ `brew install python-tk@3.12`. **Pendiente:** confirmar que funciona en el equipo de Daniel y en el PC de la sustentación.
 
 ### D‑11 · Tipos de unidad
-**Decisión:** todas `estandar` (mismo movimiento y reglas). El campo `tipo` se lee y se muestra; un tipo desconocido se trata como `estandar` con advertencia. **Por qué:** el enunciado permite unidades idénticas y pide no complicar con combate. **Extensión posible:** `explorador` con costo de bosque reducido.
+**Decisión:** todas `estandar` (mismo movimiento y reglas). El campo `tipo` se conserva como metadato; todos los tipos usan las mismas reglas y no se emite una advertencia por un tipo desconocido. **Por qué:** el enunciado permite unidades idénticas y pide no complicar con combate. **Extensión posible:** `explorador` con costo de bosque reducido.
 
 ### D‑12 · Lenguaje y dependencias
 Python 3.12 (igual que el curso), núcleo con stdlib, `pytest` para pruebas, `matplotlib` opcional para gráficas.

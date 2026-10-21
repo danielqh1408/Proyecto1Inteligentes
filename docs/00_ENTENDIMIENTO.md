@@ -51,7 +51,7 @@ Eso es exactamente la **pregunta central**: *¿cómo cambia la forma de decidir 
 | Reglas para bloqueos, sin ruta, pérdida del portador | R1–R10 | spec 002 §3.3 |
 | Tipos de unidades | Todas `estandar` (MVP); tipos extensibles | `DECISIONES.md` D‑11 |
 | Segunda heurística | `obstaculos`: BFS inverso escalado por c_min | spec 004 §3 |
-| Función de utilidad | 5 componentes ponderados + terminal | spec 005 §4 |
+| Función de utilidad | 3 componentes: posesión, carrera y movilidad + terminal | spec 005 §4 |
 | Lenguaje e interfaz | Python 3.12 + tkinter | `DECISIONES.md` D‑10, D‑12 |
 
 ## 5. Matriz de trazabilidad (requisito → spec → módulo → prueba → rúbrica)
@@ -104,7 +104,7 @@ Eso es exactamente la **pregunta central**: *¿cómo cambia la forma de decidir 
 - **Generar / expandir:** generar = meter en la frontera; expandir = sacar y calcular sus sucesores.
 - **g(n):** costo real acumulado. **h(n):** estimación del costo restante. **f(n) = g + h.**
 - **Admisible:** h(n) ≤ h\*(n) siempre. **Consistente:** h(n) ≤ c(n, n') + h(n').
-- **Dominancia:** h₂ ≥ h₁ (ambas admisibles) ⇒ A\* con h₂ expande ≤.
+- **Dominancia:** h₂ ≥ h₁ con ambas admisibles: h₂ informa más; las expansiones totales también dependen de los empates en f = C*.
 - **Beam width k:** cuántos estados se conservan por nivel.
 - **Utilidad / evaluación:** número que dice qué tan bueno es un estado para MAX.
 - **Poda α‑β:** dejar de explorar una rama cuando ya no puede cambiar la decisión de la raíz (α ≥ β).

@@ -53,3 +53,6 @@ No se implementaron las propuestas iniciales de deshacer, exportar CSV desde la 
 Cargar sincroniza algoritmo, heurística, k, bloqueo, misión, profundidad y órdenes desde el JSON, restableciendo valores por defecto cuando se omiten. La carga es atómica también ante prueba mal formada. Al cambiar escenario se limpia la tabla; al jugar se descarta la decisión anterior. Verificar sin resultado comprueba el estado. Los controles inválidos muestran mensajes; no dejan excepciones de callbacks. Se muestran las cotas de alfa-beta y las métricas totales. El dibujo se adapta al tamaño real del lienzo; no se promete deshacer, frontera dibujada ni historial GUI que no se implementan.
 
 Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.
+
+## Tabla adversarial (21 oct 2026)
+La pestaña activa muestra su propia tabla. Decidir acumula algoritmo, orden, profundidad, acción, valor y métricas del estado actual; mover, reiniciar o cargar limpia la tabla adversarial para no mezclar estados. Limpiar y exportar operan sobre la tabla visible. No cambia la lógica de decisión.

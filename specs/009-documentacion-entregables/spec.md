@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **casi completa** · solo falta la revisión de Juan y la sustentación |
+| Estado | **entregables generados el 21 oct** · ensayo de Juan realizado; revisión individual de Daniel y sustentación no certificadas |
 | Responsable | Ambos |
 | Rúbrica | Calidad y documentación técnica del código (10 %) + requisito de entrega |
 | Depende de | todas |
@@ -46,7 +46,7 @@ Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.
 - [x] T2 Manual de usuario con capturas — Daniel (20 oct)
 - [x] T3 Documento técnico completo con cifras reales (Claude y Codex; revisión humana de correcciones por realizar)
 - [x] T4 `Student validation` en los 31 métodos auditados (`pytest -m entrega` en verde)
-- [ ] T5 Simulacros de sustentación — Juan (`/sustentacion NNN`)
+- [x] T5 Ensayo de Juan: recorrido de diez casos y explicación de resultados (21 oct); no equivale a certificar dominio de todo el código.
 - [x] T6 Tag `v1.0-sustentacion` (histórico; no mover automáticamente)
 
 ## Correcciones de auditoría (20 oct 2026)
@@ -54,3 +54,7 @@ Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.
 Ampliar el arnés de los siete campos a todas las funciones relevantes identificadas en la auditoría. Actualizar informe, manual, guías, arquitectura y trazabilidad con nombres reales. Declarar la intervención de Codex y distinguir validación automática de revisión humana, sin afirmar revisiones futuras como completadas. El tag v1.0-sustentacion es histórico mientras las correcciones estén sin commit; no se mueve ni se publica automáticamente. Git debe evidenciar aportes reales de ambos, conforme al PDF, sin inventar autorías de código.
 
 Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_interfaz.py`, suite completa y diez casos mínimos aprobados.
+
+## Edición final de documentos (21 oct)
+
+Manual y documento técnico refinados, con fuentes Markdown y PDF en output/pdf. Se incluye guion breve, figura real de la tabla adversarial y gráficas derivadas de E4/E5. El índice docs/ENTREGA.md relaciona cada archivo con su propósito y la comprobación final. Regeneración: herramientas/generar_entregables.py; dependencias documentales separadas del juego.

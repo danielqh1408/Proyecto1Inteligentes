@@ -28,6 +28,10 @@ ORDENES = {"abajo, arriba, derecha, izquierda": ORDEN_MOVIMIENTOS,
 COLUMNAS = ("algoritmo", "heuristica", "k", "exito", "longitud", "costo",
             "estados_generados", "estados_expandidos", "maximo_frontera", "tiempo_ms")
 
+COLUMNAS_ADVERSARIAL = ("algoritmo", "orden", "profundidad", "accion", "valor",
+                       "nodos_generados", "nodos_evaluados", "evaluaciones_totales",
+                       "nodos_podados", "tiempo_ms")
+
 
 def color_terreno(nombre: str, transitable: bool) -> str:
     """Color fijo para terrenos conocidos; para terrenos nuevos del profesor, uno derivado del nombre."""
@@ -65,19 +69,33 @@ class App:
 
         derecha = ttk.Frame(raiz, padding=6)
         derecha.pack(side="right", fill="y")
-        pestanas = ttk.Notebook(derecha)
+        self.pestanas = pestanas = ttk.Notebook(derecha)
         pestanas.pack(fill="x")
         pestanas.add(self.panel_busqueda(pestanas), text="Búsqueda")
         pestanas.add(self.panel_adversarial(pestanas), text="Adversarial / Partida")
 
-        self.tabla = ttk.Treeview(derecha, columns=COLUMNAS, show="headings", height=8)
+        contenedor_tablas = ttk.Frame(derecha)
+        contenedor_tablas.pack(fill="x", pady=(8, 2))
+        contenedor_tablas.columnconfigure(0, weight=1)
+        self.tabla = ttk.Treeview(contenedor_tablas, columns=COLUMNAS, show="headings", height=8)
         for c in COLUMNAS:
             self.tabla.heading(c, text=c.replace("estados_", "").replace("maximo_", "max_"))
             self.tabla.column(c, width=62, anchor="center")
-        self.tabla.pack(fill="x", pady=(8, 2))
+        self.tabla.grid(row=0, column=0, sticky="ew")
+        self.tabla_adversarial = ttk.Treeview(contenedor_tablas, columns=COLUMNAS_ADVERSARIAL,
+                                            show="headings", height=8)
+        titulos = ("Algoritmo", "Orden", "Prof.", "Acción", "Valor", "Generados",
+                   "Evaluados", "Eval. total", "Podados", "Tiempo ms")
+        anchos = (85, 75, 42, 115, 55, 65, 65, 65, 60, 70)
+        for columna, titulo, ancho in zip(COLUMNAS_ADVERSARIAL, titulos, anchos):
+            self.tabla_adversarial.heading(columna, text=titulo)
+            self.tabla_adversarial.column(columna, width=ancho, anchor="center")
+        self.tabla_adversarial.grid(row=0, column=0, sticky="ew")
+        self.tabla_adversarial.grid_remove()
+        pestanas.bind("<<NotebookTabChanged>>", self.cambiar_tabla)
         botones = ttk.Frame(derecha)
         botones.pack(fill="x")
-        ttk.Button(botones, text="Limpiar tabla", command=lambda: self.tabla.delete(*self.tabla.get_children())).pack(side="left")
+        ttk.Button(botones, text="Limpiar tabla", command=self.limpiar_tabla).pack(side="left")
         ttk.Button(botones, text="Exportar JSON…", command=self.exportar).pack(side="left", padx=4)
         self.texto = tk.Text(derecha, width=70, height=16, font=("Menlo", 11))
         self.texto.pack(fill="both", expand=True, pady=4)
@@ -193,6 +211,7 @@ class App:
             if pendiente:
                 self.raiz.after_cancel(pendiente)
         self.animacion = self.partida_programada = None
+        self.tabla_adversarial.delete(*self.tabla_adversarial.get_children())
         self.estado = estado_inicial(self.escenario)
         self.resultado = self.decision = None
         self.dibujar()
@@ -326,10 +345,23 @@ class App:
             self.agregar_fila(ejecutar_busqueda(self.escenario, algoritmo, heuristica, k, problema=self.problema))
         self.escribir("Se agregaron a la tabla BFS, DFS, UCS, A* (dos heurísticas) y Beam k = 1, 2, 4, 8.")
 
+    def tabla_visible(self):
+        return self.tabla if self.pestanas.index("current") == 0 else self.tabla_adversarial
+
+    def cambiar_tabla(self, evento=None):
+        self.tabla.grid_remove()
+        self.tabla_adversarial.grid_remove()
+        self.tabla_visible().grid()
+
+    def limpiar_tabla(self):
+        tabla = self.tabla_visible()
+        tabla.delete(*tabla.get_children())
+
     def exportar(self):
         ruta = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON", "*.json")])
         if ruta:
-            filas = [dict(zip(COLUMNAS, self.tabla.item(i, "values"))) for i in self.tabla.get_children()]
+            tabla = self.tabla_visible()
+            filas = [dict(zip(tabla["columns"], tabla.item(i, "values"))) for i in tabla.get_children()]
             with open(ruta, "w", encoding="utf-8") as archivo:
                 json.dump(filas, archivo, ensure_ascii=False, indent=2)
 
@@ -357,6 +389,8 @@ class App:
             return
         self.resultado = None
         d = self.decision.como_dict()
+        fila = self.tabla_adversarial.insert("", "end", values=[d.get(c, "") for c in COLUMNAS_ADVERSARIAL])
+        self.tabla_adversarial.see(fila)
         lineas = [f"{d['algoritmo']}: mejor acción para {self.estado.turno} = {d['accion']}   valor = {d['valor']}",
                   f"nodos generados {d['nodos_generados']} · evaluados {d['nodos_evaluados']} · podados {d['nodos_podados']} · "
                   f"profundidad {d['profundidad_alcanzada']} · {d['tiempo_ms']} ms",
@@ -369,6 +403,7 @@ class App:
 
     def aplicar_y_dibujar(self, accion):
         self.estado = aplicar(self.escenario, self.estado, accion)
+        self.tabla_adversarial.delete(*self.tabla_adversarial.get_children())
         self.resultado = self.decision = None
         self.dibujar()
 
