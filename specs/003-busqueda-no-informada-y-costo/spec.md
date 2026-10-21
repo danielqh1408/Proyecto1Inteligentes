@@ -102,12 +102,6 @@ V = celdas transitables (× 2 en `ProblemaMision`), E ≤ 4V. En términos de á
 - [x] T5 Tests CA‑003‑1…9 — implementado con Claude; revisa el otro integrante
 - [x] T6 Revisión y simulacro — Daniel (20 oct, ver docs/USO_IA.md)
 
-## 8. Para sustentar
-- *¿Por qué BFS encuentra el camino más corto en movimientos pero no el más barato?* → Explora por niveles (número de aristas), ignora costos.
-- *¿Por qué UCS revisa `g != mejor_g[s]`?* → `heapq` no permite disminuir prioridad; se re‑inserta y se descartan entradas viejas (eliminación perezosa).
-- *¿Qué cambia si el pantano pasa de 7 a 15?* → BFS: conserva el camino, pero el costo reportado puede aumentar. UCS: puede desviarse más para evitar el pantano; su costo óptimo nunca baja.
-- *¿Por qué DFS cambia con el orden de movimientos?* → La pila hace que el último sucesor insertado se explore primero.
-
 ## Correcciones de auditoría (20 oct 2026)
 
 `tiempo_ms` mide la búsqueda. `preparacion_ms` mide construir la heurística; `tiempo_total_ms` suma ambas fases, sin cargar el archivo ni dibujar. El máximo de frontera de Beam cuenta los estados pendientes del haz más los candidatos nuevos del nivel. El historial no forma parte de la frontera.

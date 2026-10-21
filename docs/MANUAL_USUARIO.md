@@ -85,7 +85,7 @@ La tabla adversarial se limpia al mover, reiniciar o cargar otro escenario: evit
 
 ![Tabla actual: cinco profundidades sobre el mismo estado, con cero turnos ejecutados.](capturas/08_tabla_profundidad_actual.png)
 
-**Figura 1.** Captura real aportada por Juan durante el ensayo del 21 de octubre. Los tiempos corresponden a esa sesión y pueden diferir de los CSV. Las cifras de nodos, acciones y valores coinciden con el caso 10. Las capturas 01–07 conservadas en el repositorio son históricas y no se usan como evidencia numérica actual.
+**Figura 1.** Captura real aportada por Juan durante el ensayo del 21 de octubre. Los tiempos corresponden a esa sesión y pueden diferir de los CSV. Las cifras de nodos, acciones y valores coinciden con el caso 10. Las capturas 01–06 conservadas en el repositorio son históricas y no se usan como evidencia numérica actual.
 
 ### Interpretar el resultado
 
@@ -183,3 +183,47 @@ Para otras opciones: `python -m tacticalgrid --help` y la ayuda del subcomando. 
 | Misma posición aparece dos veces | En Misión puede ser sin recurso y con recurso: son estados distintos. |
 
 Manual actualizado con apoyo de Codex. La trazabilidad de herramientas, pruebas y revisión humana está en `docs/USO_IA.md`.
+
+
+## 10. Evidencia suficiente para reproducir los experimentos reportados
+
+La evidencia está formada por los escenarios JSON, el código del runner, los seis CSV y el resumen esperado frente a obtenido. Las figuras del informe se derivan de esos CSV; no sustituyen los datos. Todos los comandos se ejecutan desde la raíz del repositorio, con el entorno Python activado.
+
+### Procedimiento sin sobrescribir la evidencia entregada
+
+```bash
+python --version
+git rev-parse HEAD
+python -m pytest -o addopts='' -q
+python -m tacticalgrid experimentos --salida resultados/tmp/reproduccion
+```
+
+El primer comando identifica Python; el segundo fija la revisión del código. La suite incluye los verificadores y las comprobaciones documentales. El último comando ejecuta los diez casos y E1–E6 con los parámetros programados en tacticalgrid/experimentos/reporte.py. Escribe un nuevo RESUMEN.md y seis CSV en resultados/tmp/reproduccion, conservando los archivos entregados de resultados/.
+
+La salida debe indicar que los diez casos mínimos se cumplen; el proceso termina con código 0 si todos cumplen. Abra resultados/tmp/reproduccion/RESUMEN.md: cada caso incluye su descripción, resultado esperado y métricas obtenidas. Su encabezado registra fecha, versión de Python, commit y si había cambios locales. Un código de salida correcto de los casos no reemplaza la comparación de las filas experimentales.
+
+| Archivo entregado | Escenario y variables controladas | Evidencia que contiene |
+|---|---|---|
+| E1_busqueda.csv | Casos 1–6; BFS, DFS, UCS, A* y Beam, H1/H2; Beam k = 2 | Éxito, longitud, costo, generados, expandidos, frontera y tiempos. |
+| E2_beam.csv | Casos 3 y 5; Manhattan; k = 1, 2, 4, 8, 16; criterios h/f | Efecto del descarte, éxito, calidad y trabajo de búsqueda. |
+| E3_sensibilidad.csv | Caso 2; pantano = 1, 2, 3, 5, 7, 10, 15, 20; BFS/UCS/A* obstáculos | Cambio de rutas y costos al modificar solo el costo del pantano. |
+| E4_profundidad.csv | Estado del caso 8; orden natural; Minimax 1–4 y alfa-beta 1–5 | Acción, valor, hojas, generaciones, podas y tiempo por profundidad. |
+| E5_orden.csv | Caso 9; alfa-beta; profundidades 2, 3, 4; tres órdenes | Trabajo de hojas y ordenamiento separado, total, acción y valor. |
+| E6_torneo.csv | partida_simetrica.json; combinaciones de agentes y profundidades declaradas en cada fila | Ganador o empate, jugadas e intercepciones. |
+
+### Qué debe coincidir y qué puede variar
+
+Con los mismos JSON, código y opciones deben coincidir las columnas no temporales: éxito, costo, longitud, acciones, valores, conteos y resultados del torneo. Los tiempos pueden variar por equipo, carga del sistema y caché; no se exige igualdad de tiempo_ms, preparacion_ms ni tiempo_total_ms. La metodología usa una ejecución por configuración, no promedios ni intervalos estadísticos.
+
+Compare los CSV regenerados con los de resultados/. No compare literalmente todo RESUMEN.md: sus fechas, commit y tiempos pueden cambiar. Si varían resultados no temporales, revise primero la revisión de Git, los archivos JSON, profundidad, orden, heurística y k. Las huellas en resultados/MANIFIESTO_ENTREGA.json permiten comprobar el contenido de código y escenarios correspondiente a la entrega; no se regeneran automáticamente con el runner.
+
+Para una comprobación puntual con detalle y verificación, por ejemplo:
+
+```bash
+python -m tacticalgrid buscar escenarios/casos/caso02_ruta_corta_vs_economica.json --algoritmo UCS --verificar
+python -m tacticalgrid decidir escenarios/casos/caso08_minimax_vs_alfabeta.json --algoritmo ALFA_BETA --profundidad 4 --orden natural --verificar
+```
+
+Se espera costo 33 y longitud 33 en la primera prueba; A2 hacia (12,6), valor -47 y 427 hojas en la segunda. El conjunto completo de valores esperados está en resultados/RESUMEN.md. La GUI también permite repetir las mismas configuraciones sin avanzar turnos entre consultas adversariales.
+
+Para actualizar oficialmente los CSV use python -m tacticalgrid experimentos (sin --salida). Para regenerar figuras y ambos PDF a partir de los CSV entregados, use el entorno documental con herramientas/requirements-documentos.txt y ejecute python herramientas/generar_entregables.py.

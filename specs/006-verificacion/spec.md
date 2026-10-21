@@ -41,10 +41,6 @@ Un camino sin éxito se comprueba con BFS salvo Beam, que puede descartar rutas.
 - [x] T4 ~~Modo auditoría~~ innecesario: `aplicar` valida legalidad en cada nodo — revisa Juan
 - [x] T5 Tests CA‑006‑1…5 — implementado con Claude; revisa Juan
 
-## 6. Para sustentar
-- *¿Cómo sabe que el costo reportado es correcto?* → El verificador lo recalcula sumando `costo(celda)` del escenario, independiente del algoritmo.
-- *¿Cómo garantiza que Minimax no considera jugadas ilegales?* → `aplicar` rechaza acciones ilegales y las pruebas comprueban invariantes de los sucesores.
-
 ## Correcciones de auditoría (20 oct 2026)
 
 Una decisión terminal es correcta si no propone acción ni hijos y coincide con la utilidad terminal. Los caminos exitosos vacíos se rechazan sin excepción. En la GUI una jugada invalida el resultado anterior y Verificar comprueba el estado actual si no hay resultado. La comparación Minimax/alfa-beta usa profundidad y orden registrados en la decisión. La verificación comprueba legalidad y consistencia, no calidad estratégica ni optimalidad de toda heurística.

@@ -45,14 +45,14 @@ Además:
 ## 4. Diseño
 
 > **Implementado:** `tacticalgrid/experimentos/casos.py` (una función por caso: carga, ejecuta y compara con lo esperado; la usan los tests y el reporte) y `experimentos/reporte.py` (E1–E6 + `resultados/RESUMEN.md`). Comando: `python -m tacticalgrid experimentos` (≈ 5 s). Los escenarios incluyen `descripcion`, `esperado` y `mapa_ascii` (dibujo del mapa) como campos extra.
-> Cambios frente al bosquejo: sin gráficas (matplotlib opcional, no instalado); tiempo de una sola corrida (no mediana de 5); E6 usa `escenarios/partida_simetrica.json` (21×21 simétrico por rotación) para que el resultado dependa del agente y no del mapa.
+> Cambios frente al bosquejo: las gráficas documentales se generan aparte con herramientas/generar_entregables.py; tiempo de una sola corrida (no mediana de 5); E6 usa `escenarios/partida_simetrica.json` (21×21 simétrico por rotación) para que el resultado dependa del agente y no del mapa.
 > **Hallazgos para el documento técnico:** caso 2 (BFS 17 pasos/costo 83 vs UCS 33/33); caso 3 (A\* H2 177 vs H1 282 expandidos); caso 5 (Beam k=1 falla); E3 (con pantano ≥ 3 UCS cambia al rodeo); E4/E5 (alfa‑beta prof. 4: 427 evaluados vs 20 478 de Minimax; con orden inverso 10 234); E6 (en el mapa probado, profundidad 3 gana a 1 y 3 contra 3 empata).
 
 `casos.py` implementa los diez casos y `reporte.py` E1–E6, exportación CSV y resumen Markdown.
 - `python -m tacticalgrid experimentos [--salida resultados/]`.
 - `RESUMEN.md` incluye fecha, commit, indicación de cambios locales y versión de Python; los CSV contienen parámetros y métricas.
 - Tiempos: una ejecución por configuración; no se calcula mediana de cinco repeticiones (el resto de métricas es determinista).
-- El generador actual produce CSV y Markdown, sin gráficas.
+- El generador de experimentos produce CSV y Markdown; el generador documental deriva las figuras de E4/E5.
 
 ## 5. Criterios de aceptación
 - **CA-008-1** `pytest tests/test_casos.py` ejecuta los 10 casos y compara `esperado` vs obtenido. → verde.

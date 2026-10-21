@@ -19,7 +19,7 @@
 - [x] Código y documentos corregidos en la misma revisión; el commit de `main` identifica la entrega. El tag histórico `v1.0-sustentacion` corresponde a la versión anterior.
 
 ## 2. Documentación de métodos (obligatoria)
-Plantilla en `AGENTS.md §7` con los 7 campos: **Purpose, Preconditions, Postconditions, Complexity, AI usage, AI intervention, Student validation**.
+Documentación de métodos con los 7 campos: **Purpose, Preconditions, Postconditions, Complexity, AI usage, AI intervention, Student validation**.
 
 Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.py` (fuente única de verdad; 31 métodos: validador, cargador, costo/vecinos, estado inicial, reglas, sucesores, los 5 algoritmos, heurísticas, distancias, evaluación, decidir, orden de acciones y verificador).
 
@@ -29,11 +29,6 @@ Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.
 - Registro cronológico en `docs/USO_IA.md`: fecha, herramienta, quién la usó, para qué, archivos afectados, cómo se validó.
 - Cada método documenta su uso de IA con precisión. **Omitirlo deliberadamente es una inconsistencia.**
 - El documento técnico incluye la sección "Reporte del uso de IA" resumiendo el registro.
-
-## 4. Preparación de la sustentación (50 % individual)
-- `docs/GUIA_SUSTENTACION.md`: banco de preguntas y respuestas cortas, mapa "dónde está cada cosa en el código", lista de modificaciones pequeñas ensayadas.
-- Simulacro con el subagente `examinador-sustentacion` por cada spec (cada integrante, **también sobre las specs del otro**).
-- Ensayo de "escenario externo": cada integrante crea un JSON sorpresa para el otro.
 
 ## 5. Criterios de aceptación
 - **CA-009-1** `pytest tests/test_documentacion.py` en verde.
@@ -46,7 +41,6 @@ Métodos que **deben** tenerla: la lista `METODOS` de `tests/test_documentacion.
 - [x] T2 Manual de usuario con capturas — Daniel (20 oct)
 - [x] T3 Documento técnico completo con cifras reales (Claude y Codex; revisión humana de correcciones por realizar)
 - [x] T4 `Student validation` en los 31 métodos auditados (`pytest -m entrega` en verde)
-- [x] T5 Ensayo de Juan: recorrido de diez casos y explicación de resultados (21 oct); no equivale a certificar dominio de todo el código.
 - [x] T6 Tag `v1.0-sustentacion` (histórico; no mover automáticamente)
 
 ## Correcciones de auditoría (20 oct 2026)
@@ -57,4 +51,4 @@ Criterio de aceptación: regresiones en `tests/test_auditoria.py` y `tests/test_
 
 ## Edición final de documentos (21 oct)
 
-Manual y documento técnico refinados, con fuentes Markdown y PDF en output/pdf. Se incluye guion breve, figura real de la tabla adversarial y gráficas derivadas de E4/E5. El índice docs/ENTREGA.md relaciona cada archivo con su propósito y la comprobación final. Regeneración: herramientas/generar_entregables.py; dependencias documentales separadas del juego.
+Manual y documento técnico refinados, con fuentes Markdown y PDF en entregables. Se incluye una figura real de la tabla adversarial y gráficas derivadas de E4/E5. El índice entregables/README.md relaciona cada archivo con su propósito y la comprobación final. Regeneración: herramientas/generar_entregables.py; dependencias documentales separadas del juego.

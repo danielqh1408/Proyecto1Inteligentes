@@ -15,3 +15,21 @@ Thumbs.db
 .claude/settings.local.json
 # Resultados temporales (los oficiales en resultados/ SÍ se versionan)
 resultados/tmp/
+
+# Material interno y preparación: conservar localmente, no publicar
+/AGENTS.md
+/CLAUDE.md
+/.claude/
+/docs/00_ENTENDIMIENTO.md
+/docs/01_LEEME_DANIEL.md
+/docs/ROLES_Y_ARNESES.md
+/docs/ESTUDIO_PRESENTACION.md
+/docs/GUIA_SUSTENTACION.md
+/docs/GUION_DEMO.md
+/docs/capturas/07_presentacion_corregida.png
+/output/pdf/Guion_sustentacion_TacticalGrid.pdf
+/docs/preparacion/
+/docs/GUIA_*.md
+/docs/GUION_*.md
+/docs/ESTUDIO_*.md
+/output/pdf/Guion_*.pdf

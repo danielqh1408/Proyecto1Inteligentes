@@ -97,13 +97,6 @@ Mensajes de error: `"[código] campo: explicación"`, p. ej. `[R4] bases.B: (4, 
 - [x] T6 `Student validation` completado en los docstrings (20 oct)
 - [x] T7 Revisión cruzada y simulacro de preguntas — Daniel (20 oct, ver docs/USO_IA.md)
 
-## 8. Para sustentar
-- *¿Qué pasa si el JSON tiene un error a mitad de la carga?* → Se valida todo antes de construir. Si hay errores, `cargar_escenario` lanza la excepción **antes** de devolver, así que la variable con el escenario anterior nunca se reasigna.
-- *Si cambio el pantano de 7 a 15, ¿qué cambia en el código?* → Nada. `escenario.costo(pos)` lee el diccionario `costos`, construido del JSON.
-- *¿Por qué `True` no vale como fila?* → En Python `bool` es subclase de `int`; `_entero` lo excluye a propósito.
-- *¿Por qué se detiene si R1 falla?* → Sin una matriz coherente no se puede saber qué terreno hay en una celda, así que R2, R4 y R5 darían errores falsos o excepciones.
-- *¿Complejidad de validar?* → O(F·C + U): se recorre la matriz una vez y la lista de unidades una vez.
-
 ## Correcciones de auditoría (20 oct 2026)
 
 Se validan también los campos opcionales que la aplicación consume: estructura de `prueba`, objetivo dentro del mapa, unidad existente, k/profundidad/max_turnos enteros positivos, orden de movimientos como permutación de las cuatro direcciones, booleanos y pesos numéricos finitos. Bases o recurso sobre muros siguen admitidos por el contrato; se tratan como destinos inalcanzables. Una prueba incompleta o mal tipada se rechaza antes de reemplazar el escenario.

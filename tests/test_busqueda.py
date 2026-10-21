@@ -38,7 +38,7 @@ def dijkstra_referencia(e, inicio, objetivo):
     return distancia.get(objetivo)
 
 
-def test_ejemplo_enunciado(datos_ejemplo):  # CA-003-1, ejercicio a mano de docs/01_LEEME_DANIEL.md
+def test_ejemplo_enunciado(datos_ejemplo):  # CA-003-1, ejemplo oficial del enunciado
     e = cargar_escenario(datos_ejemplo)
     r_bfs, r_ucs = ejecutar_busqueda(e, "BFS"), ejecutar_busqueda(e, "UCS")
     assert r_bfs.como_dict()["camino"] == [[0, 1], [0, 2], [1, 2], [2, 2], [3, 2]] and r_bfs.costo == 14

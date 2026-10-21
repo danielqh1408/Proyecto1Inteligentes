@@ -24,7 +24,7 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, Tab
                                Image, PageBreak, Preformatted, KeepTogether)
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'output/pdf'
+OUT = ROOT / 'entregables'
 FIG = ROOT / 'docs/figuras'
 INK = colors.HexColor('#16324f')
 TEAL = colors.HexColor('#007e87')
@@ -159,7 +159,8 @@ def make_pdf(source, filename, subtitle):
             lines=[]
             for line in normalize(t.content).splitlines():
                 lines+=textwrap.wrap(line,width=104,replace_whitespace=False,drop_whitespace=False) or ['']
-            story.append(Preformatted('\n'.join(lines),STYLES['code']))
+            block = Preformatted('\n'.join(lines),STYLES['code'])
+            story.append(KeepTogether([block]) if len(lines) <= 40 else block)
         elif t.type=='table_open':
             rows=[]; row=[]; header=True; i+=1
             while tokens[i].type!='table_close':
@@ -200,6 +201,5 @@ if __name__=='__main__':
     figures()
     for source,name,subtitle in [
         ('MANUAL_USUARIO.md','Manual_usuario_TacticalGrid.pdf','Instalación, controles, verificación y recorrido de los diez casos.'),
-        ('DOCUMENTO_TECNICO.md','Documento_tecnico_TacticalGrid.pdf','Modelado, algoritmos, evaluación adversarial, experimentación y trazabilidad.'),
-        ('GUION_DEMO.md','Guion_sustentacion_TacticalGrid.pdf','Guion de apoyo para demostrar, comparar y explicar los resultados.')]:
+        ('DOCUMENTO_TECNICO.md','Documento_tecnico_TacticalGrid.pdf','Modelado, algoritmos, evaluación adversarial, experimentación y trazabilidad.')]:
         make_pdf(ROOT/'docs'/source,name,subtitle)

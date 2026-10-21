@@ -114,13 +114,6 @@ validar_estado(escenario, estado) -> list[str]           # invariantes (usado po
 - [x] T6 Tests CA‑002‑1…9 — implementado con Claude; revisa Daniel
 - [x] T7 Sección "Modelado" del documento técnico — en docs/DOCUMENTO_TECNICO.md (20 oct)
 
-## 6. Para sustentar
-- *Explique la representación de un estado.* → Los 5 campos y por qué cada uno es necesario (§3.1).
-- *¿Por qué `(fila, columna)` no basta?* → Varias unidades, posesión del recurso, turno y límite de turnos cambian las acciones y el valor.
-- *¿Qué pasa si el portador es interceptado?* → R5: pierde el recurso, el recurso vuelve libre a su posición inicial y el antiguo portador a la suya. Interceptar es una jugada **defensiva**: reinicia la carrera. Se evita el intercambio inmediato, pero no se garantiza ausencia de repetición de tableros; max_turnos termina la partida.
-- *¿Qué pasa si una unidad queda encerrada?* → Se mueven las otras; si ninguna puede, el bando PASA (R7); si nadie puede moverse, se llega al límite de turnos y es empate (R8).
-- *¿Por qué no se puede entrar a la base enemiga?* → Sin R3 el juego tiene una estrategia trivial que lo vuelve inganable.
-
 ## Correcciones de auditoría (20 oct 2026)
 
 Los estados verifican recurso dentro del mapa y en su posición libre original, y turnos enteros no negativos. Un estado terminal no tiene acciones. La misión de una unidad solo se admite si el recurso está libre o lo lleva esa unidad; no crea un segundo recurso. La navegación sigue siendo una abstracción que ignora al adversario. La regla de intercepción no garantiza ausencia de repeticiones físicas; el límite de turnos garantiza terminación.

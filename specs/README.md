@@ -31,11 +31,11 @@ Hitos sugeridos:
 - **H1 – Contrato:** 001 + 002 + tests de carga con el JSON del enunciado.
 - **H2 – Rutas:** 003 + 004 + verificador de caminos + casos 1–6.
 - **H3 – Adversario:** 005 + verificador de decisiones + casos 7–10.
-- **H4 – Producto:** 007 completa, 008 experimentos con evidencia, 009 documentos finales y simulacros de sustentación.
+- **H4 – Producto:** 007 completa, 008 experimentos con evidencia, 009 documentos finales.
 
 ## Ciclo de vida de una spec
 
-`borrador` → `aprobada` (ambos la leyeron y entienden) → `en progreso` → `implementada` (tests verdes) → `sustentable` (ambos pasaron el simulacro de `/sustentacion`).
+`borrador` → `aprobada` (ambos la leyeron y entienden) → `en progreso` → `implementada` (tests verdes).
 
 ## Cómo escribir una spec nueva
 

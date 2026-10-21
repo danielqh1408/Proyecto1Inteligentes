@@ -47,3 +47,12 @@ Codex añadió una tabla visual que acumula las consultas de «Decidir» para co
 A solicitud de Juan, Codex refinó manual, documento técnico, trazabilidad y guion, generó PDF y figuras desde los CSV, y mantuvo las fuentes Markdown. Corrigió referencias antiguas a cinco componentes de utilidad, dominancia sin matices, confusión entre paridad y efecto horizonte, y alcance del verificador. No cambió reglas ni algoritmos en esta etapa. La captura 08 fue aportada por Juan y muestra la tabla que aprobó durante el ensayo.
 
 Validación: suite completa con Python 3.11/Tk (288 pruebas) y regeneración de los diez casos y E1–E6 el 21 de octubre. Se revisan renderizados y texto de los PDF. Juan recorrió los diez casos y explicó sus resultados en la conversación; no se atribuye una revisión línea por línea ni una nueva revisión de Daniel. Las nuevas piezas documentales y la tabla visual fueron producidas con IA; las autorías históricas se conservan sin fabricar contribuciones.
+
+
+### Material privado y reproducción — 21 de octubre de 2026
+
+Por instrucción de Juan, Codex retiró del seguimiento de Git los guiones, notas de estudio, preparación y herramientas internas de tutoría, conservándolos localmente mediante .gitignore. Se mantuvo este registro histórico y la declaración de IA de los métodos. Los nombres históricos de materiales privados no implican que sus contenidos sigan en la entrega actual. No se reescribió la historia de Git.
+
+El manual y el informe técnico incorporan un procedimiento reproducible que genera evidencia en resultados/tmp/reproduccion sin sobrescribir los CSV entregados, parámetros de E1–E6, criterios de comparación y límites de tiempos/caché. El generador de documentos publica únicamente manual e informe. Esta modificación no cambia algoritmos ni reglas.
+
+Los entregables finales se organizaron en entregables/ con un índice por requisito y enlaces desde README.md. Se probaron los comandos de reproducción documentados, la igualdad no temporal de E1–E6 y las huellas del manifiesto. El contenido técnico y las reglas del juego permanecen sin cambios en esta reorganización.

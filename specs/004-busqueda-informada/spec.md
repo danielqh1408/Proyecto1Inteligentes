@@ -82,13 +82,6 @@ A\* = UCS con prioridad (f, g, tie). Con `heuristica="cero"`, A\* debe dar **exa
 - [x] T6 Sección "Heurísticas" del documento técnico (las 5 preguntas del enunciado por heurística) — en docs/DOCUMENTO_TECNICO.md (20 oct)
 - [x] T7 Revisión y simulacro — Daniel (20 oct, ver docs/USO_IA.md)
 
-## 8. Para sustentar
-- *¿Su heurística es admisible? Demuéstrelo.* → Relajación del problema (§3, H2).
-- *¿Qué pasa con su heurística si el pantano cuesta 15?* → No cambia (usa c_min); sigue admisible pero discrimina menos; el número de expansiones puede subir o bajar según el mapa.
-- *¿Y si el camino cuesta 0.5?* → c_min = 0.5, ambas heurísticas se escalan y siguen admisibles.
-- *¿Por qué Beam con k=1 falla aquí?* → El corte descartó el único sucesor que llevaba al pasillo; con visitados global ya no se recupera.
-- *Prediga: ¿A\* con H2 expande más o menos que con H1 en un mapa sin muros?* → Igual (h₂ = h₁).
-
 ## Correcciones de auditoría (20 oct 2026)
 
 Beam valida k entero positivo y criterio h/f. Conserva k estados en el haz, hasta O(k·b) en la frontera y O(V) de historial (padres, costos y expansiones). Aumentar k no garantiza completitud para cualquier mapa. Un objetivo no transitable produce heurística infinita y búsqueda sin solución. H3 se documenta con los siete campos y sigue siendo experimental, no admisible.

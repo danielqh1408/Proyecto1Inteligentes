@@ -106,15 +106,6 @@ Bucle por turnos donde cada bando se controla como `MINIMAX`, `ALFA_BETA` o `VOR
 - [x] T9 Sección "Función de utilidad" y "Adversarial" del documento técnico — en docs/DOCUMENTO_TECNICO.md (20 oct)
 - [ ] T10 Revisión y simulacro — Juan (antes de la sustentación)
 
-## 9. Para sustentar
-- *¿Por qué esta acción vale más que esta otra?* → `python -m tacticalgrid decidir <json>` muestra el valor de cada acción de la raíz y el `desglose` del estado elegido.
-- *¿Por qué MIN no está en desventaja?* → §3: mismas reglas, misma función negada; minimizar E_A = maximizar E_B.
-- *¿Por qué alfa‑beta da la misma decisión?* → Solo descarta ramas que no pueden cambiar el valor de la raíz; desempate por primera acción estrictamente mejor.
-- *¿Qué pasa si invierto el orden de acciones?* → Mismo valor; puede cambiar la acción si hay empates, y cambia la cantidad de ramas podadas. Mejor orden ≈ O(b^(m/2)); peor ≈ O(b^m).
-- *¿Qué pasa si sube la profundidad de 2 a 4?* → Nodos crecen ~b² veces (b ≈ 10–15); la acción puede cambiar al "ver" una intercepción que antes estaba fuera del horizonte.
-- *Si posesion = 0, ¿qué hace la IA?* → Sigue queriendo el recurso por la carrera (recogerlo reduce lo que le falta), pero deja de "proteger" la posesión con fuerza: puede preferir otra jugada si acerca más la victoria.
-- *¿Por qué cambiaron de 5 a 3 componentes?* → Ver la lección aprendida en §4: tres componentes son más fáciles de interpretar, sin prometer monotonicidad.
-
 ## Correcciones de auditoría (20 oct 2026)
 
 La evaluación no terminal conserva la suma ponderada y la recorta a [-9999, 9999]. Ganar vale 10000 + max(0, max_turnos - profundidad); perder es su negativo y empatar vale 0. Ganar siempre supera cualquier evaluación y se prefieren victorias tempranas. La distancia inalcanzable se calcula como 1 + suma de costos transitables del mapa, sin el antiguo 1000 fijo. `restante` es una aproximación, no garantiza monotonicidad al recoger. Se rechaza profundidad no positiva y se devuelve acción None para una raíz terminal. Los contadores de árbol conservan su significado; se añaden evaluaciones de ordenamiento, de desglose y totales (también nodos generados totales). El desglose se calcula una vez, para el hijo elegido; no es el valor Minimax de la hoja. Los valores raíz podados pueden ser cotas.

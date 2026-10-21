@@ -29,6 +29,3 @@ Tests unitarios, escenarios JSON usados, experimentos.
 
 ## 7. Tareas
 - [ ] T1 … (responsable)
-
-## 8. Para sustentar
-Preguntas probables del profesor y la respuesta corta esperada.
